@@ -1,0 +1,62 @@
+# Use the latest Ubuntu image
+FROM ubuntu:latest
+
+# Set noninteractive mode for apt-get
+ENV DEBIAN_FRONTEND noninteractive
+
+# Update and install required packages
+RUN apt-get update && \
+    apt-get install -y make cmake gdb g++ ffmpeg libcurl4-openssl-dev libopencv-dev \
+                       libprotobuf-dev protobuf-compiler libpaho-mqtt-dev git build-essential libssl-dev \
+                       librdkafka-dev
+# Install vcpkg
+RUN git clone https://github.com/microsoft/vcpkg.git /vcpkg
+WORKDIR /vcpkg
+RUN  apt-get install -y curl zip unzip tar
+RUN ./bootstrap-vcpkg.sh
+RUN ./vcpkg integrate install
+# Install dependencies using vcpkg
+RUN ./vcpkg install aws-sdk-cpp
+# Explicitly set CMAKE_TOOLCHAIN_FILE for vcpkg
+ENV CMAKE_TOOLCHAIN_FILE=/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+# Clone and build paho.mqtt.cpp library
+WORKDIR /paho.mqtt.cpp
+RUN git clone https://github.com/eclipse/paho.mqtt.cpp.git .
+RUN mkdir build
+WORKDIR /paho.mqtt.cpp/build
+RUN cmake ..
+RUN make -j8
+RUN make install
+
+# Set up your C++ project
+WORKDIR /usr/src/app
+
+# Copy source code and protobuf files
+COPY ../CPP/src ./src
+COPY ../proto ./proto
+
+# Compile Protobuf files
+RUN protoc -I=./proto --cpp_out=./src/message framedata.proto
+RUN protoc -I=./proto --cpp_out=./src/message frameinfo.proto
+# Create a build directory and set it as the working directory
+RUN mkdir build
+WORKDIR /usr/src/app/build
+
+# Copy the CMakeLists.txt into the build directory
+COPY ../docker/CMakeLists.txt ..
+
+# Run CMake to configure the build
+RUN cmake ..
+
+# Compile the C++ code
+RUN make
+
+# Clean up unnecessary build dependencies
+RUN apt-get remove -y make cmake g++ git && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set the default command to run the ProcessingServer
+CMD ["/usr/src/app/build/ProcessingServer"]

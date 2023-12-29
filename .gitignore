@@ -8,3 +8,13 @@
 /GO/data/
 /Python/venv/
 /Python/config.json
+/CPP/build/
+/CPP/config/
+/CPP/logfile.txt
+/docker/push_to_quay.sh
+/GO/src/server_auth/config.json
+/GO/src/server_command/config.json
+/GO/src/server_main/config.json
+/docker-compose-test.yml
+/docker-compose.yml
+/k8s-configs/

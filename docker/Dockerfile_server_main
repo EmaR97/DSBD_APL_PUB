@@ -1,0 +1,6 @@
+# Dockerfile_server_main
+FROM golang:1.22rc1
+WORKDIR /app
+COPY --from=go_build_stage /app/src/server_main/main_server /app/main_server
+COPY --from=go_build_stage /app/src/templates /app/templates
+CMD ["/app/main_server"]

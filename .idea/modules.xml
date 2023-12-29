@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/DSBD_APL.iml" filepath="$PROJECT_DIR$/DSBD_APL.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GO/GO.iml" filepath="$PROJECT_DIR$/GO/GO.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Python/Python.iml" filepath="$PROJECT_DIR$/Python/Python.iml" />
+    </modules>
+  </component>
+</project>

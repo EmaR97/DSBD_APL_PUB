@@ -1,3 +1,0 @@
-FROM alpine:latest
-# Install essential development tools
-RUN  apk update && apk add --no-cache make cmake gdb g++

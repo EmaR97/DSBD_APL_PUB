@@ -1,0 +1,9 @@
+# Dockerfile_server_auth
+FROM golang:1.22rc1
+WORKDIR /app
+COPY --from=go_build_stage /app/src/server_auth/auth_server /app/auth_server
+COPY --from=go_build_stage /app/src/templates /app/templates
+CMD ["/app/auth_server"]
+
+#docker tag server_auth_image:latest quay.io/emar97/server_auth_image:latest
+#docker push quay.io/emar97/server_auth_image:latest

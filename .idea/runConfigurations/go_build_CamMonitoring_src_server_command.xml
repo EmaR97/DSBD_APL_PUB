@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="go build CamMonitoring/src/server_command" type="GoApplicationRunConfiguration" factoryName="Go Application" nameIsGenerated="true">
+    <module name="GO" />
+    <working_directory value="$PROJECT_DIR$/GO/src/server_command" />
+    <kind value="PACKAGE" />
+    <package value="CamMonitoring/src/server_command" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/GO/src/server_command/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

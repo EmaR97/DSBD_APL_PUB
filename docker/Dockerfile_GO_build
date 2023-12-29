@@ -1,0 +1,22 @@
+# Dockerfile_GO_build
+FROM golang:1.22rc1 AS go_build_stage
+WORKDIR /app
+
+# Copy only the Go module files first
+COPY ../GO/go.mod .
+COPY ../GO/go.sum .
+
+# Download dependencies
+RUN go mod download
+
+# Copy the rest of the application code
+COPY ../GO .
+
+WORKDIR /app/src/server_main
+RUN go build -o main_server
+
+WORKDIR /app/src/server_command
+RUN go build -o command_server
+
+WORKDIR /app/src/server_auth
+RUN go build -o auth_server

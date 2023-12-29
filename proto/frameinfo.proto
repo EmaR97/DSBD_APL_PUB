@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package my_namespace.message;
+option go_package = "src/message";
+
+// notification telegram Bot
+message FrameInfo {// Unique identifier for the Cam.
+  string  cam_id = 1;
+  // Timestamp when the command was issued.
+  int64 timestamp = 2;
+  bool personDetected = 3;}
+
+// Command generation using protoc command for cpp:
+// cd /home/emanuele/IdeaProjects/DSBD_APL && protoc --cpp_out=./CamController/src/message -I=./proto CamController.proto
+
+// Command generation using protoc command for go:
+// sudo apt install -y golang-go
+// go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.27
+// export PATH=$PATH:/home/emanuele/sdk/bin
+// cd /home/emanuele/IdeaProjects/DSBD_APL && protoc --go_out=./CamMonitoring -I=./proto CamController.proto
+
+//    cd /home/emanuele/IdeaProjects/DSBD_APL && protoc -I=./proto  --cpp_out=./CPP/src/message  --go_out=./GO frameinfo.proto
+

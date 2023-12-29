@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+package cam_controller.message;
+option go_package = "src/message";
+
+// Command is used to communicate over MQTT
+message Command {// Unique identifier for the command.
+  int32 command_id = 1;
+
+  // Type of the command (e.g., "START", "STOP", "PAUSE").
+  string command_type = 2;
+
+  // Additional parameters or data associated with the command.
+  repeated string parameters = 3;
+
+  // Timestamp when the command was issued.
+  google.protobuf.Timestamp timestamp = 4;}
+
+// Command generation using protoc command for cpp:
+// cd /home/emanuele/IdeaProjects/DSBD_APL && protoc --cpp_out=./CamController/src/message -I=./proto CamController.proto
+
+// Command generation using protoc command for go:
+// sudo apt install -y golang-go
+// go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.27
+// export PATH=$PATH:/home/emanuele/sdk/bin
+// cd /home/emanuele/IdeaProjects/DSBD_APL && protoc --go_out=./CamMonitoring -I=./proto CamController.proto
+
+
+// protoc -I=./proto --python_out=./NotificationManager/src/message CamController.proto

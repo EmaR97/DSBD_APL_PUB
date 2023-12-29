@@ -1,0 +1,10 @@
+/CamMonitoring/data/
+/NotificationManager/venv/
+/CPP/cmake-build-debug/
+#/CPP/.idea/
+/CPP/build/processing_server/cmake-build-debug/
+/CPP/build/cam_controller/cmake-build-debug/
+/CPP/build/cmake-build-debug/
+/GO/data/
+/Python/venv/
+/Python/config.json

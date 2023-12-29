@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+package my_namespace.message;
+option go_package = "src/message";
+
+// FrameData is used to communicate over HTTP POST
+message FrameData {// Timestamp of the frame.
+  // Binary data of the frame.
+  bytes frame_data = 1;
+  google.protobuf.Timestamp timestamp = 2;
+    //
+  string cam_id = 3;}
+
+//    cd /home/emanuele/IdeaProjects/DSBD_APL && protoc -I=./proto  --cpp_out=./CPP/src/message  framedata.proto

@@ -1,0 +1,348 @@
+version: '3'
+
+services:
+  server_processing: #docker compose up --build server_processing
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_server_processing
+    image: server_processing_image
+    depends_on:
+      - kafka
+      - minio
+    networks:
+      - backend
+    command: >
+      sh -c "echo '{
+            \"kafka\": {
+              \"broker\": \"kafka:9092\",
+              \"group_id\": \"your_kafka_group_id\",
+              \"topic_frame_data\": \"frame_data\",
+              \"topic_frame_info\": \"frame_info\",
+              \"topic_notification\": \"notification\"
+            },
+            \"minio\": {
+              \"endpoint\": \"http://minio:9000\",
+              \"bucketName\": \"your-bucket-secure\",
+              \"keyId\": \"your_minio_username\",
+              \"keySecret\": \"your_minio_password\"
+            }
+          }' > /usr/src/app/build/config_ps.json &&
+        exec /usr/src/app/build/ProcessingServer
+      "
+
+
+  go_build: #docker compose up --build go_build
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_GO_build
+    image: go_build_stage
+    command: echo "Build service - No action"
+    networks:
+      - backend
+
+  server_main: #docker compose up --build server_main
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_server_main
+    image: server_main_image
+    depends_on:
+      - go_build
+      - mongodb
+      - kafka
+      - server_auth
+      - minio
+    networks:
+      - backend
+    ports:
+      - "50051:50051"
+      - "8082:8082"
+    command: >
+      sh -c "if [ ! -f '/app/config.json' ]; then echo '{
+                  \"database\": {
+                    \"url\": \"mongodb://username:example@mongodb:27017\",
+                    \"name\": \"your_database_name\",
+                    \"username\": \"your_mongodb_username\",
+                    \"password\": \"your_mongodb_password\"
+                  },
+                  \"server\": {
+                    \"httpPort\": \":8082\",
+                    \"grpcPort\": \":50051\",
+                    \"shutdownTimeout\": 10,
+                    \"allowedIPs\": [
+                      \"::1\",
+                      \"172.19.124.79\",
+                      \"127.0.0.1\",
+                      \"172.18.0.1\",
+                      \"172.18.0.5\"
+                    ],
+                    \"templateDir\": \"templates/*\",
+                    \"authEndpoint\": \"http://server_auth:8080/access/verify\"
+                  },
+                  \"minio\": {
+                    \"endpoint\": \"minio:9000\",
+                    \"username\": \"your_minio_username\",
+                    \"password\": \"your_minio_password\",
+                    \"bucketName\": \"your-bucket\"
+                  },
+                  \"kafka\": {
+                    \"brokers\": \"kafka:9092\",
+                    \"groupID\": \"your-kafka-group-id\",
+                    \"topic_in\": \"frame_info\",
+                    \"topic_out\": \"notification\"
+                  }
+                }' > /app/config.json;
+        fi &&
+        exec /app/main_server
+      "
+
+
+
+  server_command: #docker compose up --build server_command
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_server_command
+    image: server_command_image
+    depends_on:
+      - go_build
+      - server_auth
+      - rabbitmq
+    networks:
+      - backend
+    ports:
+      - "8081:8081"
+    command: >
+      sh -c "if [ ! -f '/app/config.json' ]; then echo '{
+                 \"mqtt\": {
+                    \"brokerURL\": \"tcp://rabbitmq:1883\",
+                    \"clientID\": \"example-client\",
+                    \"username\": \"your_mqtt_id\",
+                    \"password\": \"your_mqtt_secret\"
+                  },
+                  \"mqtt-management\": {
+                    \"url\": \"http://rabbitmq:15672\",
+                    \"username\": \"your_mqtt_management_id\",
+                    \"password\": \"your_mqtt_management_secret\"
+                  },
+                  \"server\": {
+                    \"httpPort\": \":8081\",
+                    \"shutdownTimeout\": 10,
+                    \"allowedIPs\": [
+                      \"::1\",
+                      \"172.19.124.79\",
+                      \"127.0.0.1\",
+                      \"172.18.0.1\",
+                      \"172.18.0.5\"
+                    ],
+                    \"templateDir\": \"templates/*\",
+                    \"authEndpoint\": \"http://server_auth:8080/access/verify\"
+                  }
+                 }' > /app/config.json;
+        fi &&
+        exec /app/command_server
+      "
+
+
+
+  server_auth: #docker compose up --build server_auth
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_server_auth
+    image: server_auth_image
+    depends_on:
+      - go_build
+      - mongodb
+    networks:
+      - backend
+    ports:
+      - "8080:8080"
+    command: >
+      sh -c "if [ ! -f '/app/config.json' ]; then echo '{
+            \"database\": {
+              \"url\": \"mongodb://username:example@mongodb:27017\",
+              \"name\": \"your_database_name\",
+              \"username\": \"your_mongodb_username\",
+              \"password\": \"your_mongodb_password\"
+            },
+            \"server\": {
+              \"httpPort\": \":8080\",
+              \"shutdownTimeout\": 10,
+              \"allowedIPs\": [
+                \"::1\",
+                \"172.19.124.79\",
+                \"127.0.0.1\",
+                \"172.18.0.1\",
+                \"172.18.0.5\"
+              ],
+              \"templateDir\": \"templates/*\"
+            }
+          }' > /app/config.json;
+        fi &&
+        exec /app/auth_server
+      "
+
+
+
+
+  notification_bot: #docker compose up --build notification_bot
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_notification_bot
+    image: notification_bot_image
+    depends_on:
+      - kafka
+      - conversation_bot
+    networks:
+      - backend
+    command: >
+      sh -c " echo '{
+        \"kafka\": {
+          \"bootstrap_servers\": \"kafka:9092\",
+          \"topic\": \"notification\",
+          \"group_id\": \"python-consumer-group\",
+          \"auto_offset_reset\": \"earliest\"
+        },
+        \"telegram\": {
+          \"token\": \"your_telegram_token\"
+        },
+        \"grpc\": {
+          \"get_chat_ids\": \"conversation_bot:50052\"
+        }
+      }' > /app/config.json &&
+        exec python src/main.py
+      "
+
+
+  conversation_bot: #docker compose up --build conversation_bot
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_conversation_bot
+    image: conversation_bot_image
+    depends_on:
+      - mongodb
+      - server_auth
+      - server_main
+    networks:
+      - backend
+    command: >
+      sh -c " echo '{
+        \"telegram\": {
+          \"token\": \"your_telegram_token\"
+        },
+        \"mongo\": {
+          \"host\": \"mongodb\",
+          \"port\": \"27017\",
+          \"dbname\": \"your_database_name\",
+          \"username\": \"your_mongodb_username\",
+          \"password\": \"your_mongodb_password\"
+        },
+        \"grpc\": {
+          \"get_chat_ids\": \"localhost:50052\",
+          \"get_cam_ids\": \"server_main:50051\"
+        },
+        \"auth\": \"http://server_main:8080/access/login\"
+      }' > /app/config.json &&
+        exec python src/main.py
+      "
+
+
+  # Zookeeper
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      KAFKA_JMX_PORT: 9101
+    ports:
+      - "22181:2181"
+    networks:
+      - backend
+
+  # Kafka
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_JMX_PORT: 9101
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - backend
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./Configs/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    depends_on:
+      - kafka
+    networks:
+      - backend
+
+  # RabbitMQ
+  rabbitmq:
+    image: "rabbitmq:latest"
+    ports:
+      - "5672:5672"  # RabbitMQ
+      - "15672:15672"  # RabbitMQ Management Console
+      - "1884:1883"  # MQTT
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "secretcookie"
+      RABBITMQ_DEFAULT_USER: "your_rabbitmq_id"
+      RABBITMQ_DEFAULT_PASS: "your_rabbitmq_secret"
+    command: >
+      sh -c "
+        rabbitmq-plugins enable rabbitmq_mqtt &&
+        rabbitmq-plugins enable rabbitmq_management &&
+        exec rabbitmq-server 
+      "
+    networks:
+      - backend
+
+  # MongoDB
+  mongodb:
+    image: mongo:7.0.3
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: your_mongo_id
+      MONGO_INITDB_ROOT_PASSWORD: your_mongo_secret
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - backend
+
+  # Minio
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: your_minio_id
+      MINIO_ROOT_PASSWORD: your_minio_secret
+      MINIO_ROOT_URL: http://your-bucket-secure.minio:9000  # Explicitly set the root URL
+
+    volumes:
+      - data:/data
+    command: server /data --console-address 0.0.0.0:9001
+    networks:
+      - backend
+
+volumes:
+  mongo_data:
+  data:
+
+networks:
+  backend:

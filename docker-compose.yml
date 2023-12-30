@@ -282,7 +282,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./Configs/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
     depends_on:

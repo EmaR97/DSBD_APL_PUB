@@ -164,6 +164,43 @@ In summary, the Notification Subscription Service serves as a user-friendly inte
 
 ---
 
+**Notification Service:**
+
+The Notification Service is a Telegram bot responsible for consuming messages from the Kafka notification topic and efficiently notifying users who have expressed interest in specific notifications.
+
+*Key Functionalities:*
+1. **Kafka Message Consumption:**
+   - The Notification Service continuously consumes messages from the Kafka notification topic (e.g., "alert").
+   - These messages typically contain information about positive pedestrian recognition or other events that trigger notifications.
+
+2. **User Information Retrieval:**
+   - With each consumed message, the Notification Service requests information from the Notification Subscription Service using the GRPC interface.
+   - This request helps identify all users who are interested in receiving notifications related to the specific event mentioned in the Kafka message.
+
+3. **Telegram Notification:**
+   - The service uses the registered Telegram IDs obtained from the Notification Subscription Service to notify users about the event.
+   - Notifications are sent directly to users on the Telegram platform, providing real-time alerts about relevant activities detected by the cam monitoring system.
+
+4. **Efficient User Targeting:**
+   - By leveraging the information obtained from the Notification Subscription Service, the Notification Service ensures that notifications are targeted only to users who have expressed interest in specific camera events.
+
+5. **Scalability and Responsiveness:**
+   - The design of the Notification Service supports scalability, allowing it to efficiently handle a growing number of notifications and users.
+   - The service responds promptly to incoming Kafka messages, ensuring timely notifications to interested users.
+
+*Integration with Notification Subscription Service:*
+- The Notification Service relies on the GRPC interface provided by the Notification Subscription Service to obtain up-to-date information about user subscriptions.
+- This integration enhances the overall efficiency and accuracy of user targeting in the notification process.
+
+*Enhancing User Engagement:*
+- The Notification Service contributes to user engagement by delivering relevant and timely notifications, keeping users informed about events captured by the cam monitoring system.
+
+In summary, the Notification Service plays a pivotal role in the final step of the notification process, ensuring that users who have subscribed to specific events receive timely and personalized alerts on the Telegram platform.
+
+---
+
+
+
 **Consistent Data Storage with MongoDB:**
 
 MongoDB serves as the central repository for processed data within the cam monitoring system. Each category of data is accessed through a singular component, ensuring data consistency and providing a structured approach to data retrieval.

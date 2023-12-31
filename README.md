@@ -48,7 +48,7 @@ frame della telecamera, mentre il Server di Autenticazione garantisce un accesso
 facilitati dal Servizio di Sottoscrizione Notifiche e dal Servizio di Notifiche, forniscono un'interfaccia per gestire
 le notifiche e ricevere avvisi.
 
-![Alt Text](Resource/communication_scheme.jpg)
+![Schema di Comunicazione](Resource/communication_scheme.jpg)
 
 Tecnologie come GRPC, formato Proto e Kubernetes Gateway API contribuiscono a un framework di comunicazione sicuro.
 L'architettura enfatizza la coerenza dei dati tramite MongoDB, l'accesso sicuro tramite Gateway API e l'accesso diretto
@@ -87,7 +87,8 @@ convalidando le funzionalità di base e supportando eventuali estensioni per fun
   funzioni, migliorando le capacità del sistema di monitoraggio delle telecamere.
 
 In sintesi, il Controllore di Base della Telecamera offre un solido punto di partenza per il sistema di monitoraggio
-delle telecamere distribuite, fornendo funzionalità essenziali di distribuzione di frame e elaborazione di comandi in un
+delle telecamere distribuite, fornendo funzionalità essenziali di distribuzione di frame ed elaborazione di comandi in
+un
 formato standardizzato.
 
 ---
@@ -237,6 +238,16 @@ la gestione delle telecamere, le registrazioni degli utenti e l'archiviazione di
     - Questo messaggio viene quindi elaborato dal Servizio di Notifiche, consentendo agli utenti di ricevere avvisi
       tempestivi e notifiche sull'attività dei pedoni rilevata.
 
+7. **Gestione dell'Eliminazione Automatica di Dati Obsoleti:**
+
+   - Il sistema implementa un meccanismo di pulizia automatica per le immagini salvate su MinIO e le relative
+     informazioni memorizzate su MongoDB.
+   - Dopo un tempo predefinito, le immagini elaborate archiviate su MinIO e le corrispondenti informazioni su MongoDB
+     vengono eliminate per garantire l'ottimizzazione dello spazio di archiviazione e la gestione efficiente delle
+     risorse del sistema.
+   - Questa pratica assicura che solo dati pertinenti e recenti siano conservati nel sistema, riducendo l'ingombro e
+     contribuendo alla performance ottimale del sistema nel lungo termine.
+
 ### *Miglioramento dell'Esperienza Utente ed Efficienza del Sistema:*
 
 - Il Server Principale funge da perno, fornendo un'interfaccia coesa per gli utenti per gestire le telecamere, accedere
@@ -277,7 +288,7 @@ notifiche degli utenti.
 4. **Funzione di Annullamento dell'Abbonamento:**
 
     - Gli utenti possono annullare l'abbonamento per non ricevere notifiche per una telecamera specifica, offrendo
-      flessibilità ed assicurando che gli utenti ricevano solo notifiche rilevanti.
+      flessibilità e assicurando che gli utenti ricevano solo notifiche rilevanti.
 
 5. **Interfaccia GRPC per il Recupero delle Informazioni:**
 

@@ -31,15 +31,10 @@
 9. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
    - 9.1 [Punti Chiave](#punti-chiave)
 10. [Gateway API in Kubernetes (K8s)](#gateway-api-in-kubernetes-k8s)
-
    - 10.1 [Caratteristiche Principali](#caratteristiche-principali-2)
-
 11. [Generazione di URL Pre-firmati da Main Server](#generazione-di-url-pre-firmati-da-main-server)
-
    - 11.1 [Punti Chiave](#punti-chiave-1)
-
 12. [Conclusioni](#conclusioni)
-
    - 12.1 [Reattività in Tempo Reale](#reattività-in-tempo-reale)
    - 12.2 [Scaling Dinamico](#scaling-dinamico)
    - 12.3 [Miglioramenti dell'Interfaccia Utente](#miglioramenti-dellinterfaccia-utente)

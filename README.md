@@ -15,22 +15,30 @@
     - 4.3 [Integrazione con Altri Componenti](#integrazione-con-altri-componenti)
 5. [Server Principale](#server-principale)
     - 5.1 [Responsabilità Chiave](#responsabilità-chiave-1)
-    - 5.2 [Miglioramento dell'Esperienza Utente ed Efficienza del Sistema](#miglioramento-dellesperienza-utente-ed-efficienza-del-sistema)
-6. [Servizio di Sottoscrizione Notifiche](#servizio-di-sottoscrizione-notifiche)
+   -
+   5.2 [Miglioramento dell'Esperienza Utente ed Efficienza del Sistema](#miglioramento-dellesperienza-utente-ed-efficienza-del-sistema)
+6. [Server dei Comandi](#server-dei-comandi)
+   - 6.1 [Responsabilità Chiave](#responsabilità-chiave-1)
+   -
+   6.2 [Miglioramento della Affidabilità per le Telecamere Remote](#miglioramento-della-affidabilità-per-le-telecamere-remote)
+   - 6.3 [Scalabilità e Flessibilità](#scalabilità-e-flessibilità)
+7. [Servizio di Sottoscrizione Notifiche](#servizio-di-sottoscrizione-notifiche)
     - 6.1 [Funzionalità Chiave](#funzionalità-chiave)
-    - 6.2 [Miglioramento del Controllo e della Personalizzazione Utente](#miglioramento-del-controllo-e-della-personalizzazione-utente)
+   -
+   6.2 [Miglioramento del Controllo e della Personalizzazione Utente](#miglioramento-del-controllo-e-della-personalizzazione-utente)
     - 6.3 [Integrazione con il Servizio di Notifiche](#integrazione-con-il-servizio-di-notifiche)
-7. [Servizio di Notifiche](#servizio-di-notifiche)
+8. [Servizio di Notifiche](#servizio-di-notifiche)
     - 7.1 [Funzionalità Chiave](#funzionalità-chiave-1)
-    - 7.2 [Integrazione con il Servizio di Sottoscrizione Notifiche](#integrazione-con-il-servizio-di-sottoscrizione-notifiche)
+   -
+   7.2 [Integrazione con il Servizio di Sottoscrizione Notifiche](#integrazione-con-il-servizio-di-sottoscrizione-notifiche)
     - 7.3 [Miglioramento del Coinvolgimento Utente](#miglioramento-del-coinvolgimento-utente)
-8. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
+9. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
     - 8.1 [Punti Chiave](#punti-chiave)
-9. [Gateway API in Kubernetes (K8s)](#gateway-api-in-kubernetes-k8s)
+10. [Gateway API in Kubernetes (K8s)](#gateway-api-in-kubernetes-k8s)
     - 9.1 [Caratteristiche Principali](#caratteristiche-principali-2)
-10. [Generazione di URL Pre-firmati da Main Server](#generazione-di-url-pre-firmati-da-main-server)
+11. [Generazione di URL Pre-firmati da Main Server](#generazione-di-url-pre-firmati-da-main-server)
     - 10.1 [Punti Chiave](#punti-chiave-1)
-11. [Conclusioni](#conclusioni)
+12. [Conclusioni](#conclusioni)
     - 11.1 [Reattività in Tempo Reale](#reattività-in-tempo-reale)
     - 11.2 [Scaling Dinamico](#scaling-dinamico)
     - 11.3 [Miglioramenti dell'Interfaccia Utente](#miglioramenti-dellinterfaccia-utente)
@@ -59,6 +67,8 @@ ai frame elaborati tramite URL pre-firmati.
 ---
 
 ### **Controllore di Base della Telecamera:**
+
+**[Src](CPP/src/cam_controller.cpp)**
 
 Il Controllore di Base della Telecamera è il modulo fondamentale nel sistema di monitoraggio delle telecamere,
 convalidando le funzionalità di base e supportando eventuali estensioni per funzionalità avanzate.
@@ -96,6 +106,8 @@ formato standardizzato.
 ---
 
 ### **Server di Elaborazione:**
+
+**[Src](CPP/src/processing_server.cpp)**
 
 I server di elaborazione sono fondamentali per il funzionamento efficiente del sistema di monitoraggio delle telecamere
 distribuite, concentrandosi sull'applicazione efficace dell'algoritmo di riconoscimento dei pedoni e sulla successiva
@@ -145,6 +157,8 @@ parallelizzata, l'ottimizzazione delle risorse mediante metriche di Prometheus e
 
 ### **Server di Autenticazione:**
 
+**[Src](GO/src/server_auth/main.go)**
+
 Il Server di Autenticazione svolge un ruolo cruciale nel sistema di monitoraggio delle telecamere distribuite,
 stabilendo un meccanismo di accesso sicuro e controllato per gli utenti e le loro telecamere associate.
 
@@ -193,6 +207,8 @@ monitoraggio delle telecamere distribuite.
 ---
 
 ### **Server Principale:**
+
+**[Src](GO/src/server_main/main.go)**
 
 Il Server Principale funge da fulcro centrale nel sistema distribuito di monitoraggio delle telecamere, supervisionando
 la gestione delle telecamere, le registrazioni degli utenti e l'archiviazione di frame e informazioni pertinenti.
@@ -262,7 +278,58 @@ delle telecamere.
 
 ---
 
+### **Server dei Comandi:**
+
+**[Src](GO/src/server_command/main.go)**
+
+Il Server dei Comandi svolge un ruolo vitale come componente intermedia nel sistema distribuito di monitoraggio delle
+telecamere, consentendo agli utenti di inviare richieste API che vengono efficientemente trasmesse alle telecamere
+specificate, affrontando potenziali sfide nelle connessioni remote delle telecamere.
+
+#### *Responsabilità Chiave:*
+
+1. **Ricezione delle Richieste API:**
+   - Il Server dei Comandi riceve richieste API dagli utenti, agendo come intermediario tra l'interfaccia utente e le
+     telecamere all'interno del sistema.
+
+2. **Formattazione e Standardizzazione dei Comandi:**
+   - I comandi ricevuti vengono formattati e standardizzati utilizzando il formato Proto, garantendo un protocollo di
+     comunicazione consistente e strutturato.
+   - Questa standardizzazione migliora l'interoperabilità e la facilità di integrazione con diversi componenti del
+     sistema.
+
+3. **Consegna Affidabile dei Messaggi con MQTT:**
+   - L'utilizzo di MQTT come protocollo di comunicazione offre vantaggi in scenari con connessioni potenzialmente
+     instabili, come quelli comunemente riscontrati nelle telecamere remote degli utenti.
+   - MQTT fornisce la conferma della consegna del messaggio, garantendo che i comandi raggiungano le telecamere
+     specificate anche in condizioni di rete difficili.
+
+4. **Comunicazione con RabbitMQ:**
+   - I comandi formattati vengono inviati al topic della telecamera specificata all'interno di RabbitMQ tramite MQTT.
+   - Ciò stabilisce un canale di comunicazione affidabile ed efficiente tra il Server dei Comandi e le telecamere.
+
+5. **Feedback e Conferma:**
+   - Il Server dei Comandi può ricevere feedback e conferme dalle telecamere, consentendo una comunicazione
+     bidirezionale.
+   - Questo meccanismo di feedback migliora l'esperienza dell'utente fornendo informazioni sullo stato di esecuzione
+     dei comandi emessi.
+
+#### *Miglioramento della Affidabilità per le Telecamere Remote:*
+
+- La scelta di MQTT come protocollo di comunicazione è strategica, offrendo una consegna affidabile dei messaggi e la
+  conferma anche in situazioni in cui le connessioni di rete sono meno stabili.
+
+#### *Scalabilità e Flessibilità:*
+
+- Il design del Server dei Comandi consente la scalabilità, accomodando un numero crescente di utenti e telecamere, e la
+  sua flessibilità permette l'integrazione senza soluzione di continuità con varie interfacce utente.
+
+In sintesi, il Server dei Comandi svolge un ruolo cruciale nel facilitare i comandi degli utenti, formattandoli e standardizzandoli, e garantendo una consegna affidabile alle telecamere remote attraverso l'infrastruttura robusta di MQTT e RabbitMQ.
+---
+
 ### **Servizio di Sottoscrizione Notifiche:**
+
+**[Src](Python/src/conversation_bot/main.py)**
 
 Il Servizio di Sottoscrizione Notifiche è un bot Telegram che intrattiene conversazioni con gli utenti sulla piattaforma
 Telegram, offrendo un'interfaccia senza soluzione di continuità per gestire le preferenze e le sottoscrizioni alle
@@ -313,6 +380,8 @@ consentendo agli utenti di gestire le loro preferenze di notifica e interagire c
 ---
 
 ### **Servizio di Notifiche:**
+
+**[Src](Python/src/notification_bot/main.py)**
 
 Il Servizio di Notifiche è un bot Telegram responsabile del consumo di messaggi dal topic di notifica Kafka e della
 notifica efficiente degli utenti che hanno manifestato interesse in specifiche notifiche.

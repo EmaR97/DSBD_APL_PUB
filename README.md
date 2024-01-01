@@ -14,31 +14,32 @@
     - 4.2 [Misure di Sicurezza](#misure-di-sicurezza)
     - 4.3 [Integrazione con Altri Componenti](#integrazione-con-altri-componenti)
 5. [Server Principale](#server-principale)
-    - 5.1 [Responsabilità Chiave](#responsabilità-chiave-1)
-   -
-   5.2 [Miglioramento dell'Esperienza Utente ed Efficienza del Sistema](#miglioramento-dellesperienza-utente-ed-efficienza-del-sistema)
+   * 5.1 [Responsabilità Chiave](#responsabilità-chiave-1)
+   * 5.2 [Miglioramento dell'Esperienza Utente ed Efficienza del Sistema](#miglioramento-dellesperienza-utente-ed-efficienza-del-sistema)
 6. [Server dei Comandi](#server-dei-comandi)
    - 6.1 [Responsabilità Chiave](#responsabilità-chiave-1)
-   -
-   6.2 [Miglioramento della Affidabilità per le Telecamere Remote](#miglioramento-della-affidabilità-per-le-telecamere-remote)
+   - 6.2 [Miglioramento della Affidabilità per le Telecamere Remote](#miglioramento-della-affidabilità-per-le-telecamere-remote)
    - 6.3 [Scalabilità e Flessibilità](#scalabilità-e-flessibilità)
 7. [Servizio di Sottoscrizione Notifiche](#servizio-di-sottoscrizione-notifiche)
    - 7.1 [Funzionalità Chiave](#funzionalità-chiave)
-   -
-   7.2 [Miglioramento del Controllo e della Personalizzazione Utente](#miglioramento-del-controllo-e-della-personalizzazione-utente)
+   - 7.2 [Miglioramento del Controllo e della Personalizzazione Utente](#miglioramento-del-controllo-e-della-personalizzazione-utente)
    - 7.3 [Integrazione con il Servizio di Notifiche](#integrazione-con-il-servizio-di-notifiche)
 8. [Servizio di Notifiche](#servizio-di-notifiche)
    - 8.1 [Funzionalità Chiave](#funzionalità-chiave-1)
-   -
-   8.2 [Integrazione con il Servizio di Sottoscrizione Notifiche](#integrazione-con-il-servizio-di-sottoscrizione-notifiche)
+   - 8.2 [Integrazione con il Servizio di Sottoscrizione Notifiche](#integrazione-con-il-servizio-di-sottoscrizione-notifiche)
    - 8.3 [Miglioramento del Coinvolgimento Utente](#miglioramento-del-coinvolgimento-utente)
 9. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
    - 9.1 [Punti Chiave](#punti-chiave)
 10. [Gateway API in Kubernetes (K8s)](#gateway-api-in-kubernetes-k8s)
+
    - 10.1 [Caratteristiche Principali](#caratteristiche-principali-2)
+
 11. [Generazione di URL Pre-firmati da Main Server](#generazione-di-url-pre-firmati-da-main-server)
+
    - 11.1 [Punti Chiave](#punti-chiave-1)
+
 12. [Conclusioni](#conclusioni)
+
    - 12.1 [Reattività in Tempo Reale](#reattività-in-tempo-reale)
    - 12.2 [Scaling Dinamico](#scaling-dinamico)
    - 12.3 [Miglioramenti dell'Interfaccia Utente](#miglioramenti-dellinterfaccia-utente)

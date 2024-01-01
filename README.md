@@ -325,6 +325,7 @@ specificate, affrontando potenziali sfide nelle connessioni remote delle telecam
   sua flessibilità permette l'integrazione senza soluzione di continuità con varie interfacce utente.
 
 In sintesi, il Server dei Comandi svolge un ruolo cruciale nel facilitare i comandi degli utenti, formattandoli e standardizzandoli, e garantendo una consegna affidabile alle telecamere remote attraverso l'infrastruttura robusta di MQTT e RabbitMQ.
+
 ---
 
 ### **Servizio di Sottoscrizione Notifiche:**

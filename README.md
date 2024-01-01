@@ -98,10 +98,9 @@ convalidando le funzionalità di base e supportando eventuali estensioni per fun
   funzionalità avanzate. Gli sviluppatori possono utilizzare questo codice come base per implementare ulteriori
   funzioni, migliorando le capacità del sistema di monitoraggio delle telecamere.
 
-In sintesi, il Controllore di Base della Telecamera offre un solido punto di partenza per il sistema di monitoraggio
+<!--In sintesi, il Controllore di Base della Telecamera offre un solido punto di partenza per il sistema di monitoraggio
 delle telecamere distribuite, fornendo funzionalità essenziali di distribuzione di frame ed elaborazione di comandi in
-un
-formato standardizzato.
+un formato standardizzato. -->
 
 ---
 
@@ -150,8 +149,8 @@ gestione delle immagini elaborate.
 - Sfruttando le metriche raccolte, il sistema regola dinamicamente il numero di server di elaborazione deployati,
   garantendo un utilizzo ottimale delle risorse e la reattività a variazioni del carico di lavoro.
 
-In sintesi, i server di elaborazione contribuiscono alla natura distribuita del sistema attraverso l'elaborazione
-parallelizzata, l'ottimizzazione delle risorse mediante metriche di Prometheus e la scalabilità dinamica.
+<!-- In sintesi, i server di elaborazione contribuiscono alla natura distribuita del sistema attraverso l'elaborazione
+parallelizzata, l'ottimizzazione delle risorse mediante metriche di Prometheus e la scalabilità dinamica.-->
 
 ---
 
@@ -200,9 +199,9 @@ stabilendo un meccanismo di accesso sicuro e controllato per gli utenti e le lor
 - Il Server di Autenticazione svolge un ruolo vitale nell'orchestrare la comunicazione sicura e l'interazione tra
   utenti, telecamere e servizi di sistema, inclusi RabbitMQ e Kafka.
 
-In sintesi, il Server di Autenticazione stabilisce un robusto framework di autenticazione e autorizzazione, integrandosi
+<!-- In sintesi, il Server di Autenticazione stabilisce un robusto framework di autenticazione e autorizzazione, integrandosi
 con MongoDB per la gestione delle credenziali e garantendo una comunicazione sicura all'interno del sistema di
-monitoraggio delle telecamere distribuite.
+monitoraggio delle telecamere distribuite. -->
 
 ---
 
@@ -272,9 +271,9 @@ la gestione delle telecamere, le registrazioni degli utenti e l'archiviazione di
   ai flussi video e ricevere notifiche.
 - La sua integrazione con Kafka migliora l'efficienza e la reattività del sistema.
 
-In sintesi, il Server Principale svolge un ruolo cruciale nella gestione delle telecamere, nelle interazioni degli
+<!-- In sintesi, il Server Principale svolge un ruolo cruciale nella gestione delle telecamere, nelle interazioni degli
 utenti e nel flusso senza soluzione di continuità delle informazioni all'interno del sistema distribuito di monitoraggio
-delle telecamere.
+delle telecamere. -->
 
 ---
 
@@ -324,7 +323,7 @@ specificate, affrontando potenziali sfide nelle connessioni remote delle telecam
 - Il design del Server dei Comandi consente la scalabilità, accomodando un numero crescente di utenti e telecamere, e la
   sua flessibilità permette l'integrazione senza soluzione di continuità con varie interfacce utente.
 
-In sintesi, il Server dei Comandi svolge un ruolo cruciale nel facilitare i comandi degli utenti, formattandoli e standardizzandoli, e garantendo una consegna affidabile alle telecamere remote attraverso l'infrastruttura robusta di MQTT e RabbitMQ.
+<!--In sintesi, il Server dei Comandi svolge un ruolo cruciale nel facilitare i comandi degli utenti, formattandoli e standardizzandoli, e garantendo una consegna affidabile alle telecamere remote attraverso l'infrastruttura robusta di MQTT e RabbitMQ.-->
 
 ---
 
@@ -375,9 +374,8 @@ notifiche degli utenti.
 - Il Servizio di Sottoscrizione Notifiche si integra senza soluzione di continuità con il Servizio di Notifiche
   attraverso l'interfaccia GRPC, fornendo un canale di comunicazione strutturato ed efficiente.
 
-In sintesi, il Servizio di Sottoscrizione Notifiche funge da interfaccia utente amichevole sulla piattaforma Telegram,
-consentendo agli utenti di gestire le loro preferenze di notifica e interagire con il più ampio sistema di notifiche.
-
+<!-- In sintesi, il Servizio di Sottoscrizione Notifiche funge da interfaccia utente amichevole sulla piattaforma Telegram,
+consentendo agli utenti di gestire le loro preferenze di notifica e interagire con il più ampio sistema di notifiche.-->
 ---
 
 ### **Servizio di Notifiche:**
@@ -434,9 +432,9 @@ notifica efficiente degli utenti che hanno manifestato interesse in specifiche n
 - Il Servizio di Notifiche contribuisce all'coinvolgimento degli utenti consegnando notifiche pertinenti e tempestive,
   tenendo gli utenti informati sugli eventi catturati dal sistema di monitoraggio delle telecamere.
 
-In sintesi, il Servizio di Notifiche svolge un ruolo cruciale nell'ultimo passo del processo di notifica, garantendo che
+<!--In sintesi, il Servizio di Notifiche svolge un ruolo cruciale nell'ultimo passo del processo di notifica, garantendo che
 gli utenti che si sono abbonati a eventi specifici ricevano avvisi tempestivi e personalizzati sulla piattaforma
-Telegram.
+Telegram.-->
 
 ---
 

@@ -269,12 +269,12 @@ The processing server is a C++ application designed for handling video frame dat
 2. **MinIOUploader and ProcessMessage Lambda:**
    - Creates a `MinIOUploader` instance with MinIO endpoint and bucket name from the configuration.
    - Defines a lambda function `processMessage` for processing Kafka messages:
-      - Parses the received Kafka message using `parse_message`.
+      - Parses the received Kafka message using `parseMessage`.
       - Converts the timestamp to Unix time in nanoseconds.
       - Generates an image name based on timestamp and camera ID.
-      - Applies detection using `video::convert_detect`.
+      - Applies detection using `video::convertDetect`.
       - Uploads the marked image to MinIO using `minioUploader.uploadImage`.
-      - Sends detection results to other services using `send_result_to_services`.
+      - Sends detection results to other services using `sendResultToServices`.
 
 3. **Kafka Consumer Initialization:**
    - Creates a Kafka consumer with broker, group ID, and topic information from the configuration.
@@ -300,7 +300,7 @@ The processing server is a C++ application designed for handling video frame dat
 - Provides a callback function for writing received data during CURL requests.
 - Performs login to the server using a specified endpoint, username, and password.
 
-## `video::convert_detect` (Video Processing):
+## `video::convertDetect` (Video Processing):
 
 - Converts received image data into a cv::Mat using OpenCV.
 - Applies a people detection algorithm using Histogram of Oriented Gradients (HOG) with OpenCV.

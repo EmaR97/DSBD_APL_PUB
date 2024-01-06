@@ -3,45 +3,26 @@
 
 using namespace my_namespace;
 
-nlohmann::basic_json<> config_2;
-utility::Logger &logger = utility::Logger::getInstance();
 
 int main() {
 
-    // Get the current working directory
-    std::filesystem::path currentPath = std::filesystem::current_path();
+    printCurrentWorkingDirectory();
 
-    // Print the current working directory
-    logger << utility::LogLevel::INFO << "Current Working Directory: " << currentPath << std::endl;
+    nlohmann::json config = loadConfiguration();
 
-    // Load configuration from a file
-    config_2 = my_namespace::utility::loadConfigFromFile(configPath);
-    kafka::KafkaProducer producer(config_2["kafka"]["broker"]);
+    kafka::KafkaProducer producer(config["kafka"]["broker"]);
+    sender::MinIOUploader minioUploader(config["minio"]["endpoint"], config["minio"]["bucketName"],
+                                        config["minio"]["keyId"], config["minio"]["keySecret"]);
 
-
-    sender::MinIOUploader minioUploader(config_2["minio"]["endpoint"], config_2["minio"]["bucketName"],
-                                        config_2["minio"]["keyId"], config_2["minio"]["keySecret"]);
     // Lambda function to process Kafka messages
     auto processMessage = [&](RdKafka::Message &message) {
-        google::protobuf::Timestamp timestamp;
-        std::string cam_id;
-        std::vector<uchar> imgBuffer;
-        parse_message(message, timestamp, cam_id, imgBuffer);
-        logger << utility::LogLevel::INFO << "Timestamp: " << timestamp.ByteSizeLong() << std::endl;
-        int64_t unixTimeNanos = timestamp.seconds() * 1e9 + timestamp.nanos();
-
-        std::string image_name = formatString(unixTimeNanos, cam_id);
-        // apply detection
-        bool detected = video::convert_detect(imgBuffer);
-        // store the marked image
-        minioUploader.uploadImage(image_name, imgBuffer);
-        send_result_to_services(producer, unixTimeNanos, cam_id, detected);
+        processKafkaMessage(message, producer, minioUploader, config);
     };
 
     // Create a KafkaConsumer instance with the processMessage function
-    my_namespace::kafka::KafkaConsumer kafkaConsumer(config_2["kafka"]["broker"], config_2["kafka"]["group_id"],
-                                                     config_2["kafka"]["topic_frame_data"], processMessage);
-    logger << utility::LogLevel::INFO << "Consuming" << std::endl;
+    my_namespace::kafka::KafkaConsumer kafkaConsumer(config["kafka"]["broker"], config["kafka"]["group_id"],
+                                                     config["kafka"]["topic_frame_data"], processMessage);
+    utility::Logger::getInstance() << utility::LogLevel::INFO << "Consuming" << std::endl;
 
     // Start consuming messages
     kafkaConsumer.startConsuming();
@@ -49,11 +30,12 @@ int main() {
     return 0;
 }
 
-void parse_message(const RdKafka::Message &message, google::protobuf::Timestamp &timestamp, std::string &cam_id,
-                   std::vector<uchar> &imgBuffer) {
+void parseMessage(const RdKafka::Message &message, google::protobuf::Timestamp &timestamp, std::string &cam_id,
+                  std::vector<uchar> &imgBuffer) {
     // Deserialize the received Kafka message into a protobuf object
     auto payload = static_cast<char *>(message.payload());
-    logger << utility::LogLevel::INFO << "Received message with size: " << message.len() << " bytes" << std::endl;
+    utility::Logger::getInstance() << utility::LogLevel::INFO << "Received message with size: " << message.len()
+                                   << " bytes" << std::endl;
 //    std::cout << "Received payload with size: " << strlen(payload) << " bytes" << std::endl;
     message::FrameData frameData;
     google::protobuf::util::JsonParseOptions jsonParseOptions;
@@ -67,14 +49,14 @@ void parse_message(const RdKafka::Message &message, google::protobuf::Timestamp 
     imgBuffer.assign(buffer, buffer + receivedString.size());
 }
 
-void
-send_result_to_services(kafka::KafkaProducer &producer, int64 timestamp, const std::string &cam_id, bool detected) {
+void sendResultToServices(kafka::KafkaProducer &producer, int64 timestamp, const std::string &cam_id, bool detected,
+                          const nlohmann::json &config) {
     message::FrameInfo frameInfo;
     frameInfo.set_cam_id(cam_id);
     frameInfo.set_timestamp(timestamp);
     frameInfo.set_persondetected(detected);
     std::string jsonOutput = frameInfo.SerializeAsString();    // Send on needed topics
-    producer.sendMessage(config_2["kafka"]["topic_frame_info"], jsonOutput);
+    producer.sendMessage(config["kafka"]["topic_frame_info"], jsonOutput);
 }
 
 std::string formatString(int64_t value1, const std::string &str) {
@@ -89,4 +71,49 @@ std::string formatString(int64_t value1, const std::string &str) {
     std::string name = std::string(buffer);
     // Return the formatted string
     return name;
+}
+
+
+void printCurrentWorkingDirectory() {
+    std::filesystem::path currentPath = std::filesystem::current_path();
+    utility::Logger::getInstance() << utility::LogLevel::INFO << "Current Working Directory: " << currentPath
+                                   << std::endl;
+}
+
+nlohmann::json loadConfiguration() {
+    try {
+        return utility::loadConfigFromFile(configPath);
+    } catch (const std::exception &e) {
+        utility::Logger::getInstance() << utility::LogLevel::ERROR << "Error loading configuration: " << e.what()
+                                       << std::endl;
+        throw; // Rethrow the exception for the caller to handle
+    }
+}
+
+
+void
+processKafkaMessage(RdKafka::Message &message, kafka::KafkaProducer &producer, sender::MinIOUploader &minioUploader,
+                    const nlohmann::json &config) {
+    google::protobuf::Timestamp timestamp;
+    std::string cam_id;
+    std::vector<uchar> imgBuffer;
+
+    try {
+        parseMessage(message, timestamp, cam_id, imgBuffer);
+
+        utility::Logger::getInstance() << utility::LogLevel::INFO << "Timestamp: " << timestamp.ByteSizeLong()
+                                       << std::endl;
+
+        int64_t unixTimeNanos = timestamp.seconds() * 1e9 + timestamp.nanos();
+        std::string image_name = formatString(unixTimeNanos, cam_id);
+        //apply detection algorithm
+        bool detected = video::convertDetect(imgBuffer);
+        //store marked image
+        minioUploader.uploadImage(image_name, imgBuffer);
+
+        sendResultToServices(producer, unixTimeNanos, cam_id, detected, config);
+    } catch (const std::exception &e) {
+        utility::Logger::getInstance() << utility::LogLevel::ERROR << "Error processing Kafka message: " << e.what()
+                                       << std::endl;
+    }
 }

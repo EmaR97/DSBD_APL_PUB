@@ -23,13 +23,21 @@
 static const char *const configPath = "config_ps.json";
 
 
-void send_result_to_services(my_namespace::kafka::KafkaProducer &producer, int64 timestamp, const std::string &cam_id,
-                             bool detected);
+void sendResultToServices(my_namespace::kafka::KafkaProducer &producer, int64 timestamp, const std::string &cam_id,
+                          bool detected, const nlohmann::json &config);
 
-void parse_message(const RdKafka::Message &message, google::protobuf::Timestamp &timestamp, std::string &cam_id,
-                   std::vector<uchar> &imgBuffer);
+void parseMessage(const RdKafka::Message &message, google::protobuf::Timestamp &timestamp, std::string &cam_id,
+                  std::vector<uchar> &imgBuffer);
 
+
+void processKafkaMessage(RdKafka::Message &message, my_namespace::kafka::KafkaProducer &producer,
+                         my_namespace::sender::MinIOUploader &minioUploader, const nlohmann::json &config);
 
 std::string formatString(int64_t value1, const std::string &str);
+
+
+void printCurrentWorkingDirectory();
+
+nlohmann::json loadConfiguration();
 
 #endif //CAMCONTROLLER_PROCESSING_SERVER_H

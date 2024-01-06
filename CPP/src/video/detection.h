@@ -12,6 +12,6 @@ namespace my_namespace::video {
 
     bool detectPeople(const cv::Mat &inputImage, cv::Mat &markedImage, double detectionThreshold = 0.0);
 
-    bool convert_detect(std::vector<uchar> &imageData);
+    bool convertDetect(std::vector<uchar> &imageData);
 }
 #endif //CAMCONTROLLER_DETECTION_H

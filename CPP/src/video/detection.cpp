@@ -11,7 +11,7 @@ using namespace std;
 namespace my_namespace::video {
     auto &logger = utility::Logger::getInstance();
 
-    bool convert_detect(std::vector<uchar> &imageData) {
+    bool convertDetect(std::vector<uchar> &imageData) {
         // Decode the image data into a cv::Mat using OpenCV
         cv::Mat receivedImage = cv::imdecode(imageData, cv::IMREAD_UNCHANGED);
         imageData.clear();

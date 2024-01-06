@@ -2,6 +2,12 @@
 
 using namespace my_namespace;
 using namespace utility;
+using namespace std::chrono;
+
+
+int calculateWorkingTimePercentage(const std::chrono::time_point<steady_clock> &lastMessageCompletionTime,
+                                   const std::chrono::time_point<steady_clock> &startProcessingTime,
+                                   const std::chrono::time_point<steady_clock> &endProcessingTime);
 
 // Entry point of the application
 int main() {
@@ -16,9 +22,23 @@ int main() {
     sender::MinIOUploader minioUploader(config["minio"]["endpoint"], config["minio"]["bucketName"],
                                         config["minio"]["keyId"], config["minio"]["keySecret"]);
 
+
+    auto lastMessageCompletionTime = steady_clock::now();
+
     // Lambda function to process Kafka messages
     auto processMessage = [&](RdKafka::Message &message) {
+        auto startProcessingTime = steady_clock::now();
+
+        // Process the Kafka message
         processKafkaMessage(message, producer, minioUploader, config);
+
+        auto endProcessingTime = steady_clock::now();
+        auto workingTimePercentage = calculateWorkingTimePercentage(lastMessageCompletionTime, startProcessingTime,
+                                                                    endProcessingTime);
+        Logger::getInstance() << LogLevel::INFO << "WorkingTimePercentage: " << workingTimePercentage << std::endl;
+
+        // Update the time of completing the last message
+        lastMessageCompletionTime = endProcessingTime;
     };
 
     // Create a KafkaConsumer instance with the processMessage function
@@ -30,6 +50,18 @@ int main() {
     kafkaConsumer.startConsuming();
 
     return 0;
+}
+
+int calculateWorkingTimePercentage(const time_point<steady_clock> &lastMessageCompletionTime,
+                                   const time_point<steady_clock> &startProcessingTime,
+                                   const time_point<steady_clock> &endProcessingTime) {
+    auto processingDuration = duration_cast<nanoseconds>(endProcessingTime - startProcessingTime);
+    auto totalDuration = duration_cast<nanoseconds>(endProcessingTime - lastMessageCompletionTime);
+    if (totalDuration.count() > 0) {
+        return (int) (((double) processingDuration.count() / (double) totalDuration.count()) * 100.0);
+    } else {
+        return 0.0;  // Prevent division by zero
+    }
 }
 
 // Parse Kafka message into timestamp, camera ID, and image buffer
@@ -56,8 +88,9 @@ void parseMessage(const RdKafka::Message &message, google::protobuf::Timestamp &
 }
 
 // Send results to Kafka topics based on processed data
-void sendResultToServices(const kafka::KafkaProducer &producer, int64 timestamp, const std::string &cam_id,
-                     bool detected, const nlohmann::json &config) {
+void
+sendResultToServices(const kafka::KafkaProducer &producer, int64 timestamp, const std::string &cam_id, bool detected,
+                     const nlohmann::json &config) {
     // Create and populate a FrameInfo protobuf object
     message::FrameInfo frameInfo;
     frameInfo.set_cam_id(cam_id);

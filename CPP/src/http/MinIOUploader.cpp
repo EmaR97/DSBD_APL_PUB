@@ -9,8 +9,8 @@ namespace my_namespace::sender {
 
     utility::Logger &logger = utility::Logger::getInstance();
 
-    MinIOUploader::MinIOUploader(const std::string &minioEndpoint, std::string bucketName, std::string keyId,
-                                 std::string keySecret) : bucketName(std::move(bucketName)) {
+    MinIOUploader::MinIOUploader(const std::string &minioEndpoint, std::string bucketName, const std::string& keyId,
+                                 const std::string& keySecret) : bucketName(std::move(bucketName)) {
         curl = curl_easy_init();
         if (!curl) {
             logger << utility::LogLevel::INFO << "Failed to initialize curl!" << std::endl;
@@ -42,7 +42,7 @@ namespace my_namespace::sender {
     }
 
 
-    void MinIOUploader::uploadImage(const std::basic_string<char> &objectName, std::vector<uchar> &imageData) {
+    void MinIOUploader::uploadImage(const std::basic_string<char> &objectName, std::vector<uchar> &imageData) const {
         // Construct the upload URL
         Aws::String presignedUrlGet = s3_client->GeneratePresignedUrl(bucketName, objectName,
                                                                       Aws::Http::HttpMethod::HTTP_PUT, 300);

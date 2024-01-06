@@ -54,7 +54,7 @@ namespace my_namespace::kafka {
     }
 
     // Send a message to a specified topic
-    void KafkaProducer::sendMessage(const std::string &topic, const std::string &message) {
+    void KafkaProducer::sendMessage(const std::string &topic, const std::string &message) const {
         RdKafka::ErrorCode err = producer->produce(topic, RdKafka::Topic::PARTITION_UA, RdKafka::Producer::RK_MSG_COPY,
                                                    const_cast<char *>(message.c_str()), message.size(), nullptr, 0, 0,
                                                    nullptr, nullptr);
@@ -75,13 +75,4 @@ namespace my_namespace::kafka {
         producer->poll(0);
     }
 
-    // Wait for pending message deliveries
-    void KafkaProducer::wait_for_pending_delivery(int timeoutMs) {
-        producer->flush(timeoutMs);
-    }
-
-    // Get the length of the producer's outgoing message queue
-    int KafkaProducer::outq_len() {
-        return producer->outq_len();
-    }
 }  // namespace my_namespace::kafka

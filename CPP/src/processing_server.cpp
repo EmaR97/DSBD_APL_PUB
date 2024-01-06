@@ -49,7 +49,7 @@ void parseMessage(const RdKafka::Message &message, google::protobuf::Timestamp &
     imgBuffer.assign(buffer, buffer + receivedString.size());
 }
 
-void sendResultToServices(kafka::KafkaProducer &producer, int64 timestamp, const std::string &cam_id, bool detected,
+void sendResultToServices(const kafka::KafkaProducer &producer, int64 timestamp, const std::string &cam_id, bool detected,
                           const nlohmann::json &config) {
     message::FrameInfo frameInfo;
     frameInfo.set_cam_id(cam_id);
@@ -92,7 +92,7 @@ nlohmann::json loadConfiguration() {
 
 
 void
-processKafkaMessage(RdKafka::Message &message, kafka::KafkaProducer &producer, sender::MinIOUploader &minioUploader,
+processKafkaMessage(const RdKafka::Message &message, const kafka::KafkaProducer &producer, const sender::MinIOUploader &minioUploader,
                     const nlohmann::json &config) {
     google::protobuf::Timestamp timestamp;
     std::string cam_id;

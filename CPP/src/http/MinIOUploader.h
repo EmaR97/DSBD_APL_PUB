@@ -25,12 +25,12 @@ namespace my_namespace::sender {
 
     class MinIOUploader {
     public:
-        MinIOUploader(const std::string &minioEndpoint, std::string bucketName, std::string keyId,
-                      std::string keySecret);
+        MinIOUploader(const std::string &minioEndpoint, std::string bucketName, const std::string& keyId,
+                      const std::string& keySecret);
 
         ~MinIOUploader();
 
-        void uploadImage(const std::basic_string<char> &objectName, std::vector<uchar> &imageData);
+        void uploadImage(const std::basic_string<char> &objectName, std::vector<uchar> &imageData) const;
 
     private:
         static size_t readCallback(void *ptr, size_t size, size_t nmemb, void *userdata);

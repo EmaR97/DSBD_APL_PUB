@@ -24,15 +24,12 @@ namespace my_namespace::kafka {
         ExampleDeliveryReportCb delivery_report_cb;
 
     public:
-        explicit KafkaProducer(const std::string &brokers);
+         explicit KafkaProducer(const std::string &brokers);
 
         ~KafkaProducer();
 
-        void sendMessage(const std::string &topic, const std::string &message);
+        void sendMessage(const std::string &topic, const std::string &message) const;
 
-        void wait_for_pending_delivery(int timeoutMs);
-
-        int outq_len();
     };
 }
 

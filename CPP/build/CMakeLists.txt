@@ -67,6 +67,8 @@ set(PROCESSING_SERVER_SOURCES
         ../src/http/MinIOUploader.h
         ../src/video/detection.cpp
         ../src/video/detection.h
+        ../src/utility/chronometer.cpp
+        ../src/utility/chronometer.h
 )
 
 # ProcessingServer executable

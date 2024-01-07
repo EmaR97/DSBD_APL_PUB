@@ -23,7 +23,7 @@ static const char *const configPath = "config_cc.json";
 
 my_namespace::video::FrameProcessor *videoStreamProcessor;
 
-my_namespace::mqtt_::MqttHandler *commandListener ;
+my_namespace::mqtt_::MqttHandler *commandListener;
 
 nlohmann::basic_json<> config;
 

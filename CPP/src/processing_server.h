@@ -26,6 +26,7 @@
 
 static const char *const configPath = "config_ps.json";
 
+
 int calculateWorkingTimePercentage(const std::chrono::time_point<std::chrono::steady_clock> &lastMessageCompletionTime,
                                    const std::chrono::time_point<std::chrono::steady_clock> &startProcessingTime,
                                    const std::chrono::time_point<std::chrono::steady_clock> &endProcessingTime);

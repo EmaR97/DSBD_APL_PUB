@@ -29,6 +29,15 @@ RUN cmake ..
 RUN make -j8
 RUN make install
 
+# Clone and build prometheus client library
+WORKDIR /prometheus
+RUN git clone --recursive https://github.com/jupp0r/prometheus-cpp.git
+RUN  mkdir /prometheus/prometheus-cpp/build
+WORKDIR /prometheus/prometheus-cpp/build
+RUN cmake ..
+RUN make -j8
+RUN make install
+
 # Set up your C++ project
 WORKDIR /usr/src/app
 

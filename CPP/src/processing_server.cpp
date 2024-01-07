@@ -5,19 +5,6 @@ using namespace utility;
 using namespace std::chrono;
 
 
-// Define Prometheus metrics
-prometheus::Counter &messagesProcessedCounter(prometheus::Registry &registry) {
-    auto &counter = prometheus::BuildCounter().Name("processed_messages_total").Help(
-            "Total number of processed messages").Register(registry);
-    return reinterpret_cast<prometheus::Counter &>(counter);
-}
-
-prometheus::Gauge &workingTimePercentageGauge(prometheus::Registry &registry) {
-    auto &gauge = prometheus::BuildGauge().Name("working_time_percentage").Help(
-            "Working time as a percentage of total time").Register(registry);
-    return reinterpret_cast<prometheus::Gauge &>(gauge);
-}
-
 // Entry point of the application
 int main() {
     // Log the start of the application
@@ -44,9 +31,9 @@ int main() {
     // Log successful creation of Kafka producer and MinIO uploader
     Logger::getInstance() << LogLevel::INFO << "Kafka producer and MinIO uploader created successfully." << std::endl;
 
+
     // Create Prometheus exposer on a specified port
     prometheus::Exposer exposer{std::string(config["prometheus"]["bind_address"])};
-
     // Create a Prometheus registry
     auto registry = std::make_shared<prometheus::Registry>();
     // Ask the exposer to scrape the registry on incoming HTTP requests
@@ -57,6 +44,11 @@ int main() {
 
 
     auto lastMessageCompletionTime = steady_clock::now();
+    auto &counter = prometheus::BuildCounter().Name("processed_messages").Help(
+            "Total number of processed messages").Register(*registry).Add({{"metric", "total"}});
+    auto &gauge = prometheus::BuildGauge().Name("working_time").Help(
+            "Working time as a percentage of total time").Register(*registry).Add({{"metric", "gauge"}});
+    //TODO fix metrics when no request arrives
     // Lambda function to process Kafka messages
     auto processMessage = [&](RdKafka::Message &message) {
         auto startProcessingTime = steady_clock::now();
@@ -68,9 +60,10 @@ int main() {
             auto workingTimePercentage = calculateWorkingTimePercentage(lastMessageCompletionTime, startProcessingTime,
                                                                         endProcessingTime);
             Logger::getInstance() << LogLevel::INFO << "WorkingTimePercentage: " << workingTimePercentage << std::endl;
+
             // Update Prometheus metrics
-            messagesProcessedCounter(*registry).Increment();
-            workingTimePercentageGauge(*registry).Set(workingTimePercentage);
+            counter.Increment();
+            gauge.Set(workingTimePercentage);
 
             // Update the time of completing the last message
             lastMessageCompletionTime = endProcessingTime;
@@ -104,6 +97,7 @@ int calculateWorkingTimePercentage(const time_point<steady_clock> &lastMessageCo
         return 0.0;  // Prevent division by zero
     }
 }
+
 
 // Parse Kafka message into timestamp, camera ID, and image buffer
 void parseMessage(const RdKafka::Message &message, google::protobuf::Timestamp &timestamp, std::string &cam_id,

@@ -3,7 +3,6 @@ project(CamController)
 
 set(CMAKE_CXX_STANDARD 17)
 
-
 # Find required packages
 find_package(AWSSDK CONFIG COMPONENTS core dynamodb kinesis s3 REQUIRED)
 find_package(Protobuf REQUIRED)
@@ -12,6 +11,7 @@ find_package(OpenCV REQUIRED)
 find_package(CURL REQUIRED)
 find_package(PahoMqttCpp REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(prometheus-cpp CONFIG REQUIRED)
 
 # Include directories
 include_directories(${OPENSSL_INCLUDE_DIR})
@@ -42,7 +42,7 @@ set(CAM_CONTROLLER_SOURCES
 add_executable(CamController ${CAM_CONTROLLER_SOURCES})
 target_link_libraries(CamController PRIVATE rdkafka++ ${PROTOBUF_LIBRARIES} ${OpenCV_LIBS} ${CURL_LIBRARIES} paho-mqttpp3 paho-mqtt3as)
 
-# ProcessingServer executable
+# Source files for ProcessingServer
 set(PROCESSING_SERVER_SOURCES
         ../src/message/framedata.pb.h
         ../src/message/framedata.pb.cc
@@ -71,4 +71,4 @@ set(PROCESSING_SERVER_SOURCES
 # ProcessingServer executable
 add_executable(ProcessingServer ${PROCESSING_SERVER_SOURCES})
 target_include_directories(ProcessingServer PRIVATE ${AWSSDK_INCLUDE_DIRS})
-target_link_libraries(ProcessingServer PRIVATE ${AWSSDK_LIBRARIES} rdkafka++ ${PROTOBUF_LIBRARIES} ${OpenCV_LIBS} ${CURL_LIBRARIES} ${OPENSSL_LIBRARIES})
+target_link_libraries(ProcessingServer PRIVATE ${AWSSDK_LIBRARIES} rdkafka++ ${PROTOBUF_LIBRARIES} ${OpenCV_LIBS} ${CURL_LIBRARIES} ${OPENSSL_LIBRARIES} prometheus-cpp::core prometheus-cpp::pull)

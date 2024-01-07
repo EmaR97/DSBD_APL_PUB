@@ -25,6 +25,9 @@ services:
               \"bucketName\": \"your-bucket-secure\",
               \"keyId\": \"your_minio_username\",
               \"keySecret\": \"your_minio_password\"
+            },
+            \"prometheus\": {
+              \"bind_address\": \"0.0.0.0:8080\"
             }
           }' > /usr/src/app/build/config_ps.json &&
         exec /usr/src/app/build/ProcessingServer

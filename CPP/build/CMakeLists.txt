@@ -12,6 +12,7 @@ find_package(OpenCV REQUIRED)
 find_package(CURL REQUIRED)
 find_package(PahoMqttCpp REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(prometheus-cpp CONFIG REQUIRED)
 
 # Include directories
 include_directories(${OPENSSL_INCLUDE_DIR})
@@ -71,4 +72,4 @@ set(PROCESSING_SERVER_SOURCES
 # ProcessingServer executable
 add_executable(ProcessingServer ${PROCESSING_SERVER_SOURCES})
 target_include_directories(ProcessingServer PRIVATE ${AWSSDK_INCLUDE_DIRS})
-target_link_libraries(ProcessingServer PRIVATE ${AWSSDK_LIBRARIES} rdkafka++ ${PROTOBUF_LIBRARIES} ${OpenCV_LIBS} ${CURL_LIBRARIES} ${OPENSSL_LIBRARIES})
+target_link_libraries(ProcessingServer PRIVATE ${AWSSDK_LIBRARIES} rdkafka++ ${PROTOBUF_LIBRARIES} ${OpenCV_LIBS} ${CURL_LIBRARIES} ${OPENSSL_LIBRARIES} prometheus-cpp::core prometheus-cpp::pull)

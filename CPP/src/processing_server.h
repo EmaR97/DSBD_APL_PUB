@@ -19,12 +19,20 @@
 #include "video/detection.h"
 #include "kafka/KafkaProducer.h"
 #include "http/MinIOUploader.h"
+#include <prometheus/exposer.h>
+#include <prometheus/registry.h>
+#include <prometheus/counter.h>
+#include <prometheus/gauge.h>
 
 static const char *const configPath = "config_ps.json";
 
+int calculateWorkingTimePercentage(const std::chrono::time_point<std::chrono::steady_clock> &lastMessageCompletionTime,
+                                   const std::chrono::time_point<std::chrono::steady_clock> &startProcessingTime,
+                                   const std::chrono::time_point<std::chrono::steady_clock> &endProcessingTime);
 
-void sendResultToServices(const my_namespace::kafka::KafkaProducer &producer, int64 timestamp, const std::string &cam_id,
-                          bool detected, const nlohmann::json &config);
+void
+sendResultToServices(const my_namespace::kafka::KafkaProducer &producer, int64 timestamp, const std::string &cam_id,
+                     bool detected, const nlohmann::json &config);
 
 void parseMessage(const RdKafka::Message &message, google::protobuf::Timestamp &timestamp, std::string &cam_id,
                   std::vector<uchar> &imgBuffer);

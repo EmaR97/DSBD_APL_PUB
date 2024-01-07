@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 10s
+
+scrape_configs:
+  - job_name: 'kafka'
+    honor_timestamps: true
+    static_configs:
+      - targets: [ 'kafka:5085' ]
+    relabel_configs:
+      - source_labels: [ __address__ ]
+        target_label: hostname
+        regex: '([^:]+)(:[0-9]+)?'
+        replacement: '${1}'
+
+  - job_name: 'processing_server'
+    static_configs:
+      - targets: [ 'server_processing:8080' ]

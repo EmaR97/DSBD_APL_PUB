@@ -8,7 +8,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile_server_processing
-    image: server_processing_image
+    image: quay.io/emar97/server_processing_image
     depends_on:
       - kafka
       - minio
@@ -35,7 +35,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile_server_main
-    image: server_main_image
+    image: quay.io/emar97/server_main_image
     depends_on:
       - go_build
       - mongodb
@@ -58,7 +58,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile_server_command
-    image: server_command_image
+    image: quay.io/emar97/server_command_image
     depends_on:
       - go_build
       - server_auth
@@ -78,7 +78,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile_server_auth
-    image: server_auth_image
+    image: quay.io/emar97/server_auth_image
     depends_on:
       - go_build
       - mongodb
@@ -97,7 +97,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile_notification_bot
-    image: notification_bot_image
+    image: quay.io/emar97/notification_bot_image
     depends_on:
       - kafka
       - conversation_bot
@@ -112,7 +112,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile_conversation_bot
-    image: conversation_bot_image
+    image: quay.io/emar97/conversation_bot_image
     depends_on:
       - mongodb
       - server_auth

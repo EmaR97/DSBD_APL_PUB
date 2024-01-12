@@ -303,12 +303,6 @@ specificate, affrontando potenziali sfide nelle connessioni remote delle telecam
     - I comandi formattati vengono inviati al topic della telecamera specificata all'interno di RabbitMQ tramite MQTT.
     - Ciò stabilisce un canale di comunicazione affidabile ed efficiente tra il Server dei Comandi e le telecamere.
 
-5. **Feedback e Conferma:**
-    - Il Server dei Comandi può ricevere feedback e conferme dalle telecamere, consentendo una comunicazione
-      bidirezionale.
-    - Questo meccanismo di feedback migliora l'esperienza dell'utente fornendo informazioni sullo stato di esecuzione
-      dei comandi emessi.
-
 #### *Miglioramento della Affidabilità per le Telecamere Remote:*
 
 - La scelta di MQTT come protocollo di comunicazione è strategica, offrendo una consegna affidabile dei messaggi e la

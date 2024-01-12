@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import threading
 
 from mongoengine import connect
@@ -15,7 +16,8 @@ from http_.auth_request import AuthClient
 
 def main() -> None:
     # Load configuration from a JSON file
-    with open('config.json', 'r') as file:
+    config_path = os.environ.get('CONFIG_PATH', 'config.json')
+    with open(config_path, 'r') as file:
         config = json.load(file)
 
     # Enable logging
@@ -29,7 +31,7 @@ def main() -> None:
     stop_event = threading.Event()
     grpc_server_thread = threading.Thread(target=run_grpc_server, args=(config['grpc']['get_chat_ids'], stop_event))
     grpc_server_thread.start()
-    logging.info("gRPC server thread started.")
+    logging.info("gRPC server thread started. " + config['grpc']['get_chat_ids'])
 
     # Set up the Telegram bot application
     logging.info("Configuring subscription manager...")

@@ -5,37 +5,29 @@
 #include "cam_controller.h"
 
 using namespace my_namespace;
-using utility::LogLevel;
-
-// Signal handler for graceful shutdown
-void handleShutdown(int signal) {
-    // Shutdown command listener and video stream processor
-    commandListener->shutdown();
-    videoStreamProcessor->shutdown();
-}
+using namespace utility;
 
 int main() {
-    // Set up signal handler for graceful shutdown
+    // Set up a signal handler for graceful shutdown when receiving SIGINT (Ctrl+C)
     std::signal(SIGINT, handleShutdown);
 
-    // Initialize logger
-    utility::Logger &logger = utility::Logger::getInstance();
+    // Initialize the logger instance
+    Logger &logger = Logger::getInstance();
 
     // Get the current working directory
     std::filesystem::path currentPath = std::filesystem::current_path();
 
-    // Print the current working directory
+    // Print the current working directory to the logger
     logger << LogLevel::INFO << "Current Working Directory: " << currentPath << std::endl;
 
     // Load configuration from a file
-    config = utility::loadConfigFromFile(configPath);
-
-    // Initialize video stream processor
-    videoStreamProcessor = new video::FrameProcessor();
-
-    // Initialize frame uploader with configuration parameters
-    frameUploader.initialize(config["auth"]["address"], 1000 / std::stof(to_string(config["FRAMERATE"])),
-                             config["auth"]["username"], config["auth"]["password"], config["auth"]["endpoint"]);
+    try {
+        config = loadConfigFromFile(configPath);
+    } catch (const std::exception &e) {
+        // Log an error message if configuration loading fails
+        logger << LogLevel::ERROR << "Failed to load configuration: " << e.what() << std::endl;
+        return 1; // Return a non-zero value to indicate an error
+    }
 
 //    // Perform login and update configuration with the obtained token
 //    auto token = frameUploader.performLogin(config["CAM_ID"]);
@@ -43,33 +35,30 @@ int main() {
 //        exit(0);
 //    }
 //    config["TOKEN"] = token;
-//    //TODO: implement dynamic creation of Kafka credential for cam access on login
+//TODO: implement dynamic creation of Kafka credential for cam access on login
 
-    // Initialize MQTT handler for receiving commands
-    commandListener = new mqtt_::MqttHandler(config["mqtt"]["address"], config["mqtt"]["client_id"]);
-    // Connect to MQTT server using provided credentials
-    commandListener->connect(config["mqtt"]["username"], config["mqtt"]["password"]);
 
-    // Define base topic for MQTT commands
-    std::string baseTopic = config["mqtt"]["topic"];
+    // Create threads for MQTT subscriber and video frame processor/publisher
+    std::thread commandListener(runCommandListener);
+    // Create thread for video frame processor and publisher
+    std::thread frameSender(processAndSenFrame);
 
-    // Define lambda function as callback for executing commands received from MQTT
-    auto commandExecuter = [&](const std::string &payload) {
-        videoStreamProcessor->startAndStopProcessing(payload);
-    };
+    // Wait for the publisher thread to finish
+    frameSender.join();
+    // Wait for the subscriber thread to finish
+    commandListener.join();
 
-    // Define lambda function to subscribe to MQTT topic and set callback
-    auto commandListenerFunction = [&]() {
-        // Subscribe to specific MQTT topic for this camera with defined callback
-        commandListener->subscribe(baseTopic + static_cast<std::string>(config["CAM_ID"]), commandExecuter);
-    };
+    return 0;
+}
 
-    // Create thread for MQTT subscriber
-    std::thread subscriber(commandListenerFunction);
+void processAndSenFrame() {
+    // Initialize the frame uploader with configuration parameters
+    frameUploader.initialize(config["auth"]["address"], 1000 / std::stof(to_string(config["FRAMERATE"])),
+                             config["auth"]["username"], config["auth"]["password"], config["auth"]["endpoint"]);
 
-    // Uncomment the following lines if you want to set the video source index
     int source = 0;
-    videoStreamProcessor->setSourceIndex(&source);
+    videoStreamProcessor.setSourceIndex(&source);
+    Logger &logger = Logger::getInstance();
 
     // Set alternate source for video frames
     // std::string source = config["SOURCE_PATH"];
@@ -77,44 +66,70 @@ int main() {
 
     // Initialize Kafka producer
     kafka::KafkaProducer producer(config["kafka"]["address"]);
+
     // Define lambda function for sending video frames using HttpHandler
     auto videoSendingFunction = [&](const std::vector<uchar> &buffer) {
-        my_namespace::message::FrameData protobufData;
-        fillProtobufData(protobufData, buffer, config["CAM_ID"]);
-
-        std::string jsonOutput;
-        google::protobuf::util::JsonPrintOptions options;
-        options.add_whitespace = true;  // Add whitespace to make the output more readable
-        google::protobuf::util::MessageToJsonString(protobufData, &jsonOutput, options).ok();
-        logger << LogLevel::INFO << "Sending frame" << std::endl;
-        producer.sendMessage(config["kafka"]["topic_frame_data"], jsonOutput);
+        sendFrame(logger, producer, buffer);
     };
 
-    // Define lambda function for processing video frames and applying the callback
-    auto videoProcessingFunction = [&]() {
-        videoStreamProcessor->processFramesAndApplyCallback(config["FRAMERATE"], config["FORMAT"],
-                                                            videoSendingFunction);
+    // Process frames and apply the callback function
+    videoStreamProcessor.processFramesAndApplyCallback(config["FRAMERATE"], config["FORMAT"], videoSendingFunction);
+}
+
+void runCommandListener() {
+    // Initialize MQTT handler for receiving commands
+    mqtt_::MqttHandler commandListener(config["mqtt"]["address"], config["mqtt"]["client_id"],
+                                       config["mqtt"]["username"], config["mqtt"]["password"]);
+
+    std::string baseTopic = config["mqtt"]["topic"];
+
+    // Define lambda function as a callback for executing commands received from MQTT
+    auto commandExecuter = [&](const std::string &payload) {
+        videoStreamProcessor.startAndStopProcessing(payload);
     };
 
-    // Create thread for video frame processor and publisher
-    std::thread publisher(videoProcessingFunction);
+    // Connect to MQTT server using provided credentials
+    commandListener.connect();
 
-    // Wait for publisher thread to finish
-    publisher.join();
+    // Subscribe to a specific MQTT topic for this camera with the defined callback
+    commandListener.subscribe(baseTopic + static_cast<std::string>(config["CAM_ID"]), commandExecuter);
 
-    // Wait for subscriber thread to finish
-    subscriber.join();
-    delete commandListener;
-    delete videoStreamProcessor;
-    // Return 0 to indicate successful program execution
-    return 0;
+    // Wait until notified to exit
+    std::unique_lock<std::mutex> lock(exitMutex);
+    exitCondition.wait(lock);
+
+    // Shutdown the command listener
+    commandListener.shutdown();
+}
+
+void sendFrame(Logger &logger, const kafka::KafkaProducer &producer, const std::vector<uchar> &buffer) {
+    // Prepare and send the frame data using Kafka
+    message::FrameData protobufData;
+    fillProtobufData(protobufData, buffer, config["CAM_ID"]);
+
+    std::string jsonOutput;
+    google::protobuf::util::JsonPrintOptions options;
+    options.add_whitespace = true;  // Add whitespace to make the output more readable
+    google::protobuf::util::MessageToJsonString(protobufData, &jsonOutput, options).ok();
+    logger << LogLevel::INFO << "Sending frame" << std::endl;
+    producer.sendMessage(config["kafka"]["topic_frame_data"], jsonOutput);
 }
 
 // Function to fill protobuf data
 void
 fillProtobufData(message::FrameData &protobufData, const std::vector<uchar> &frameData, const std::string &cam_id) {
-    protobufData.mutable_timestamp()->set_seconds(my_namespace::utility::timestamp_ns().seconds());
-    protobufData.mutable_timestamp()->set_nanos(my_namespace::utility::timestamp_ns().nanos());
+    protobufData.mutable_timestamp()->set_seconds(timestamp_ns().seconds());
+    protobufData.mutable_timestamp()->set_nanos(timestamp_ns().nanos());
     protobufData.set_frame_data(frameData.data(), frameData.size());
     protobufData.set_cam_id(cam_id);
+}
+
+// Signal handler for graceful shutdown
+void handleShutdown(int signal) {
+    // Shutdown command listener and video stream processor
+    videoStreamProcessor.shutdown();
+
+    // Notify waiting threads to exit
+    std::unique_lock<std::mutex> lock(exitMutex);
+    exitCondition.notify_all();
 }

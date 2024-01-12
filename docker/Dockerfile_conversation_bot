@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ../Python .
 
 RUN mv src/conversation_bot/main.py src/main.py
-
+RUN rm src/conversation_bot/config.json
 RUN rm -r venv
 
 # Run main.py when the container launches

@@ -23,37 +23,39 @@ namespace my_namespace::mqtt_ {
 
         void delivery_complete(mqtt::delivery_token_ptr token) override;
 
-        void setCallbackFunction(const std::function<void(std::string)> &callback);
+        void setMessageHandler(const std::function<void(std::string)> &callback);
 
         void setClientId(const std::string &id);
 
 
     private:
         std::string clientId;
-        std::function<void(std::string)> callbackFunction = nullptr;
+        std::function<void(std::string)> messageHandler = nullptr;
+        std::function<void()> lostConnectionHandler = nullptr;
     };
 
     class MqttHandler {
     public:
 
-        MqttHandler(const std::string &serverAddress, const std::string &clientId);
+        MqttHandler(const std::string &serverAddress, const std::string &clientId, std::string username,
+                    std::string password);
 
         ~MqttHandler();
 
-        void connect(const std::string &username, const std::string &password);
+        void connect();
 
         void subscribe(const std::string &topic, const std::function<void(std::string)> &callback, int qos = 0);
 
-        void publish(const std::string &topic, const std::string &message);
+        [[maybe_unused]] void publish(const std::string &topic, const std::string &message);
 
         void shutdown();
-
 
     private:
         mqtt::async_client client;
         MqttCallback cb;
-        std::condition_variable exitCondition;
-        std::mutex exitMutex;
+        std::string username_;
+        std::string password_;
+        std::string topic_;
 
     };
 }

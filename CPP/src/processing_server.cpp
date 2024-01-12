@@ -74,9 +74,10 @@ int main() {
     Logger::getInstance() << LogLevel::INFO << "Message consumption started successfully." << std::endl;
 
     // Thread to periodically check and reset Cronometers
-    std::thread checkThread([&chronometer, &gauge]() {
+    std::thread checkThread([&chronometer, &gauge, &config]() {
         while (true) {
-            std::this_thread::sleep_for(std::chrono::seconds(10)); // Adjust the interval as needed
+            std::this_thread::sleep_for(
+                    std::chrono::seconds(config["prometheus"]["interval"])); // Adjust the interval as needed
             double workingTimePercentage = chronometer.checkAndReset();
             Logger::getInstance() << LogLevel::INFO << "WorkingTimePercentage: " << workingTimePercentage << std::endl;
             gauge.Set(workingTimePercentage);
@@ -85,7 +86,7 @@ int main() {
 
     // Start consuming messages
     kafkaConsumer.startConsuming();
-
+    checkThread.join();
     return 0;
 }
 

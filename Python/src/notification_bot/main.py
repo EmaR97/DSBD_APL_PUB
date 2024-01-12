@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 import grpc_
 from kafka_ import NotificationConsumer
@@ -8,8 +9,10 @@ from notification_bot.messagesender import NotificationSender
 
 def main():
     # Load configuration from a JSON file
-    with open('config.json', 'r') as file:
+    config_path = os.environ.get('CONFIG_PATH', 'config.json')
+    with open(config_path, 'r') as file:
         config = json.load(file)
+
     # Enable logging
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG)
     logging.getLogger("httpx").setLevel(logging.DEBUG)
@@ -17,7 +20,9 @@ def main():
     logging.info("Loading configuration from 'config.json'...")
     # Initialize the Telegram notification sender
     logging.info("Configuring notification sender...")
+
     def get_chat_ids(chat_id): return grpc_.get_chat_ids(chat_id, config['grpc']['get_chat_ids'])
+
     notification_sender = NotificationSender(config['telegram']['token'], get_chat_ids)
     # Initialize the Kafka message processor
     logging.info("Initializing Kafka message processor...")

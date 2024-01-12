@@ -15,7 +15,7 @@ namespace my_namespace::kafka {
             logger_ << utility::LogLevel::ERROR << "Message delivery failed: " << message.errstr() << std::endl;
         else
             logger_ << utility::LogLevel::INFO << "Message delivered to topic " << message.topic_name() << " ["
-                   << message.partition() << "] at offset " << message.offset() << std::endl;
+                    << message.partition() << "] at offset " << message.offset() << std::endl;
     }
 
     // Constructor for KafkaProducer
@@ -55,22 +55,25 @@ namespace my_namespace::kafka {
 
     // Send a message to a specified topic
     void KafkaProducer::sendMessage(const std::string &topic, const std::string &message) const {
-        RdKafka::ErrorCode err = producer->produce(topic, RdKafka::Topic::PARTITION_UA, RdKafka::Producer::RK_MSG_COPY,
-                                                   const_cast<char *>(message.c_str()), message.size(), nullptr, 0, 0,
-                                                   nullptr, nullptr);
+        while (true) {
+            RdKafka::ErrorCode err = producer->produce(topic, RdKafka::Topic::PARTITION_UA,
+                                                       RdKafka::Producer::RK_MSG_COPY,
+                                                       const_cast<char *>(message.c_str()), message.size(), nullptr, 0,
+                                                       0,  nullptr);
 
-        if (err != RdKafka::ERR_NO_ERROR) {
-            logger_ << utility::LogLevel::ERROR << "Failed to produce to topic " << topic << ": " << RdKafka::err2str(err) << std::endl;
-
+            if (err == RdKafka::ERR_NO_ERROR) {
+                logger_ << utility::LogLevel::INFO << "Enqueued message (" << message.size() << " bytes) "
+                        << "for topic " << topic << std::endl;
+                break;
+            }
+            logger_ << utility::LogLevel::ERROR << "Failed to produce to topic " << topic << ": "
+                    << RdKafka::err2str(err) << std::endl;
             if (err == RdKafka::ERR__QUEUE_FULL) {
                 // If the internal queue is full, wait for messages to be delivered and then retry
                 producer->poll(1000);
-                sendMessage(topic, message);  // Retry
+                continue;
             }
-        } else {
-            logger_ << utility::LogLevel::INFO << "Enqueued message (" << message.size() << " bytes) " << "for topic " << topic << std::endl;
         }
-
         // Poll to serve the delivery report queue
         producer->poll(0);
     }

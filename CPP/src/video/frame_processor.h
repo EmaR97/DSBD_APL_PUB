@@ -42,10 +42,10 @@ namespace my_namespace::video {
         std::mutex exitMutex;
         std::condition_variable exitCondition;
         std::string *alternateSource_ = nullptr;
-        std::mutex controlMutex;
         bool publishEnabled;
+        std::mutex controlMutex;
         std::condition_variable controlCondition;
-        bool shutdownRequested=false;
+        bool shutdownRequested = false;
 
         bool shouldPublish();
 

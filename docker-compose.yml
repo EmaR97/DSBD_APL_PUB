@@ -2,6 +2,9 @@ version: '3'
 
 services:
   server_processing: #docker compose up --build server_processing
+    deploy:
+      mode: replicated
+      replicas: 3
     build:
       context: .
       dockerfile: docker/Dockerfile_server_processing
@@ -11,27 +14,11 @@ services:
       - minio
     networks:
       - backend
-    command: >
-      sh -c "echo '{
-            \"kafka\": {
-              \"broker\": \"kafka:9092\",
-              \"group_id\": \"your_kafka_group_id\",
-              \"topic_frame_data\": \"frame_data\",
-              \"topic_frame_info\": \"frame_info\",
-              \"topic_notification\": \"notification\"
-            },
-            \"minio\": {
-              \"endpoint\": \"http://minio:9000\",
-              \"bucketName\": \"your-bucket-secure\",
-              \"keyId\": \"your_minio_username\",
-              \"keySecret\": \"your_minio_password\"
-            },
-            \"prometheus\": {
-              \"bind_address\": \"0.0.0.0:8080\"
-            }
-          }' > /usr/src/app/build/config_ps.json &&
-        exec /usr/src/app/build/ProcessingServer
-      "
+    #    ports:
+    #      - "8070:8080"  # prometheus
+    command: sh -c "exec /usr/src/app/build/ProcessingServer"
+    volumes:
+      - ./docker/config/config_ps.json:/usr/src/app/build/config_ps.json:ro
 
 
   go_build: #docker compose up --build go_build
@@ -42,6 +29,7 @@ services:
     command: echo "Build service - No action"
     networks:
       - backend
+
 
   server_main: #docker compose up --build server_main
     build:
@@ -59,45 +47,11 @@ services:
     ports:
       - "50051:50051"
       - "8082:8082"
-    command: >
-      sh -c "if [ ! -f '/app/config.json' ]; then echo '{
-                  \"database\": {
-                    \"url\": \"mongodb://username:example@mongodb:27017\",
-                    \"name\": \"your_database_name\",
-                    \"username\": \"your_mongodb_username\",
-                    \"password\": \"your_mongodb_password\"
-                  },
-                  \"server\": {
-                    \"httpPort\": \":8082\",
-                    \"grpcPort\": \":50051\",
-                    \"shutdownTimeout\": 10,
-                    \"allowedIPs\": [
-                      \"::1\",
-                      \"172.19.124.79\",
-                      \"127.0.0.1\",
-                      \"172.18.0.1\",
-                      \"172.18.0.5\"
-                    ],
-                    \"templateDir\": \"templates/*\",
-                    \"authEndpoint\": \"http://server_auth:8080/access/verify\"
-                  },
-                  \"minio\": {
-                    \"endpoint\": \"minio:9000\",
-                    \"username\": \"your_minio_username\",
-                    \"password\": \"your_minio_password\",
-                    \"bucketName\": \"your-bucket\"
-                  },
-                  \"kafka\": {
-                    \"brokers\": \"kafka:9092\",
-                    \"groupID\": \"your-kafka-group-id\",
-                    \"topic_in\": \"frame_info\",
-                    \"topic_out\": \"notification\"
-                  }
-                }' > /app/config.json;
-        fi &&
-        exec /app/main_server
-      "
-
+    environment:
+      - CONFIG_FILE=/app/config_main.json
+    command: sh -c "exec /app/main_server"
+    volumes:
+      - ./docker/config/config_main.json:/app/config.json:ro
 
 
   server_command: #docker compose up --build server_command
@@ -113,36 +67,10 @@ services:
       - backend
     ports:
       - "8081:8081"
-    command: >
-      sh -c "if [ ! -f '/app/config.json' ]; then echo '{
-                 \"mqtt\": {
-                    \"brokerURL\": \"tcp://rabbitmq:1883\",
-                    \"clientID\": \"example-client\",
-                    \"username\": \"your_mqtt_id\",
-                    \"password\": \"your_mqtt_secret\"
-                  },
-                  \"mqtt-management\": {
-                    \"url\": \"http://rabbitmq:15672\",
-                    \"username\": \"your_mqtt_management_id\",
-                    \"password\": \"your_mqtt_management_secret\"
-                  },
-                  \"server\": {
-                    \"httpPort\": \":8081\",
-                    \"shutdownTimeout\": 10,
-                    \"allowedIPs\": [
-                      \"::1\",
-                      \"172.19.124.79\",
-                      \"127.0.0.1\",
-                      \"172.18.0.1\",
-                      \"172.18.0.5\"
-                    ],
-                    \"templateDir\": \"templates/*\",
-                    \"authEndpoint\": \"http://server_auth:8080/access/verify\"
-                  }
-                 }' > /app/config.json;
-        fi &&
-        exec /app/command_server
-      "
+    command: sh -c "exec /app/command_server"
+    volumes:
+      - ./docker/config/config_command.json:/app/config.json:ro
+
 
 
 
@@ -158,32 +86,11 @@ services:
       - backend
     ports:
       - "8080:8080"
-    command: >
-      sh -c "if [ ! -f '/app/config.json' ]; then echo '{
-            \"database\": {
-              \"url\": \"mongodb://username:example@mongodb:27017\",
-              \"name\": \"your_database_name\",
-              \"username\": \"your_mongodb_username\",
-              \"password\": \"your_mongodb_password\"
-            },
-            \"server\": {
-              \"httpPort\": \":8080\",
-              \"shutdownTimeout\": 10,
-              \"allowedIPs\": [
-                \"::1\",
-                \"172.19.124.79\",
-                \"127.0.0.1\",
-                \"172.18.0.1\",
-                \"172.18.0.5\"
-              ],
-              \"templateDir\": \"templates/*\"
-            }
-          }' > /app/config.json;
-        fi &&
-        exec /app/auth_server
-      "
-
-
+    environment:
+      - CONFIG_FILE=/app/config_auth.json
+    command: sh -c "exec /app/auth_server"
+    volumes:
+      - ./docker/config/config_auth.json:/app/config.json:ro
 
 
   notification_bot: #docker compose up --build notification_bot
@@ -196,23 +103,9 @@ services:
       - conversation_bot
     networks:
       - backend
-    command: >
-      sh -c " echo '{
-        \"kafka\": {
-          \"bootstrap_servers\": \"kafka:9092\",
-          \"topic\": \"notification\",
-          \"group_id\": \"python-consumer-group\",
-          \"auto_offset_reset\": \"earliest\"
-        },
-        \"telegram\": {
-          \"token\": \"your_telegram_token\"
-        },
-        \"grpc\": {
-          \"get_chat_ids\": \"conversation_bot:50052\"
-        }
-      }' > /app/config.json &&
-        exec python src/main.py
-      "
+    command: sh -c "exec python src/main.py"
+    volumes:
+      - ./docker/config/config_notification_bot.json:/app/config.json:ro
 
 
   conversation_bot: #docker compose up --build conversation_bot
@@ -226,26 +119,9 @@ services:
       - server_main
     networks:
       - backend
-    command: >
-      sh -c " echo '{
-        \"telegram\": {
-          \"token\": \"your_telegram_token\"
-        },
-        \"mongo\": {
-          \"host\": \"mongodb\",
-          \"port\": \"27017\",
-          \"dbname\": \"your_database_name\",
-          \"username\": \"your_mongodb_username\",
-          \"password\": \"your_mongodb_password\"
-        },
-        \"grpc\": {
-          \"get_chat_ids\": \"localhost:50052\",
-          \"get_cam_ids\": \"server_main:50051\"
-        },
-        \"auth\": \"http://server_main:8080/access/login\"
-      }' > /app/config.json &&
-        exec python src/main.py
-      "
+    command: sh -c "exec python src/main.py"
+    volumes:
+      - ./docker/config/config_conversation_bot.json:/app/config.json:ro
 
 
   # Zookeeper
@@ -264,6 +140,7 @@ services:
     image: confluentinc/cp-kafka:latest
     depends_on:
       - zookeeper
+    restart: always
     ports:
       - "29092:29092"
       - "9092:9092"
@@ -275,27 +152,23 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: 'false'
-      KAFKA_JMX_PORT: '9091'
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-      KAFKA_AUTHORIZER_CLASS_NAME: 'kafka.security.authorizer.AclAuthorizer'
-      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: 'true'
       JMX_PORT: 9999
       KAFKA_OPTS: "-javaagent:/opt/prometheus-jmx-exporter/jmx_prometheus_javaagent-0.18.0.jar=5085:/opt/prometheus-jmx-exporter/kafka.yml"
       KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote.host=localhost -Dcom.sun.management.jmxremote.port=5084 -Dcom.sun.management.jmxremote.rmi.port=5084 -Dcom.sun.management.jmxremote.local.only=false"
     volumes:
-      - ./prometheus:/opt/prometheus-jmx-exporter
+      - ./docker/kafka/jmx_prometheus_javaagent-0.18.0.jar:/opt/prometheus-jmx-exporter/jmx_prometheus_javaagent-0.18.0.jar
+      - ./docker/kafka/kafka.yml:/opt/prometheus-jmx-exporter/kafka.yml
+      - ./docker/kafka/server.properties:/server.properties:/etc/kafka/server.properties
     networks:
       - backend
 
-
-    # Prometheus
+  # Prometheus
   prometheus:
     image: prom/prometheus:latest
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
     depends_on:

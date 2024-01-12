@@ -14,6 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ../Python .
 
 RUN rm -r venv
+RUN rm src/notification_bot/config.json
 RUN mv src/notification_bot/main.py src/main.py
 
 # Run main.py when the container launches

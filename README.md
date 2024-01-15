@@ -5,40 +5,18 @@
 1. [Introduzione](#introduzione)
 2. [Controllore di Base della Telecamera](#controllore-di-base-della-telecamera)
     - 2.1 [Caratteristiche Principali](#caratteristiche-principali)
-    - 2.2 [Potenzialità per Sviluppi Futuri](#potenzialità-per-sviluppi-futuri)
 3. [Server di Elaborazione](#server-di-elaborazione)
     - 3.1 [Responsabilità Chiave](#responsabilità-chiave)
-    - 3.2 [Deployment Dinamico dei Server](#deployment-dinamico-dei-server)
 4. [Server di Autenticazione](#server-di-autenticazione)
     - 4.1 [Caratteristiche Principali](#caratteristiche-principali-1)
-    - 4.2 [Misure di Sicurezza](#misure-di-sicurezza)
-    - 4.3 [Integrazione con Altri Componenti](#integrazione-con-altri-componenti)
 5. [Server Principale](#server-principale)
     * 5.1 [Responsabilità Chiave](#responsabilità-chiave-1)
-    * 5.2 [Miglioramento dell'Esperienza Utente ed Efficienza del Sistema](#miglioramento-dellesperienza-utente-ed-efficienza-del-sistema)
 6. [Server dei Comandi](#server-dei-comandi)
     - 6.1 [Responsabilità Chiave](#responsabilità-chiave-1)
-    - 6.2 [Miglioramento della Affidabilità per le Telecamere Remote](#miglioramento-della-affidabilità-per-le-telecamere-remote)
-    - 6.3 [Scalabilità e Flessibilità](#scalabilità-e-flessibilità)
 7. [Servizio di Sottoscrizione Notifiche](#servizio-di-sottoscrizione-notifiche)
     - 7.1 [Funzionalità Chiave](#funzionalità-chiave)
-    - 7.2 [Miglioramento del Controllo e della Personalizzazione Utente](#miglioramento-del-controllo-e-della-personalizzazione-utente)
-    - 7.3 [Integrazione con il Servizio di Notifiche](#integrazione-con-il-servizio-di-notifiche)
 8. [Servizio di Notifiche](#servizio-di-notifiche)
     - 8.1 [Funzionalità Chiave](#funzionalità-chiave-1)
-    - 8.2 [Integrazione con il Servizio di Sottoscrizione Notifiche](#integrazione-con-il-servizio-di-sottoscrizione-notifiche)
-    - 8.3 [Miglioramento del Coinvolgimento Utente](#miglioramento-del-coinvolgimento-utente)
-9. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
-    - 9.1 [Punti Chiave](#punti-chiave)
-10. [Gateway API in Kubernetes (K8s)](#gateway-api-in-kubernetes-k8s)
-    - 10.1 [Caratteristiche Principali](#caratteristiche-principali-2)
-11. [Generazione di URL Pre-firmati da Main Server](#generazione-di-url-pre-firmati-da-main-server)
-    - 11.1 [Punti Chiave](#punti-chiave-1)
-12. [Conclusioni](#conclusioni)
-    - 12.1 [Reattività in Tempo Reale](#reattività-in-tempo-reale)
-    - 12.2 [Scaling Dinamico](#scaling-dinamico)
-    - 12.3 [Miglioramenti dell'Interfaccia Utente](#miglioramenti-dellinterfaccia-utente)
-    - 12.4 [Integrazione con Sistemi Esterni](#integrazione-con-sistemi-esterni)
 
 ### **Introduzione:**
 
@@ -88,12 +66,6 @@ convalidando le funzionalità di base e supportando eventuali estensioni per fun
     - Garantisce un protocollo di comunicazione coerente, facilitando l'interoperabilità e l'integrazione con altri
       componenti.
 
-#### *Potenzialità per Sviluppi Futuri:*
-
-- Il design modulare del Controllore di Base della Telecamera consente un'integrazione senza soluzione di continuità di
-  funzionalità avanzate. Gli sviluppatori possono utilizzare questo codice come base per implementare ulteriori
-  funzioni, migliorando le capacità del sistema di monitoraggio delle telecamere.
-
 <!--In sintesi, il Controllore di Base della Telecamera offre un solido punto di partenza per il sistema di monitoraggio
 delle telecamere distribuite, fornendo funzionalità essenziali di distribuzione di frame ed elaborazione di comandi in
 un formato standardizzato. -->
@@ -140,11 +112,6 @@ gestione delle immagini elaborate.
           l'elaborazione e la variazione di questo valore nel tempo, fungendo da base per la distribuzione dinamica dei
           server in base alle fluttuazioni del carico di lavoro.
 
-#### *Deployment Dinamico dei Server:*
-
-- Sfruttando le metriche raccolte, il sistema regola dinamicamente il numero di server di elaborazione deployati,
-  garantendo un utilizzo ottimale delle risorse e la reattività a variazioni del carico di lavoro.
-
 <!-- In sintesi, i server di elaborazione contribuiscono alla natura distribuita del sistema attraverso l'elaborazione
 parallelizzata, l'ottimizzazione delle risorse mediante metriche di Prometheus e la scalabilità dinamica.-->
 
@@ -184,16 +151,6 @@ stabilendo un meccanismo di accesso sicuro e controllato per gli utenti e le lor
     - Le telecamere, al login avvenuto con successo, ricevono le credenziali necessarie per accedere ai servizi RabbitMQ
       e Kafka, garantendo un'integrazione senza soluzione di continuità nel sistema distribuito per la comunicazione e
       lo scambio di dati in tempo reale.
-
-#### *Misure di Sicurezza:*
-
-- Il Server di Autenticazione agisce come un guardiano, verificando la legittimità delle richieste e garantendo che solo
-  utenti e telecamere autorizzati possano interagire con il sistema.
-
-#### *Integrazione con Altri Componenti:*
-
-- Il Server di Autenticazione svolge un ruolo vitale nell'orchestrare la comunicazione sicura e l'interazione tra
-  utenti, telecamere e servizi di sistema, inclusi RabbitMQ e Kafka.
 
 <!-- In sintesi, il Server di Autenticazione stabilisce un robusto framework di autenticazione e autorizzazione, integrandosi
 con MongoDB per la gestione delle credenziali e garantendo una comunicazione sicura all'interno del sistema di
@@ -261,12 +218,6 @@ la gestione delle telecamere, le registrazioni degli utenti e l'archiviazione di
     - Questa pratica assicura che solo dati pertinenti e recenti siano conservati nel sistema, riducendo l'ingombro e
       contribuendo alla performance ottimale del sistema nel lungo termine.
 
-#### *Miglioramento dell'Esperienza Utente ed Efficienza del Sistema:*
-
-- Il Server Principale funge da perno, fornendo un'interfaccia coesa per gli utenti per gestire le telecamere, accedere
-  ai flussi video e ricevere notifiche.
-- La sua integrazione con Kafka migliora l'efficienza e la reattività del sistema.
-
 <!-- In sintesi, il Server Principale svolge un ruolo cruciale nella gestione delle telecamere, nelle interazioni degli
 utenti e nel flusso senza soluzione di continuità delle informazioni all'interno del sistema distribuito di monitoraggio
 delle telecamere. -->
@@ -309,16 +260,6 @@ specificate, affrontando potenziali sfide nelle connessioni remote delle telecam
     - Questo meccanismo di feedback migliora l'esperienza dell'utente fornendo informazioni sullo stato di esecuzione
       dei comandi emessi.
 
-#### *Miglioramento della Affidabilità per le Telecamere Remote:*
-
-- La scelta di MQTT come protocollo di comunicazione è strategica, offrendo una consegna affidabile dei messaggi e la
-  conferma anche in situazioni in cui le connessioni di rete sono meno stabili.
-
-#### *Scalabilità e Flessibilità:*
-
-- Il design del Server dei Comandi consente la scalabilità, accomodando un numero crescente di utenti e telecamere, e la
-  sua flessibilità permette l'integrazione senza soluzione di continuità con varie interfacce utente.
-
 <!--In sintesi, il Server dei Comandi svolge un ruolo cruciale nel facilitare i comandi degli utenti, formattandoli e standardizzandoli, e garantendo una consegna affidabile alle telecamere remote attraverso l'infrastruttura robusta di MQTT e RabbitMQ.-->
 
 ---
@@ -360,18 +301,6 @@ notifiche degli utenti.
     - Il Servizio di Sottoscrizione Notifiche espone un'interfaccia GRPC per consentire ad altri componenti, come il
       Servizio di Notifiche, di ottenere efficientemente le informazioni necessarie sulle sottoscrizioni degli utenti.
 
-#### *Miglioramento del Controllo e della Personalizzazione Utente:*
-
-- Il servizio dà potere agli utenti permettendo loro di personalizzare le preferenze di notifica, specificando le
-  telecamere di interesse, l'orario delle notifiche e la possibilità di optare per l'uscita in qualsiasi momento.
-
-#### *Integrazione con il Servizio di Notifiche:*
-
-- Il Servizio di Sottoscrizione Notifiche si integra senza soluzione di continuità con il Servizio di Notifiche
-  attraverso l'interfaccia GRPC, fornendo un canale di comunicazione strutturato ed efficiente.
-
-<!-- In sintesi, il Servizio di Sottoscrizione Notifiche funge da interfaccia utente amichevole sulla piattaforma Telegram,
-consentendo agli utenti di gestire le loro preferenze di notifica e interagire con il più ampio sistema di notifiche.-->
 ---
 
 ### **Servizio di Notifiche:**
@@ -416,108 +345,87 @@ notifica efficiente degli utenti che hanno manifestato interesse in specifiche n
     - Il servizio risponde prontamente ai messaggi Kafka in arrivo, garantendo notifiche tempestive agli utenti
       interessati.
 
-#### *Integrazione con il Servizio di Sottoscrizione Notifiche:*
-
-- Il Servizio di Notifiche si basa sull'interfaccia GRPC fornita dal Servizio di Sottoscrizione Notifiche per ottenere
-  informazioni aggiornate sulle sottoscrizioni degli utenti.
-- Questa integrazione migliora l'efficienza complessiva e l'accuratezza nel mirare gli utenti durante il processo di
-  notifica.
-
-#### *Miglioramento del Coinvolgimento Utente:*
-
-- Il Servizio di Notifiche contribuisce all'coinvolgimento degli utenti consegnando notifiche pertinenti e tempestive,
-  tenendo gli utenti informati sugli eventi catturati dal sistema di monitoraggio delle telecamere.
-
-<!--In sintesi, il Servizio di Notifiche svolge un ruolo cruciale nell'ultimo passo del processo di notifica, garantendo che
-gli utenti che si sono abbonati a eventi specifici ricevano avvisi tempestivi e personalizzati sulla piattaforma
-Telegram.-->
-
 ---
 
-### **Archiviazione Coerente dei Dati con MongoDB:**
+### *Scelte Implementative Principali:*
 
-MongoDB funge da repository centrale per i dati elaborati all'interno del sistema di monitoraggio delle telecamere. Ogni
-categoria di dati è accessibile attraverso un componente singolare, garantendo coerenza dei dati e fornendo un approccio
-strutturato al recupero dei dati.
+#### CPP
 
-#### *Punti Chiave:*
+1. **Programmazione Funzionale per Incapsulamento e Separazione delle Dipendenze:**
 
-1. **Archiviazione Centralizzata dei Dati:**
+    - La separazione delle dipendenze è ottenuta attraverso il passaggio di funzioni come argomenti. Questo permette di sostituire facilmente le implementazioni specifiche delle funzioni senza dover modificare il codice sorgente principale. Inoltre, la gestione delle dipendenze diventa più flessibile e consente una migliore testabilità del codice.
 
-    - MongoDB funge da database centralizzato per archiviare varie categorie di dati, mantenendo un approccio
-      strutturato e organizzato alla gestione dei dati.
+    - L'approccio alla programmazione funzionale contribuisce alla creazione di un sistema più robusto e manutenibile, fornendo una chiara separazione tra le responsabilità delle varie componenti.
 
-2. **Accesso a Componente Singolare:**
+2. **Utilizzo di `std::shared_ptr` per Gestione Sicura della Memoria:**
 
-    - Per mantenere la coerenza dei dati, ogni categoria di dati è accessibile attraverso un componente singolare,
-      minimizzando il rischio di inconsistenze dei dati e garantendo interazioni ben definite con tipi di dati
-      specifici.
+    - Dove è necessario dichiarare oggetti dinamicamente per una gestione flessibile e sicura della memoria, si fa ampio uso di `std::shared_ptr`. Questa scelta consente di condividere la proprietà degli oggetti dinamici tra più parti del sistema, evitando così potenziali errori di gestione della memoria come memory leaks o dangling pointers.
 
----
+3. **Gestione della Concorrenza e Graceful Shutdown:**
 
-### **Gateway API in Kubernetes (K8s):**
+    - Al fine di gestire la concorrenza tra i thread e garantire una terminazione sicura del sistema, vengono utilizzati meccanismi di sincronizzazione come mutex e condition_variable. Questi strumenti sono implementati per garantire l'accesso atomico a risorse condivise e sincronizzare le attività dei vari thread.
 
-Una Gateway API è implementata all'interno del cluster Kubernetes (K8s), fornendo uno strato di astrazione e sicurezza
-per i servizi con cui interagiscono utenti e client telecamera. Questo gateway maschera gli indirizzi IP reali,
-migliorando la sicurezza e fornendo URL più amichevoli all'utente.
+    - La gestione dei segnali del sistema è implementata per permettere un meccanismo di graceful shutdown. Quando viene ricevuto un segnale di shutdown, si attiva un processo di chiusura ordinata. I mutex e le condition_variable sono utilizzati per coordinare l'arresto ordinato delle attività dei vari thread, evitando la perdita di dati o altre problematiche associate a uno shutdown improvviso.
 
-#### *Caratteristiche Principali:*
+4. **Implementazione di un Logger con Overloading degli Operatori:**
 
-1. **Mascheramento e Sicurezza degli IP:**
+    - Per garantire una registrazione efficace e personalizzata delle attività del sistema, è stata incorpora una classe Logger dedicata. Questa classe sfrutta l'overloading degli operatori per semplificare la sintassi di registrazione e migliorare la leggibilità del codice.
 
-    - La Gateway API maschera gli indirizzi IP reali dei servizi sottostanti, aggiungendo uno strato di sicurezza che
-      nasconde i dettagli interni agli utenti esterni.
+#### GO
 
-2. **URL più Amichevoli all'Utente:**
+1. **Utilizzo di Goroutine, Channel e WaitGroup per la Concorrenza:**
 
-    - La Gateway API fornisce URL più amichevoli e sicuri per consentire agli utenti e ai client telecamera di
-      interagire con vari servizi nel sistema.
+    - Go routine sono ampiamente utilizzate per abilitare l'esecuzione concorrente delle varie funzionalità del sistema. Ogni funzionalità può essere eseguita in modo indipendente, permettendo al sistema di sfruttare al massimo le architetture multi-core.
 
----
+    - I channel sono utilizzati per facilitare la comunicazione sincrona tra le go routine. Questi canali consentono il passaggio di dati in modo sicuro e coordinato tra le diverse parti del sistema, facilitando la sincronizzazione tra le attività parallele.
 
-### **Generazione di URL Pre-firmati da Main Server:**
+    - Un WaitGroup è impiegato per coordinare l'esecuzione delle go routine e attendere che tutte siano completate prima di procedere. Questo è particolarmente rilevante durante la fase di graceful shutdown, in cui il sistema deve attendere che tutte le go routine terminino prima di chiudere in modo sicuro tutte le risorse.
 
-Il Server Principale facilita l'accesso diretto ai frame elaborati archiviati in MinIO generando URL pre-firmati. Questo
-approccio minimizza intermediari non necessari, ottimizzando la velocità e fornendo agli utenti un accesso efficiente ai
-dati archiviati.
+2. **Integrazione di Interfacce e Template per Gestire la Dipendenza:**
 
-#### *Punti Chiave:*
+    - Le interfacce sono ampiamente utilizzate in combinazione con i template per dichiarare le funzionalità che gli oggetti devono implementare. Questo approccio permette una maggiore flessibilità nella gestione delle dipendenze, consentendo di specificare i requisiti delle funzionalità richieste tramite interfacce senza conoscere la struttura interna degli oggetti.
 
-1. **Creazione di URL Pre-firmati:**
+    - L'utilizzo congiunto di interfacce e template favorisce l'incapsulamento e riduce la dipendenza diretta dalle implementazioni specifiche degli oggetti. Ciò promuove la modularità e la manutenibilità del codice, consentendo alle classi di interagire con gli oggetti basandosi sulle funzionalità dichiarate nell'interfaccia, senza dover conoscere la struttura dettagliata degli oggetti.
 
-    - Il Server Principale crea URL pre-firmati per i frame elaborati archiviati in MinIO.
-    - Gli utenti possono accedere direttamente all'archiviazione MinIO senza intermediari, riducendo la latenza e
-      massimizzando la velocità.
+    - Questa approccio è particolarmente utile per gestire dipendenze tra strutture e ridurre le problematiche relative agli import circolari, offrendo un meccanismo dichiarativo per definire le relazioni tra le componenti del sistema.
 
----
+3. **Utilizzo di Embedded Struct per la Specializzazione delle Classi:**
 
-### **Conclusioni:**
+    - Le embedded struct sono state impiegate per realizzare una specializzazione delle classi dove necessario. Questo approccio consente di incorporare il comportamento e le proprietà di una struct all'interno di un'altra, permettendo così una sorta di ereditarietà leggera.
 
-Nonostante il sistema di monitoraggio delle telecamere distribuito presenti una soluzione robusta e ben integrata, ci
-sono aree che potrebbero essere ulteriormente ottimizzate per migliorare le prestazioni e l'esperienza utente. In
-particolare:
+    - L'utilizzo di embedded struct insieme alle interfacce offre una modalità di composizione che favorisce la riusabilità del codice.
 
-#### **Reattività in Tempo Reale:**
+4. **Utilizzo di Metadati per la Corrispondenza tra Struct, JSON e Database:**
 
-- Nonostante l'efficienza complessiva del sistema, potrebbero essere esplorate ulteriori ottimizzazioni per migliorare
-  la reattività in tempo reale, specialmente in scenari con carichi di lavoro variabili.
+    - I metadati sono stati impiegati per dichiarare la corrispondenza tra le struct, la loro rappresentazione in JSON e la struttura nel database. Questo approccio consente di associare informazioni aggiuntive a vari campi delle struct, specificando come devono essere trattati durante le conversioni tra diverse rappresentazioni.
 
-#### **Scaling Dinamico:**
+    - Le librerie utilizzate fanno ampio uso dei meccanismi di reflection di Go per interpretare i metadati associati alle struct. Questo consente alle librerie di automatizzare il processo di conversione tra oggetti Go, JSON e dati nel database senza richiedere codice aggiuntivo per ogni campo o ogni operazione di conversione.
 
-- Il sistema potrebbe beneficiare di meccanismi più avanzati per il scaling dinamico, regolando automaticamente il
-  numero di server di elaborazione in base a metriche in tempo reale per garantire un utilizzo ottimale delle risorse.
+    - L'utilizzo di metadati semplifica la gestione della serializzazione e deserializzazione dei dati, riducendo la duplicazione di codice e migliorando la manutenibilità. Inoltre, offre un modo dichiarativo per specificare come i dati dovrebbero essere rappresentati in diverse situazioni, facilitando la coerenza tra le varie parti del sistema.
 
-#### **Miglioramenti dell'Interfaccia Utente:**
+5. **Programmazione Funzionale per Incapsulamento e Separazione delle Dipendenze:**
 
-- L'interfaccia utente, specialmente nei bot Telegram, potrebbe essere perfezionata per offrire più funzionalità e una
-  maggiore fluidità nell'esperienza utente, integrando potenzialmente contenuti multimediali o comandi aggiuntivi per
-  una interazione potenziata.
+    - Analogamente a quanto implementato in C++, anche in Go è stata adottata la programmazione funzionale come approccio chiave per migliorare l'incapsulamento e la separazione delle dipendenze.
 
-#### **Integrazione con Sistemi Esterni:**
+6. **Sfruttamento del Middleware di Gin come Decoratore:**
 
-- Esplorare possibilità di integrazione del sistema con servizi esterni o framework di intelligenza artificiale potrebbe
-  potenziare ulteriormente le capacità di riconoscimento dei pedoni e l'intelligenza complessiva del sistema.
+    - Nel contesto di Gin, il meccanismo di middleware è stato sfruttato come un potente strumento di decorazione. I middleware di Gin consentono di eseguire operazioni specifiche prima o dopo l'elaborazione di una richiesta HTTP, agendo così come dei veri e propri decoratori.
 
-In conclusione, il sistema di monitoraggio delle telecamere distribuito rappresenta una potente soluzione con una base
-solida. Un continuo perfezionamento e ottimizzazione nelle aree menzionate potrebbe spingere il sistema a nuovi livelli,
-rispondendo alle esigenze in evoluzione e stabilendo nuovi standard per efficienza e soddisfazione dell'utente.
+    - È stato integrato un middleware personalizzato per arricchire le richieste HTTP gestite dal sistema. In particolare, è stato aggiunto un logger personalizzato attraverso il middleware per registrare informazioni dettagliate sulle richieste, agevolando la diagnostica e il monitoraggio del sistema.
+
+    - Ulteriori controlli e logiche personalizzate sono stati implementati attraverso il middleware per aggiungere strati di funzionalità alle richieste gestite. Ciò consente di modularizzare e separare le preoccupazioni, mantenendo il codice pulito e aderente ai principi di progettazione solidi.
+
+#### Python
+1. **Uso di Decoratori per Dichiarare Metodi di Classe come Statici:**
+    - Nel contesto di Python, il concetto di decoratori è stato impiegato per dichiarare alcuni dei metodi di classe come statici. I decoratori in Python consentono di modificare il comportamento di una funzione o di un metodo, fornendo un modo flessibile per estendere o personalizzare il comportamento di una funzione senza modificarne direttamente il codice.
+    - I metodi di classe dichiarati come statici attraverso i decoratori non richiedono l'accesso all'istanza della classe stessa e non ricevono il parametro `self`. Questo li rende particolarmente utili quando la logica del metodo non dipende dallo stato dell'istanza.
+2. **Utilizzo di `async` e `await` per la Gestione Corretta delle Chiamate Asincrone:**
+    - `async` e `await` sono stati utilizzati per garantire la corretta gestione delle chiamate asincrone provenienti dalle librerie utilizzate, permettendo al contempo la loro integrazione sincrona quando necessario. Questo approccio consente di gestire operazioni di I/O intensive in modo efficiente, consentendo al programma di eseguire altre attività mentre aspetta il completamento di operazioni potenzialmente bloccanti.
+3. **Implementazione di un Meccanismo di Graceful Shutdown Utilizzando gli Event:**
+    - Sono stati impiegati thread separati per la gestione asincrona delle diverse funzionalità del sistema in Python.
+    - Un meccanismo di graceful shutdown è stato implementato utilizzando gli eventi in Python. Gli eventi offrono un modo sincronizzato per segnalare l'arresto ordinato del sistema, consentendo ai thread di completare le attività in corso prima di terminare.
+4. **Programmazione Funzionale per Incapsulamento e Separazione delle Dipendenze:**
+    - Analogamente a quanto implementato in C++, anche in Python è stata adottata la programmazione funzionale come approccio chiave per migliorare l'incapsulamento e la separazione delle dipendenze.
+5. **Utilizzo del Package MongoEngine per la Comunicazione con il Database:**
+    - Per la comunicazione con il database MongoDB, è stato utilizzato il package MongoEngine. Questo package sfrutta la reflection di Python per costruire a runtime la mappatura tra le strutture dati della applicazione e il modello di archiviazione nel database MongoDB.
+    - La reflection consente a MongoEngine di analizzare dinamicamente la struttura degli oggetti Python e definire i meccanismi di conversione opportuni per l'archiviazione all'interno del database MongoDB. Questo approccio riduce la necessità di specificare manualmente la mappatura tra oggetti e documenti nel database, semplificando il codice e accelerando lo sviluppo.

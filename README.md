@@ -10,13 +10,17 @@
 4. [Server di Autenticazione](#server-di-autenticazione)
     - 4.1 [Caratteristiche Principali](#caratteristiche-principali-1)
 5. [Server Principale](#server-principale)
-    * 5.1 [Responsabilità Chiave](#responsabilità-chiave-1)
+    - 5.1 [Responsabilità Chiave](#responsabilità-chiave-1)
 6. [Server dei Comandi](#server-dei-comandi)
     - 6.1 [Responsabilità Chiave](#responsabilità-chiave-1)
 7. [Servizio di Sottoscrizione Notifiche](#servizio-di-sottoscrizione-notifiche)
     - 7.1 [Funzionalità Chiave](#funzionalità-chiave)
 8. [Servizio di Notifiche](#servizio-di-notifiche)
     - 8.1 [Funzionalità Chiave](#funzionalità-chiave-1)
+9. [Scelte Implementative Principali](#scelte-implementative-principali)
+    - 9.1 [CPP](#CPP)
+    - 9.2 [GO](#go)
+    - 9.3 [Python](#python)
 
 ### **Introduzione:**
 
@@ -416,6 +420,7 @@ notifica efficiente degli utenti che hanno manifestato interesse in specifiche n
     - Ulteriori controlli e logiche personalizzate sono stati implementati attraverso il middleware per aggiungere strati di funzionalità alle richieste gestite. Ciò consente di modularizzare e separare le preoccupazioni, mantenendo il codice pulito e aderente ai principi di progettazione solidi.
 
 #### Python
+
 1. **Uso di Decoratori per Dichiarare Metodi di Classe come Statici:**
     - Nel contesto di Python, il concetto di decoratori è stato impiegato per dichiarare alcuni dei metodi di classe come statici. I decoratori in Python consentono di modificare il comportamento di una funzione o di un metodo, fornendo un modo flessibile per estendere o personalizzare il comportamento di una funzione senza modificarne direttamente il codice.
     - I metodi di classe dichiarati come statici attraverso i decoratori non richiedono l'accesso all'istanza della classe stessa e non ricevono il parametro `self`. Questo li rende particolarmente utili quando la logica del metodo non dipende dallo stato dell'istanza.

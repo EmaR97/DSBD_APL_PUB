@@ -69,3 +69,6 @@ RUN apt-get remove -y make cmake g++ git && \
 
 # Set the default command to run the ProcessingServer
 CMD ["/usr/src/app/build/ProcessingServer"]
+
+#Prometheus exporter
+EXPOSE 8080

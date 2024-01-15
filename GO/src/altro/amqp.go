@@ -1,4 +1,4 @@
-package comunication
+package main
 
 import (
 	"context"

@@ -1,7 +1,9 @@
 package comunication
 
 import (
+	"CamMonitoring/src/utility"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
+	"time"
 )
 
 type MqttClient struct {
@@ -14,12 +16,17 @@ func NewMqttClient(brokerURL, clientID, username, password string) (*MqttClient,
 	opts.SetClientID(clientID)
 	opts.SetUsername(username)
 	opts.SetPassword(password)
-
+	opts.SetAutoReconnect(true)
 	client := MQTT.NewClient(opts)
-	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		return nil, token.Error()
+	for {
+		if token := client.Connect(); token.Wait() && token.Error() != nil {
+			utility.ErrorLog().Printf("Error initializing MQTT client: %v. Retring...", token.Error())
+			time.Sleep(1 * time.Minute)
+			//return nil, token.Error()
+			continue
+		}
+		break
 	}
-
 	return &MqttClient{Client: client}, nil
 }
 

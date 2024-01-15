@@ -76,7 +76,10 @@ func main() {
 	)
 
 	// Initialize cleanup service
-	cleanupService := storage.NewCleanupService(cameraRepository, 1*time.Hour, 4*time.Hour, minioClient)
+	cleanupService := storage.NewCleanupService(
+		cameraRepository, time.Duration(config.Minio.CleanUpInterval)*time.Hour,
+		time.Duration(config.Minio.CleanUpOlderThan)*time.Hour, minioClient,
+	)
 	go cleanupService.Start()
 	defer cleanupService.Stop()
 

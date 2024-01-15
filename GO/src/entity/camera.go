@@ -5,9 +5,6 @@ import (
 	"time"
 )
 
-// framesDir is the directory where camera frames are stored.
-const framesDir = "data/frames"
-
 // Camera represents a camera entity with frames and related information.
 type Camera struct {
 	Id     string        `json:"id" bson:"_id"`

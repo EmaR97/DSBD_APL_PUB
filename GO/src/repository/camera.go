@@ -2,9 +2,11 @@ package repository
 
 import (
 	"CamMonitoring/src/entity"
+	"CamMonitoring/src/utility"
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 )
 
@@ -20,7 +22,12 @@ func (r *CameraRepository) GetAllByUser(userId string) ([]entity.Camera, error) 
 	if err != nil {
 		// Handle error
 	}
-	defer cursor.Close(context.Background())
+	defer func(cursor *mongo.Cursor, ctx context.Context) {
+		err := cursor.Close(ctx)
+		if err != nil {
+			utility.ErrorLog().Printf("Error closing cursor: %v", err)
+		}
+	}(cursor, context.Background())
 
 	if err := cursor.All(context.Background(), &cameras); err != nil {
 		// Handle error

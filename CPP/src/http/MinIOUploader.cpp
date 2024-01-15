@@ -43,6 +43,8 @@ namespace my_namespace::sender {
 
 
     void MinIOUploader::uploadImage(const std::basic_string<char> &objectName, std::vector<uchar> &imageData) const {
+        //TODO create bucket if missing
+
         // Construct the upload URL
         Aws::String presignedUrlGet = s3_client->GeneratePresignedUrl(bucketName, objectName,
                                                                       Aws::Http::HttpMethod::HTTP_PUT, 300);

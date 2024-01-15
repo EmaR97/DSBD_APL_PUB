@@ -65,6 +65,7 @@ func setupRouter(config service.Config) (router *gin.Engine) {
 }
 
 func initMqttClient(config service.MQTTConfig) (mqttClient *comunication.MqttClient) {
+
 	mqttClient, err := comunication.NewMqttClient(config.BrokerURL, config.ClientID, config.Username, config.Password)
 	if err != nil {
 		utility.ErrorLog().Fatalf("Error initializing MQTT client: %v", err)
@@ -73,7 +74,7 @@ func initMqttClient(config service.MQTTConfig) (mqttClient *comunication.MqttCli
 }
 
 func setUpRoutes(router *gin.Engine, commandHandler *handler.CommandHandler) {
-	router.POST("/api/commands/:id", commandHandler.Post)
+	router.POST("/commands/:id", commandHandler.Post)
 }
 
 func runServer(router *gin.Engine, config service.Config) {

@@ -88,7 +88,8 @@ func (s *CameraServiceServer) Stop() {
 		s.server.Stop()
 	}
 	if s.listener != nil {
-		s.listener.Close()
+		err := s.listener.Close()
+		utility.ErrorLog().Printf("Error closing listener: %v", err)
 	}
 	s.wg.Wait()
 }

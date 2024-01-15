@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
 )
 
@@ -45,7 +46,13 @@ func validateTokenWithHandler(token string, validateLocation string) (bool, erro
 		utility.ErrorLog().Printf("Error sending validation request: %v", err)
 		return false, fmt.Errorf("error sending validation request: %v", err)
 	}
-	defer response.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			utility.ErrorLog().Printf("Error closing bodyreader: %v", err)
+
+		}
+	}(response.Body)
 
 	// Check the response status
 	if response.StatusCode == http.StatusOK {

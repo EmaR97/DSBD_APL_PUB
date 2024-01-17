@@ -21,6 +21,7 @@
     - 9.1 [CPP](#CPP)
     - 9.2 [GO](#go)
     - 9.3 [Python](#python)
+10. [Come avviare il sistema](#come-avviare-il-sistema)
 
 ### **Introduzione:**
 
@@ -431,3 +432,11 @@ notifica efficiente degli utenti che hanno manifestato interesse in specifiche n
     - Un meccanismo di graceful shutdown è stato implementato utilizzando gli eventi in Python. Gli eventi offrono un modo sincronizzato per segnalare l'arresto ordinato del sistema, consentendo ai thread di completare le attività in corso prima di terminare.
 4. **Programmazione Funzionale per Incapsulamento e Separazione delle Dipendenze:**
     - Analogamente a quanto implementato in C++, anche in Python è stata adottata la programmazione funzionale come approccio chiave per migliorare l'incapsulamento e la separazione delle dipendenze.
+
+#### Come avviare il sistema
+
+Tramite il ([docker-compose.yml](docker-compose.yml)) è possibile eseguire tutte le componenti sviluppate per il corretto funzionamento del sistema
+Installare docker ed eseguire il seguente comando nella root della repository, dove è presente il compose.
+
+```
+docker compose up

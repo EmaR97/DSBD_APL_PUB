@@ -431,6 +431,3 @@ notifica efficiente degli utenti che hanno manifestato interesse in specifiche n
     - Un meccanismo di graceful shutdown è stato implementato utilizzando gli eventi in Python. Gli eventi offrono un modo sincronizzato per segnalare l'arresto ordinato del sistema, consentendo ai thread di completare le attività in corso prima di terminare.
 4. **Programmazione Funzionale per Incapsulamento e Separazione delle Dipendenze:**
     - Analogamente a quanto implementato in C++, anche in Python è stata adottata la programmazione funzionale come approccio chiave per migliorare l'incapsulamento e la separazione delle dipendenze.
-5. **Utilizzo del Package MongoEngine per la Comunicazione con il Database:**
-    - Per la comunicazione con il database MongoDB, è stato utilizzato il package MongoEngine. Questo package sfrutta la reflection di Python per costruire a runtime la mappatura tra le strutture dati della applicazione e il modello di archiviazione nel database MongoDB.
-    - La reflection consente a MongoEngine di analizzare dinamicamente la struttura degli oggetti Python e definire i meccanismi di conversione opportuni per l'archiviazione all'interno del database MongoDB. Questo approccio riduce la necessità di specificare manualmente la mappatura tra oggetti e documenti nel database, semplificando il codice e accelerando lo sviluppo.

@@ -433,10 +433,29 @@ notifica efficiente degli utenti che hanno manifestato interesse in specifiche n
 4. **Programmazione Funzionale per Incapsulamento e Separazione delle Dipendenze:**
     - Analogamente a quanto implementato in C++, anche in Python è stata adottata la programmazione funzionale come approccio chiave per migliorare l'incapsulamento e la separazione delle dipendenze.
 
-#### Come avviare il sistema
+---
+
+### Come avviare il sistema
 
 Tramite il ([docker-compose.yml](docker-compose.yml)) è possibile eseguire tutte le componenti sviluppate per il corretto funzionamento del sistema
 Installare docker ed eseguire il seguente comando nella root della repository, dove è presente il compose.
 
 ```
 docker compose up
+```
+
+---
+
+### Librerie usate
+
+#### CPP
+
+Le librerie usate sono elencate nel seguente file come "find_package(nomeLibreria)": [CMakeLists.txt](docker%2FCMakeLists.txt)
+
+#### GO:
+
+I package usati sono elencati nella prima parte del seguente file: [go.mod](GO%2Fgo.mod)
+
+#### Python
+
+I package usati sono elencati nel seguente file :[requirements.txt](Python%2Frequirements.txt)

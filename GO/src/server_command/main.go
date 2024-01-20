@@ -4,13 +4,6 @@ import (
 	"CamMonitoring/src/service/comunication"
 	"CamMonitoring/src/service/middleware"
 	"CamMonitoring/src/utility"
-	"context"
-	"errors"
-	"net/http"
-	"os"
-	"os/signal"
-	"time"
-
 	"github.com/gin-gonic/gin"
 
 	"CamMonitoring/src/handler"
@@ -41,7 +34,7 @@ func main() {
 	setUpRoutes(router, commandHandler)
 
 	// Run the server
-	runServer(router, config)
+	utility.RunServer(router, config)
 
 }
 
@@ -75,32 +68,4 @@ func initMqttClient(config service.MQTTConfig) (mqttClient *comunication.MqttCli
 
 func setUpRoutes(router *gin.Engine, commandHandler *handler.CommandHandler) {
 	router.POST("/commands/:id", commandHandler.Post)
-}
-
-func runServer(router *gin.Engine, config service.Config) {
-	srv := &http.Server{
-		Addr:    config.Server.HttpPort, /*config.Server.Address*/
-		Handler: router,
-	}
-
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			utility.ErrorLog().Fatalf("Failed to start server: %v", err)
-		}
-	}()
-
-	// Graceful shutdown
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
-	utility.InfoLog().Println("Shutting down server...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), config.Server.ShutdownTimeout*time.Second)
-	defer cancel()
-
-	if err := srv.Shutdown(ctx); err != nil {
-		utility.ErrorLog().Fatal("Server forced to shutdown:", err)
-	}
-
-	utility.InfoLog().Println("Server exiting")
 }

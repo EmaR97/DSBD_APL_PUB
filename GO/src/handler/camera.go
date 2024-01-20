@@ -91,11 +91,11 @@ func (h *CameraHandler) Create(context *gin.Context) {
 	// Generate a new camera with a unique ID
 	newCamera := *entity.NewCamera(uuid.New().String(), userId)
 
-	// Bind JSON data from the request to the new camera
-	if err := context.ShouldBindJSON(&newCamera); err != nil {
-		handleError(context, http.StatusBadRequest, "Error binding camera data", err)
-		return
-	}
+	//// Bind JSON data from the request to the new camera
+	//if err := context.ShouldBindJSON(&newCamera); err != nil {
+	//	handleError(context, http.StatusBadRequest, "Error binding camera data", err)
+	//	return
+	//}
 
 	// Add the new camera to the repository
 	if err := h.Repository.Add(newCamera); err != nil {

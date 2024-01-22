@@ -7,11 +7,11 @@ from mongoengine import connect
 from telegram import Update
 from telegram.ext import Application
 
-import grpc_
 from conversation_bot.cam_sub_manager import CamSubHandler
 from conversation_bot.login_manager import LoginHandler
-from grpc_ import run_grpc_server
+from grpc_ import run_grpc_server, get_cam_ids, SubscriptionServiceServicer
 from http_.auth_request import AuthClient
+from mongo import Subscription
 
 
 def main() -> None:
@@ -29,6 +29,9 @@ def main() -> None:
     # Create a thread for the gRPC server
     logging.info("Starting gRPC server thread...")
     stop_event = threading.Event()
+    SubscriptionServiceServicer.callback = lambda cam_id: [subscription.id.chat_id for subscription in
+                                                           Subscription.get_by_cam_id(cam_id) if
+                                                           subscription.to_notify()]
     grpc_server_thread = threading.Thread(target=run_grpc_server, args=(config['grpc']['get_chat_ids'], stop_event))
     grpc_server_thread.start()
     logging.info("gRPC server thread started. " + config['grpc']['get_chat_ids'])
@@ -45,7 +48,7 @@ def main() -> None:
 
     # Handlers
     logging.info("Setting up conversation handlers...")
-    cam_sub_handler = CamSubHandler(lambda user_id: grpc_.get_cam_ids(user_id, config['grpc']['get_cam_ids']))
+    cam_sub_handler = CamSubHandler(lambda user_id: get_cam_ids(user_id, config['grpc']['get_cam_ids']))
     sub_conv_handler = cam_sub_handler.cam_sub_conv_handler()
 
     auth_client = AuthClient(config['auth'])

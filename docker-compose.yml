@@ -1,7 +1,8 @@
 version: '3.9'
 
 
-services:
+services: #docker compose build
+
   server_processing: #docker compose up --build server_processing
     deploy:
       mode: replicated
@@ -9,7 +10,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile_server_processing
-      target: prod
+      target: dev
     image: quay.io/emar97/server_processing_image
     depends_on:
       - kafka
@@ -19,24 +20,13 @@ services:
     volumes:
       - ./docker/config/config_ps.json:/usr/src/app/build/config_ps.json:ro
 
-
-  go_build: #docker compose up --build go_build
-    build:
-      context: .
-      dockerfile: docker/Dockerfile_GO_build
-    image: go_build_stage
-    command: echo "Build service - No action"
-    networks:
-      - backend
-
-
   server_main: #docker compose up --build server_main
     build:
       context: .
-      dockerfile: docker/Dockerfile_server_main
+      dockerfile: docker/Dockerfile_GO
+      target: main_server
     image: quay.io/emar97/server_main_image
     depends_on:
-      - go_build
       - mongodb
       - kafka
       - server_auth
@@ -49,14 +39,13 @@ services:
     volumes:
       - ./docker/config/config_main.json:/app/config.json:ro
 
-
   server_command: #docker compose up --build server_command
     build:
       context: .
-      dockerfile: docker/Dockerfile_server_command
+      dockerfile: docker/Dockerfile_GO
+      target: command_server
     image: quay.io/emar97/server_command_image
     depends_on:
-      - go_build
       - server_auth
       - rabbitmq
     networks:
@@ -66,16 +55,13 @@ services:
     volumes:
       - ./docker/config/config_command.json:/app/config.json:ro
 
-
-
-
   server_auth: #docker compose up --build server_auth
     build:
       context: .
-      dockerfile: docker/Dockerfile_server_auth
+      dockerfile: docker/Dockerfile_GO
+      target: auth_server
     image: quay.io/emar97/server_auth_image
     depends_on:
-      - go_build
       - mongodb
     networks:
       - backend
@@ -85,7 +71,6 @@ services:
       - CONFIG_FILE=/app/config.json
     volumes:
       - ./docker/config/config_auth.json:/app/config.json:ro
-
 
   notification_bot: #docker compose up --build notification_bot
     build:
@@ -100,7 +85,6 @@ services:
       - backend
     volumes:
       - ./docker/config/config_notification_bot.json:/app/config.json:ro
-
 
   conversation_bot: #docker compose up --build conversation_bot
     build:

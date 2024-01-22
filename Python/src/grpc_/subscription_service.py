@@ -5,15 +5,15 @@ from concurrent import futures
 import grpc
 
 from message import subscription_pb2, subscription_pb2_grpc
-from mongo import Subscription
 
 
 class SubscriptionServiceServicer(subscription_pb2_grpc.SubscriptionService_Servicer):
+    callback = None
+
     def GetChatIds(self, request, context):
         cam_id = request.cam_id
         logging.debug(f'get_chat_ids request: {cam_id}')
-        chat_ids = [subscription.id.chat_id for subscription in Subscription.get_by_cam_id(cam_id) if
-                    subscription.to_notify()]
+        chat_ids = SubscriptionServiceServicer.callback(cam_id)
         logging.debug(f'get_chat_ids response: {chat_ids}')
         return subscription_pb2.ChatIdsResponse(chat_ids=chat_ids)
 

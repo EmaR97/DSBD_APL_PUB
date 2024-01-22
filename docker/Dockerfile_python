@@ -4,13 +4,6 @@ FROM python:latest as base
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy only the requirements file to leverage Docker cache
-COPY ../Python/requirements.txt .
-
-
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
-
 # Copy the rest of the application code
 COPY ../Python/src ./src
 
@@ -18,12 +11,18 @@ FROM base as conversation_bot
 
 RUN mv src/conversation_bot/main.py src/main.py
 
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r src/conversation_bot/requirements.txt
+
 # Run main.py when the container launches
 CMD ["python", "src/main.py"]
 
 FROM base as notification_bot
 
 RUN mv src/notification_bot/main.py src/main.py
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r src/notification_bot/requirements.txt
 
 # Run main.py when the container launches
 CMD ["python", "src/main.py"]

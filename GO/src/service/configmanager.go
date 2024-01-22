@@ -43,10 +43,12 @@ type ServerConfig struct {
 
 // MinioConfig holds server-related configuration
 type MinioConfig struct {
-	Endpoint   string `mapstructure:"endpoint"`
-	Username   string `mapstructure:"username"`
-	Password   string `mapstructure:"password"`
-	BucketName string `mapstructure:"bucketName"`
+	Endpoint         string  `mapstructure:"endpoint"`
+	Username         string  `mapstructure:"username"`
+	Password         string  `mapstructure:"password"`
+	BucketName       string  `mapstructure:"bucketName"`
+	CleanUpInterval  float64 `mapstructure:"cleanUpInterval"`
+	CleanUpOlderThan float64 `mapstructure:"cleanUpOlderThan"`
 }
 
 // KafkaConfig holds server-related configuration

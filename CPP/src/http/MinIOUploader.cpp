@@ -9,18 +9,18 @@ namespace my_namespace::sender {
 
     utility::Logger &logger = utility::Logger::getInstance();
 
-    MinIOUploader::MinIOUploader(const std::string &minioEndpoint, std::string bucketName, const std::string& keyId,
-                                 const std::string& keySecret) : bucketName(std::move(bucketName)) {
+    MinIOUploader::MinIOUploader(const std::string &minioEndpoint, std::string bucketName, const std::string &keyId,
+                                 const std::string &keySecret) : bucketName(std::move(bucketName)) {
         curl = curl_easy_init();
         if (!curl) {
             logger << utility::LogLevel::INFO << "Failed to initialize curl!" << std::endl;
             exit(EXIT_FAILURE);
         }
 
-        initilizeMinioClient(keyId.c_str(), keySecret.c_str(), minioEndpoint.c_str());
+        initializeMinioClient(keyId.c_str(), keySecret.c_str(), minioEndpoint.c_str());
     }
 
-    void MinIOUploader::initilizeMinioClient(const char *keyId, const char *keySecret, const char *endpoint) {
+    void MinIOUploader::initializeMinioClient(const char *keyId, const char *keySecret, const char *endpoint) {
         Aws::InitAPI(options);
         Aws::Client::ClientConfiguration clientConfig;
         logger << utility::LogLevel::INFO << "endpoint: " << endpoint << std::endl;
@@ -31,7 +31,8 @@ namespace my_namespace::sender {
         Aws::Auth::AWSCredentials credentials;
         credentials.SetAWSAccessKeyId(Aws::String(keyId));
         credentials.SetAWSSecretKey(Aws::String(keySecret));
-        s3_client = static_cast<const std::shared_ptr<Aws::S3::S3Client>>(new Aws::S3::S3Client(credentials,clientConfig, Aws::Client::AWSAuthV4Signer::PayloadSigningPolicy(),false));
+        s3_client = std::make_shared<Aws::S3::S3Client>(credentials, clientConfig,
+                                                        Aws::Client::AWSAuthV4Signer::PayloadSigningPolicy(), false);
     }
 
     MinIOUploader::~MinIOUploader() {
@@ -43,12 +44,14 @@ namespace my_namespace::sender {
 
 
     void MinIOUploader::uploadImage(const std::basic_string<char> &objectName, std::vector<uchar> &imageData) const {
+        //TODO create bucket if missing
+
         // Construct the upload URL
-        Aws::String presignedUrlGet = s3_client->GeneratePresignedUrl(bucketName, objectName,
+        Aws::String preSignedUrlGet = s3_client->GeneratePresignedUrl(bucketName, objectName,
                                                                       Aws::Http::HttpMethod::HTTP_PUT, 300);
-        logger << utility::LogLevel::INFO << "presignedUrlGet: " << presignedUrlGet << std::endl;
+        logger << utility::LogLevel::INFO << "preSignedUrl: " << preSignedUrlGet << std::endl;
         // Set the upload URL and enable uploading
-        curl_easy_setopt(curl, CURLOPT_URL, presignedUrlGet.c_str());
+        curl_easy_setopt(curl, CURLOPT_URL, preSignedUrlGet.c_str());
         curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
 
         // Set the callback function for reading data during upload

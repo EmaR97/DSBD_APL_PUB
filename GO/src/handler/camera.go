@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/google/uuid"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -50,10 +51,9 @@ func (h *CameraHandler) Next(context *gin.Context) {
 
 	// Find the successive frame based on the lastSeenIndex
 	nextFrame, found := receivedFrames.FindSuccessiveElement(int64(lastSeenIndex))
-
 	if found {
 		// Generate an image URL for the next frame
-		imageUrl, err := h.GenerateImageUrl(fmt.Sprintf("%s/%d.jpg", id, nextFrame), time.Second*24*60)
+		imageUrl, err := h.GenerateImageUrl(fmt.Sprintf("%s/%d.jpg", id, nextFrame), time.Minute*60)
 		if err != nil {
 			handleError(context, http.StatusInternalServerError, "Error sending next frame", err)
 			return
@@ -133,7 +133,13 @@ func (h *CameraHandler) CameraLogin(c *gin.Context) {
 		handleError(c, http.StatusInternalServerError, "Error making POST request to LoginPost endpoint", err)
 		return
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			utility.ErrorLog().Printf("Error closing bodyreader: %v", err)
+
+		}
+	}(resp.Body)
 
 	// Set the "token" cookie based on the response
 	for _, cookie := range resp.Cookies() {

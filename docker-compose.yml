@@ -1,4 +1,5 @@
-version: '3'
+version: '3.9'
+
 
 services:
   server_processing: #docker compose up --build server_processing
@@ -8,15 +9,13 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile_server_processing
+      target: prod
     image: quay.io/emar97/server_processing_image
     depends_on:
       - kafka
       - minio
     networks:
       - backend
-    #    ports:
-    #      - "8070:8080"  # prometheus
-    command: sh -c "exec /usr/src/app/build/ProcessingServer"
     volumes:
       - ./docker/config/config_ps.json:/usr/src/app/build/config_ps.json:ro
 
@@ -46,10 +45,7 @@ services:
       - backend
     ports:
       - "50051:50051"
-      - "8082:8082"
-    environment:
-      - CONFIG_FILE=/app/config_main.json
-    command: sh -c "exec /app/main_server"
+      - "8082:8080"
     volumes:
       - ./docker/config/config_main.json:/app/config.json:ro
 
@@ -66,8 +62,7 @@ services:
     networks:
       - backend
     ports:
-      - "8081:8081"
-    command: sh -c "exec /app/command_server"
+      - "8081:8080"
     volumes:
       - ./docker/config/config_command.json:/app/config.json:ro
 
@@ -87,8 +82,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - CONFIG_FILE=/app/config_auth.json
-    command: sh -c "exec /app/auth_server"
+      - CONFIG_FILE=/app/config.json
     volumes:
       - ./docker/config/config_auth.json:/app/config.json:ro
 
@@ -96,14 +90,14 @@ services:
   notification_bot: #docker compose up --build notification_bot
     build:
       context: .
-      dockerfile: docker/Dockerfile_notification_bot
+      dockerfile: docker/Dockerfile_python
+      target: notification_bot
     image: quay.io/emar97/notification_bot_image
     depends_on:
       - kafka
       - conversation_bot
     networks:
       - backend
-    command: sh -c "exec python src/main.py"
     volumes:
       - ./docker/config/config_notification_bot.json:/app/config.json:ro
 
@@ -111,7 +105,8 @@ services:
   conversation_bot: #docker compose up --build conversation_bot
     build:
       context: .
-      dockerfile: docker/Dockerfile_conversation_bot
+      dockerfile: docker/Dockerfile_python
+      target: conversation_bot
     image: quay.io/emar97/conversation_bot_image
     depends_on:
       - mongodb
@@ -119,7 +114,6 @@ services:
       - server_main
     networks:
       - backend
-    command: sh -c "exec python src/main.py"
     volumes:
       - ./docker/config/config_conversation_bot.json:/app/config.json:ro
 
@@ -140,7 +134,12 @@ services:
     image: confluentinc/cp-kafka:latest
     depends_on:
       - zookeeper
-    restart: always
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 60s
+        max_attempts: 3
+        window: 120s
     ports:
       - "29092:29092"
       - "9092:9092"
@@ -225,6 +224,26 @@ services:
     command: server /data --console-address 0.0.0.0:9001
     networks:
       - backend
+
+  # Nginx
+  nginx:
+    image: nginx:latest
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 60s
+        max_attempts: 3
+        window: 120s
+    ports:
+      - "8090:8090"
+    depends_on:
+      - server_main
+      - server_command
+      - server_auth
+    networks:
+      - backend
+    volumes:
+      - ./docker/nginx/routing.conf:/etc/nginx/nginx.conf
 
 volumes:
   mongo_data:

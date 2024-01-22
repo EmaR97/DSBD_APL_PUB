@@ -1,5 +1,5 @@
 # Use the latest Ubuntu image
-FROM ubuntu:latest
+FROM ubuntu:latest as dev
 
 # Set noninteractive mode for apt-get
 ENV DEBIAN_FRONTEND noninteractive
@@ -69,3 +69,97 @@ RUN apt-get remove -y make cmake g++ git && \
 
 # Set the default command to run the ProcessingServer
 CMD ["/usr/src/app/build/ProcessingServer"]
+
+#Prometheus exporter
+EXPOSE 8080
+
+# Use the latest Ubuntu LTS release as a base image
+FROM ubuntu:20.04 as prod
+
+# Set noninteractive mode for apt-get
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update package information and install required packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        make \
+        cmake \
+        g++ \
+        ffmpeg \
+        libcurl4-openssl-dev \
+        libopencv-dev \
+        libprotobuf-dev \
+        protobuf-compiler \
+        libpaho-mqtt-dev \
+        git \
+        build-essential \
+        libssl-dev \
+        librdkafka-dev \
+        curl \
+        zip \
+        unzip \
+        tar && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install vcpkg
+RUN git clone https://github.com/microsoft/vcpkg.git /vcpkg && \
+    cd /vcpkg && \
+    ./bootstrap-vcpkg.sh && \
+    ./vcpkg integrate install && \
+    ./vcpkg install aws-sdk-cpp
+
+# Explicitly set CMAKE_TOOLCHAIN_FILE for vcpkg
+ENV CMAKE_TOOLCHAIN_FILE=/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+# Clone and build paho.mqtt.cpp library
+RUN git clone https://github.com/eclipse/paho.mqtt.cpp.git /paho.mqtt.cpp && \
+    cd /paho.mqtt.cpp && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make -j$(nproc) && \
+    make install
+
+# Clone and build prometheus client library
+RUN git clone --recursive https://github.com/jupp0r/prometheus-cpp.git /prometheus/prometheus-cpp && \
+    mkdir /prometheus/prometheus-cpp/build && \
+    cd /prometheus/prometheus-cpp/build && \
+    cmake .. && \
+    make -j$(nproc) && \
+    make install
+
+# Set up your C++ project
+WORKDIR /usr/src/app
+
+# Copy source code and protobuf files
+COPY ../CPP/src ./src
+COPY ../proto ./proto
+
+# Compile Protobuf files
+RUN protoc -I=./proto --cpp_out=./src/message framedata.proto && \
+    protoc -I=./proto --cpp_out=./src/message frameinfo.proto
+
+# Create a build directory and set it as the working directory
+RUN mkdir build
+WORKDIR /usr/src/app/build
+
+# Copy the CMakeLists.txt into the build directory
+COPY ../docker/CMakeLists.txt .
+
+# Run CMake to configure the build
+RUN cmake ..
+
+# Compile the C++ code
+RUN make
+
+# Clean up unnecessary build dependencies
+RUN apt-get remove -y --purge make cmake g++ git && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set the default command to run the ProcessingServer
+CMD ["/usr/src/app/build/ProcessingServer"]
+
+# Prometheus exporter
+EXPOSE 8080

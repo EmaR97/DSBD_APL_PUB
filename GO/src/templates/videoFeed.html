@@ -25,7 +25,7 @@
     <button id="logoutButton">Logout</button>
     <button id="indexButton">Go to Index</button>
 </div>
-<img alt="Image Viewer" id="imageView" style="max-width: 100%; max-height: 100%;">
+<img alt="Image Viewer" id="imageView" src="" style="max-width: 100%; max-height: 100%;">
 <button id="stopButton">Stop</button>
 <button id="continueButton">Continue</button>
 <button id="liveButton">Live</button>
@@ -34,8 +34,10 @@
 
 <script>
     // Constants
-    const serverURL = 'http://localhost:8082/api/camera';
-    const mqttURL = 'http://localhost:8081/api/commands'; // Update with your actual MQTT endpoint
+    const serverURL = 'http://localhost:8090/api/camera';
+    const mqttURL = 'http://localhost:8090/commands'; // Update with your actual MQTT endpoint
+    const minioToReplace = /minio:9000/g;
+    const minioReplacement = 'localhost:8090';
     const delayDuration = 100;
     const retryDelay = 10000;
     const id = "{{.Id}}"
@@ -61,6 +63,7 @@
 
     function liveFetching() {
         fetching = true;
+        nextFrame=nowNanosecond();
         stream(nowNanosecond());
     }
 
@@ -80,6 +83,7 @@
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: `payload=${payload}`,
+                credentials: 'same-origin', // Include cookies associated with the current domain
             });
         }
     }
@@ -89,11 +93,18 @@
             return;
         }
         fetchingInProgress = true;
+        let delay=delayDuration;
         try {
             while (fetching) {
-                targetTime = Date.now() + delayDuration;
+                let last=nextFrame;
+                let targetTime = Date.now() + delay;
                 await getNextImage(nextFrame);
                 await new Promise(resolve => setTimeout(resolve, targetTime - Date.now()));
+                delay=(nextFrame-last)/1000000;
+                console.log(delay)
+                delay=delay<1000?delay:1000;
+                console.log(delay)
+
             }
         } finally {
             fetchingInProgress = false;
@@ -103,9 +114,11 @@
 
     // Function to retrieve and display the next image
     async function getNextImage(lastSeenIndex) {
-        var target;
+        let target;
         try {
-            const response = await fetch(`${serverURL}/${id}/${lastSeenIndex}`);
+            const response = await fetch(`${serverURL}/${id}/${lastSeenIndex}`, {
+                credentials: 'same-origin',
+            });
             if (response.status === 503) {
                 fetching = false;
                 console.log('Service Unavailable (503).');
@@ -114,11 +127,12 @@
             const data = await response.json();
 
             if (data.imageUrl) {
-                document.getElementById('imageView').src = `${data.imageUrl}`;
+                let newFrame = data.imageUrl.replace(minioToReplace, minioReplacement).replace(/\\u0026/g, '&');
+                document.getElementById('imageView').src = `${newFrame}`;
                 console.log(Date.now(), `Displayed frame ${lastSeenIndex}`);
                 target = (lastSeenIndex / 1000000) + 1000
                 await new Promise(resolve => setTimeout(resolve, target - Date.now()));
-                nextFrame = data.nextFrame;
+                nextFrame = BigInt(data.nextFrame).toString();
             } else {
                 console.log('No next frame available. Retrying in 10 seconds...');
                 await new Promise(resolve => setTimeout(resolve, delayDuration));

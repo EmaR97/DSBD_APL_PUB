@@ -8,13 +8,9 @@ import (
 	"CamMonitoring/src/service/middleware"
 	"CamMonitoring/src/service/storage"
 	"CamMonitoring/src/utility"
-	"context"
-	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
-	"os/signal"
-	"time"
 )
 
 func main() {
@@ -41,7 +37,7 @@ func main() {
 	setUpRoutes(router, accessHandler, config.Server.TemplateDir)
 
 	// Run the server
-	runServer(router, config)
+	utility.RunServer(router, config)
 }
 
 func initMongoDBService(config service.Config) (mongoDBService *storage.MongoDBService) {
@@ -80,32 +76,4 @@ func setUpRoutes(router *gin.Engine, accessHandler *handler.AccessHandler, templ
 	}
 
 	router.LoadHTMLGlob(templateDir)
-}
-
-func runServer(router *gin.Engine, config service.Config) {
-	srv := &http.Server{
-		Addr:    config.Server.HttpPort,
-		Handler: router,
-	}
-
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			utility.ErrorLog().Fatalf("Failed to start server: %v", err)
-		}
-	}()
-
-	// Graceful shutdown
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
-	utility.InfoLog().Println("Shutting down server...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), config.Server.ShutdownTimeout*time.Second)
-	defer cancel()
-
-	if err := srv.Shutdown(ctx); err != nil {
-		utility.ErrorLog().Fatal("Server forced to shutdown:", err)
-	}
-
-	utility.InfoLog().Println("Server exiting")
 }

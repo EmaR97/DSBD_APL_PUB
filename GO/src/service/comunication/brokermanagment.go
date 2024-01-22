@@ -1,10 +1,11 @@
 package comunication
 
 import (
+	"CamMonitoring/src/utility"
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -63,16 +64,21 @@ func (m *BrokerManagement) sendRequest(method, url string, body []byte) error {
 	if err != nil {
 		return fmt.Errorf("error sending request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			utility.ErrorLog().Printf("Error closing bodyreader: %v", err)
+		}
+	}(resp.Body)
 
-	fmt.Printf("Response Status: %s\n", resp.Status)
-
-	responseBody, err := ioutil.ReadAll(resp.Body)
+	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("error reading response body: %v", err)
 	}
-
-	fmt.Printf("Response Body: %s\n", responseBody)
+	if resp.StatusCode != 204 {
+		fmt.Printf("Request Body: %s\n", body)
+		fmt.Printf("Response Body: %s\n", responseBody)
+	}
 
 	// Handle the response body or any additional processing here
 

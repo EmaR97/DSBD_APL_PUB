@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"time"
 )
 
@@ -11,7 +12,7 @@ import (
 func NewMinioClient(endpoint, id, secret, bucketName string, useSSL bool) (*MinioClient, error) {
 	client, err := minio.New(
 		endpoint, &minio.Options{
-			//Creds:  credentials.NewStaticV4(id, secret, ""),
+			Creds:  credentials.NewStaticV4(id, secret, ""),
 			Secure: useSSL,
 		},
 	)

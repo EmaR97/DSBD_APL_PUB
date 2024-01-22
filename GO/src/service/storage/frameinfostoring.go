@@ -42,27 +42,36 @@ func NewFrameHandler(
 
 // Start initiates the frame storage process.
 func (fh *FrameHandler) Start() {
+	// Increment the WaitGroup counter to indicate the start of the frame storage process
 	fh.wg.Add(1)
-	defer fh.wg.Done()
+	defer fh.wg.Done() // Decrement the WaitGroup counter when the function exits
+
+	// Infinite loop for continuously handling frames
 	for {
+		// Check for a stop signal from the stop channel
 		select {
 		case <-fh.stopChan:
 			utility.InfoLog().Println("Frame storage process stopped")
-			return
+			return // Exit the function when a stop signal is received
 		default:
+			// Attempt to consume a message from the consumer
 			messageContent, err := fh.consumer.Consume()
 			if err != nil {
+				// Log an error and continue to the next iteration if there is an issue consuming the message
 				utility.ErrorLog().Println("Error consuming message:", err)
 				continue
 			}
+
+			// Skip further processing if the message content is empty
 			if messageContent == "" {
 				continue
 			}
 			// Process the received image content
 			err = fh.handleMessage(messageContent)
 			if err != nil {
+				// Log an error if there is an issue processing and storing the frame
 				utility.ErrorLog().Println("Error processing and storing frame:", err)
-				// Consider whether to continue or return an error to the caller
+				// Consider whether to continue processing or return an error to the caller
 			}
 		}
 	}
@@ -70,9 +79,9 @@ func (fh *FrameHandler) Start() {
 
 // Stop stops the frame storage process.
 func (fh *FrameHandler) Stop() {
+	// Close the stop channel to signal the termination of the frame storage process
 	close(fh.stopChan)
-	fh.wg.Wait()
-
+	fh.wg.Wait() // Wait for the frame storage process to complete before returning
 }
 
 // handleMessage processes the received message and stores frame information.

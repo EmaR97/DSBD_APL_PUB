@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:latest
+FROM python:latest as base
 
 # Set the working directory in the container
 WORKDIR /app
@@ -12,11 +12,18 @@ COPY ../Python/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code
-COPY ../Python .
+COPY ../Python/src ./src
+
+FROM base as conversation_bot
 
 RUN mv src/conversation_bot/main.py src/main.py
-RUN rm src/conversation_bot/config.json
-RUN rm -r venv
+
+# Run main.py when the container launches
+CMD ["python", "src/main.py"]
+
+FROM base as notification_bot
+
+RUN mv src/notification_bot/main.py src/main.py
 
 # Run main.py when the container launches
 CMD ["python", "src/main.py"]

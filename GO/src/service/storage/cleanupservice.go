@@ -57,6 +57,8 @@ func (cs *CleanupService) Stop() {
 func (cs *CleanupService) cleanupAllCameras() {
 	// Retrieve all cameras from the repository
 	cameras, err := cs.cameraRepository.GetAll()
+	utility.InfoLog().Printf("Removing old frame. Cam to check: %d", len(cameras))
+
 	if err != nil {
 		utility.ErrorLog().Printf("Error retrieving cameras for cleanup: %v", err)
 		return
@@ -75,7 +77,7 @@ func (cs *CleanupService) cleanupCamera(camera *entity.Camera) {
 	// Update the camera entity in the repository
 	err := cs.cameraRepository.Update(*camera)
 	if err != nil {
-		utility.ErrorLog().Printf("Error updating camera %s: %v", camera.ID, err)
+		utility.ErrorLog().Printf("Error updating camera %s: %v", camera.ID(), err)
 		// Handle the error if needed
 	}
 }
@@ -94,18 +96,19 @@ func (cs *CleanupService) CleanupOldImages(camera *entity.Camera) {
 		if maxAge == 0 {
 			maxAge = cs.maxAge
 		}
-		if frameAge <= maxAge {
-			framesToKeep = append(framesToKeep, frame)
-		} else {
+		if frameAge > maxAge {
 			// Frame is older than maxAge, delete associated object from Minio
 			objectName := fmt.Sprintf("%s/%d.jpg", camera.Id, frame.Timestamp)
 			err := cs.minioClient.DeleteObject(objectName)
-			if err != nil {
-				utility.ErrorLog().Printf("Error deleting object %s: %v", objectName, err)
-				// Handle the error if needed
+			if err == nil {
+				continue
 			}
+			utility.ErrorLog().Printf("Error deleting object %s: %v", objectName, err)
 		}
+		framesToKeep = append(framesToKeep, frame)
+
 	}
+	utility.InfoLog().Printf("Removed %d frames over %d", len(camera.Frames)-len(framesToKeep), len(camera.Frames))
 
 	// Update the camera's frame array with the frames to keep
 	camera.Frames = framesToKeep

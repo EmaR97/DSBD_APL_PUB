@@ -1,12 +1,7 @@
 package main
 
 import (
-	"context"
-	"errors"
 	"fmt"
-	"net/http"
-	"os"
-	"os/signal"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -76,7 +71,10 @@ func main() {
 	)
 
 	// Initialize cleanup service
-	cleanupService := storage.NewCleanupService(cameraRepository, 1*time.Hour, 4*time.Hour, minioClient)
+	cleanupService := storage.NewCleanupService(
+		cameraRepository, time.Duration(config.Minio.CleanUpInterval)*time.Hour,
+		time.Duration(config.Minio.CleanUpOlderThan)*time.Hour, minioClient,
+	)
 	go cleanupService.Start()
 	defer cleanupService.Stop()
 
@@ -94,7 +92,7 @@ func main() {
 	setUpRoutes(router, cameraHandler, videoFeedHandler, config.Server.TemplateDir)
 
 	// Run the server
-	runServer(router, config)
+	utility.RunServer(router, config)
 	// To close in the right order
 	frameInfoStoring.Stop()
 	consumer.Close()
@@ -147,32 +145,4 @@ func setUpRoutes(
 	}
 
 	router.LoadHTMLGlob(templateDir)
-}
-
-func runServer(router *gin.Engine, config service.Config) {
-	srv := &http.Server{
-		Addr:    config.Server.HttpPort,
-		Handler: router,
-	}
-
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			utility.ErrorLog().Fatalf("Failed to start server: %v", err)
-		}
-	}()
-
-	// Graceful shutdown
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
-	utility.InfoLog().Println("Shutting down server...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), config.Server.ShutdownTimeout*time.Second)
-	defer cancel()
-
-	if err := srv.Shutdown(ctx); err != nil {
-		utility.ErrorLog().Printf("Server forced to shutdown: %v", err)
-	}
-
-	utility.InfoLog().Println("Server exiting")
 }

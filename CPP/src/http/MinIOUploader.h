@@ -40,7 +40,7 @@ namespace my_namespace::sender {
         CURL *curl;
         std::basic_string<char> bucketName;
 
-        void initilizeMinioClient(const char *keyId, const char *keySecret, const char  *endpoint);
+        void initializeMinioClient(const char *keyId, const char *keySecret, const char  *endpoint);
     };
 
 }

@@ -101,6 +101,20 @@ services: #docker compose build
     volumes:
       - ./docker/config/config_conversation_bot.json:/app/config.json:ro
 
+  sla_manager: #docker compose up --build sla_manager
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_python
+      target: sla_manager
+    image: quay.io/emar97/sla_manager_image
+    ports:
+      - "13000:13000"
+    depends_on:
+      - mongodb
+    networks:
+      - backend
+    volumes:
+      - ./docker/config/config_sla_manager.json:/app/config.json:ro
 
   # Zookeeper
   zookeeper:

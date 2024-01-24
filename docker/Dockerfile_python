@@ -26,3 +26,13 @@ RUN pip install --no-cache-dir -r src/notification_bot/requirements.txt
 
 # Run main.py when the container launches
 CMD ["python", "src/main.py"]
+
+FROM base as sla_manager
+
+RUN mv src/sla_manager/main.py src/main.py
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r src/sla_manager/requirements.txt
+
+# Run main.py when the container launches
+CMD ["python", "src/main.py"]

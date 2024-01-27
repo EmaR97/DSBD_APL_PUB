@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-bot
+  template:
+    metadata:
+      labels:
+        app: notification-bot
+    spec:
+      containers:
+        - name: notification-bot
+          image: quay.io/emar97/notification_bot_image
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config.json
+              subPath: config_notification_bot.json
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: notification-bot-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notification-bot-config
+data:
+  config_notification_bot.json: |
+    {
+      "kafka": {
+        "bootstrap_servers": "kafka:9092",
+        "topic": "notification",
+        "group_id": "python-consumer-group",
+        "auto_offset_reset": "earliest"
+      },
+      "telegram": {
+        "token": "6951268937:AAHu2BM5i4UJiJ49n9RsVLXKeekFxdFuU6A"
+      },
+      "grpc": {
+        "get_chat_ids": "conversation_bot:50052"
+      }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-bot
+spec:
+  selector:
+    app: notification-bot
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

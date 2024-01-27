@@ -1,0 +1,67 @@
+# kubectl apply -f K8s/kafka.yaml
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+spec:
+  serviceName: "kafka"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      enableServiceLinks: false # comando senza il quale non funziona
+      containers:
+        - name: kafka
+          image: quay.io/emar97/kafka_jmx_image
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9092
+              name: kafka
+            - containerPort: 29092
+              name: kafka-host
+            - containerPort: 5085
+              name: jmx
+          env:
+            - name: KAFKA_BROKER_ID
+              value: "1"
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: "zookeeper:2181"
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:30001"
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+            - name: KAFKA_INTER_BROKER_LISTENER_NAME
+              value: "PLAINTEXT"
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "1"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+spec:
+  type: NodePort
+  selector:
+    app: kafka
+  ports:
+    - name: kafka
+      protocol: TCP
+      port: 9092
+      targetPort: 9092
+    - name: kafka-host
+      protocol: TCP
+      port: 30001 #porta target del pod
+      targetPort: 30001 #porta esposta internamente
+      nodePort: 30001 #porta esposta esternamente
+    - name: jmx
+      protocol: TCP
+      port: 5085
+      targetPort: 5085
+

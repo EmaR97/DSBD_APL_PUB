@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sla-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sla-manager
+  template:
+    metadata:
+      labels:
+        app: sla-manager
+    spec:
+      containers:
+        - name: sla-manager
+          image: quay.io/emar97/sla_manager_image
+          ports:
+            - containerPort: 13000
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config.json
+              subPath: config_sla_manager.json
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: sla-manager-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sla-manager-config
+data:
+  config_sla_manager.json: |
+    {
+      "mongo": {
+        "host": "mongodb",
+        "port": "27017",
+        "dbname": "your_database_name",
+        "username": "username",
+        "password": "example"
+      },
+      "prometheus": "http://prometheus:9090"
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sla-manager
+spec:
+  selector:
+    app: sla-manager
+  ports:
+    - protocol: TCP
+      port: 13000
+      targetPort: 13000

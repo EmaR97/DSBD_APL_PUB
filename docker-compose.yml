@@ -128,8 +128,12 @@ services: #docker compose build
       - backend
 
   # Kafka
-  kafka:
-    image: confluentinc/cp-kafka:latest
+  # docker-compose build kafka
+  kafka: #docker compose up --build kafka
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_kafka_jmx  # Path to your Dockerfile
+    image: quay.io/emar97/kafka_jmx_image
     depends_on:
       - zookeeper
     deploy:
@@ -138,10 +142,6 @@ services: #docker compose build
         delay: 60s
         max_attempts: 3
         window: 120s
-    ports:
-      - "29092:29092"
-      - "9092:9092"
-      - "5085:5085"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -149,13 +149,10 @@ services: #docker compose build
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      JMX_PORT: 9999
-      KAFKA_OPTS: "-javaagent:/opt/prometheus-jmx-exporter/jmx_prometheus_javaagent-0.18.0.jar=5085:/opt/prometheus-jmx-exporter/kafka.yml"
-      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote.host=localhost -Dcom.sun.management.jmxremote.port=5084 -Dcom.sun.management.jmxremote.rmi.port=5084 -Dcom.sun.management.jmxremote.local.only=false"
-    volumes:
-      - ./docker/kafka/jmx_prometheus_javaagent-0.18.0.jar:/opt/prometheus-jmx-exporter/jmx_prometheus_javaagent-0.18.0.jar
-      - ./docker/kafka/kafka.yml:/opt/prometheus-jmx-exporter/kafka.yml
-      - ./docker/kafka/server.properties:/server.properties:/etc/kafka/server.properties
+    ports:
+      - "29092:29092"
+      - "9092:9092"
+      - "5085:5085"
     networks:
       - backend
 
@@ -215,11 +212,11 @@ services: #docker compose build
     environment:
       MINIO_ROOT_USER: your_minio_id
       MINIO_ROOT_PASSWORD: your_minio_secret
-      MINIO_ROOT_URL: http://your-bucket-secure.minio:9000  # Explicitly set the root URL
 
     volumes:
       - data:/data
-    command: server /data --console-address 0.0.0.0:9001
+    entrypoint: sh
+    command:  -c "mkdir -p /data/your-bucket-secure && /usr/bin/minio server /data --console-address 0.0.0.0:9001"
     networks:
       - backend
 

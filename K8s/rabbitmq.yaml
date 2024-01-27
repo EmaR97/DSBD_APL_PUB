@@ -1,0 +1,63 @@
+# kubectl apply -f K8s/rabbitmq.yaml
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq
+spec:
+  serviceName: "rabbitmq"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+        containers:
+        - name: rabbitmq
+          image: "rabbitmq:latest"
+          env:
+            - name: RABBITMQ_ERLANG_COOKIE
+              value: "secretcookie"
+            - name: RABBITMQ_DEFAULT_USER
+              value: "admin"
+            - name: RABBITMQ_DEFAULT_PASS
+              value: "admin"
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+            - containerPort: 1883
+          args:
+            - "sh"
+            - "-c"
+            - |
+              rabbitmq-plugins enable rabbitmq_mqtt &&
+              rabbitmq-plugins enable rabbitmq_management &&
+              exec rabbitmq-server
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+spec:
+  selector:
+    app: rabbitmq
+  type: NodePort
+  ports:
+    - name: rabbitmq
+      protocol: TCP
+      port: 5672
+      targetPort: 5672
+    - name: rabbitmq-management
+      protocol: TCP
+      port: 15672
+      targetPort: 15672
+    - name: rabbitmq-mqtt
+      protocol: TCP
+      port: 1884
+      targetPort: 1883
+      nodePort: 30002
+

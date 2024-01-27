@@ -1,0 +1,70 @@
+#TODO to test
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-processing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server-processing
+  template:
+    metadata:
+      labels:
+        app: server-processing
+    spec:
+      containers:
+      - name: server-processing
+        image: quay.io/emar97/server_processing_image
+        volumeMounts:
+        - name: config-volume
+          mountPath: /usr/src/app/build/config_ps.json
+          subPath: config_ps.json
+          readOnly: true
+      volumes:
+      - name: config-volume
+        configMap:
+          name: server-processing-config
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server-processing-config
+data:
+  config_ps.json: |
+    {
+      "kafka": {
+        "broker": "kafka:9092",
+        "group_id": "group_id",
+        "topic_frame_data": "frame_data",
+        "topic_frame_info": "frame_info",
+        "topic_notification": "notification"
+      },
+      "minio": {
+        "endpoint": "http://minio:9000",
+        "bucketName": "your-bucket-secure",
+        "keyId": "username",
+        "keySecret": "password"
+      },
+      "prometheus": {
+        "bind_address": "0.0.0.0:8080",
+        "interval": 10
+      }
+    }
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-processing
+spec:
+  selector:
+    app: server-processing
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080 # Assuming your container listens on port 8080

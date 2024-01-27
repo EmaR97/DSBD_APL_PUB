@@ -76,6 +76,8 @@ def query_violations():
     start_time = request.args.get('hours')
     values = SlaManger.prometheus.get_prometheus_vector(metric_name, start_time)
     sla = SLADocument.objects(metric_name=metric_name).first()
+    if not sla:
+        abort(404, description="SLA not found")
     violations = [value for value in values if sla.get_sla_status(value)]
     return jsonify({"violations_count": len(violations)})
 

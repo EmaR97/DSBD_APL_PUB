@@ -1,0 +1,17 @@
+# Use an official Kafka image as the base image
+FROM confluentinc/cp-kafka:latest as kafka-jmx
+
+# Copy JMX exporter files
+COPY ./docker/kafka/jmx_prometheus_javaagent-0.18.0.jar /opt/prometheus-jmx-exporter/jmx_prometheus_javaagent-0.18.0.jar
+COPY ./docker/kafka/kafka.yml /opt/prometheus-jmx-exporter/kafka.yml
+
+# Copy server properties
+COPY ./docker/kafka/server.properties /etc/kafka/server.properties
+
+# Set environment variables
+ENV JMX_PORT=9999
+ENV KAFKA_OPTS="-javaagent:/opt/prometheus-jmx-exporter/jmx_prometheus_javaagent-0.18.0.jar=5085:/opt/prometheus-jmx-exporter/kafka.yml"
+ENV KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote.host=localhost -Dcom.sun.management.jmxremote.port=5084 -Dcom.sun.management.jmxremote.rmi.port=5084 -Dcom.sun.management.jmxremote.local.only=false"
+
+# Expose necessary ports
+EXPOSE 29092 9092 5085

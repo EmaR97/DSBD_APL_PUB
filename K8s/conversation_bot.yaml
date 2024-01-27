@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conversation-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conversation-bot
+  template:
+    metadata:
+      labels:
+        app: conversation-bot
+    spec:
+      containers:
+        - name: conversation-bot
+          image: quay.io/emar97/conversation_bot_image
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config.json
+              subPath: config_conversation_bot.json
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: conversation-bot-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: conversation-bot
+spec:
+  selector:
+    app: conversation-bot
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: conversation-bot-config
+data:
+  config_conversation_bot.json: |
+    {
+      "telegram": {
+        "token": "6951268937:AAHu2BM5i4UJiJ49n9RsVLXKeekFxdFuU6A"
+      },
+      "mongo": {
+        "host": "mongodb",
+        "port": "27017",
+        "dbname": "your_database_name",
+        "username": "username",
+        "password": "example"
+      },
+      "grpc": {
+        "get_chat_ids": "conversation_bot:50052",
+        "get_cam_ids": "server_main:50051"
+      },
+      "auth": "http://nginx:8090/access/login"
+    }

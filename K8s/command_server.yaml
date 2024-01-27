@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-command
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server-command
+  template:
+    metadata:
+      labels:
+        app: server-command
+    spec:
+      containers:
+        - name: server-command
+          image: quay.io/emar97/server_command_image
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config.json
+              subPath: config_command.json
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: server-command-config
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server-command-config
+data:
+  config_command.json: |
+    {
+      "mqtt": {
+        "brokerURL": "tcp://rabbitmq:1883",
+        "clientID": "example-client",
+        "username": "test",
+        "password": "test"
+      },
+      "mqtt-management": {
+        "url": "http://rabbitmq:15672",
+        "username": "admin",
+        "password": "admin"
+      },
+      "server": {
+        "httpPort": ":8080",
+        "shutdownTimeout": 10,
+        "allowedIPs": [
+          "::1",
+          "172.19.124.79",
+          "127.0.0.1",
+          "172.18.0.1",
+          "172.18.0.5"
+        ],
+        "templateDir": "templates/*",
+        "authEndpoint": "http://nginx:8090/access/verify"
+      }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-command
+spec:
+  selector:
+    app: server-command
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8080

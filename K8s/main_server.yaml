@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-main
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server-main
+  template:
+    metadata:
+      labels:
+        app: server-main
+    spec:
+      containers:
+        - name: server-main
+          image: quay.io/emar97/server_main_image
+          ports:
+            - containerPort: 8080
+            - containerPort: 50051
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config.json
+              subPath: config_main.json
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: server-main-config
+
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server-main-config
+data:
+  config_main.json: |
+    {
+      "database": {
+        "url": "mongodb://username:example@mongodb:27017",
+        "name": "your_database_name",
+        "username": "username",
+        "password": "example"
+      },
+      "server": {
+        "httpPort": ":8080",
+        "grpcPort": ":50051",
+        "shutdownTimeout": 10,
+        "allowedIPs": [
+          "::1",
+          "172.19.124.79",
+          "127.0.0.1",
+          "172.18.0.1",
+          "172.18.0.5"
+        ],
+        "templateDir": "templates/*",
+        "authEndpoint": "http://server-auth:8080/access/verify"
+      },
+      "minio": {
+        "endpoint": "minio:9000",
+        "username": "username",
+        "password": "password",
+        "bucketName": "your-bucket-secure",
+        "cleanUpInterval": 1,
+        "cleanUpOlderThan": 0.1
+      },
+      "kafka": {
+        "brokers": "kafka:9092",
+        "groupID": "your-kafka-group-id",
+        "topic_in": "frame_info",
+        "topic_out": "notification"
+      }
+    }
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-main
+spec:
+  selector:
+    app: server-main
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8080
+      name: http
+    - protocol: TCP
+      port: 50051
+      targetPort: 50051
+      name: grpc

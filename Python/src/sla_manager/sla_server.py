@@ -3,10 +3,10 @@ from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, abort
 
 from mongo import SLADocument
-from mongo.series_model import SeriesModel
+from mongo import SeriesModel
 from prometheus.query import PrometheusInterface
-from time_series.gaussian_probability_estimation import compute_out_of_bounds_probability
-from time_series.model_fitting import reevaluate_model
+from time_series import compute_out_of_bounds_probability
+from time_series import reevaluate_model
 
 
 class SlaManger:

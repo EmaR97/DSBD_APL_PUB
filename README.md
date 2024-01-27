@@ -428,6 +428,35 @@ Telegram.-->
 
 ---
 
+### **Server di Stima della Probabilità Gaussiana e Adattamento del Modello**
+
+Il Server di Stima della Probabilità Gaussiana e Adattamento del Modello è un componente cruciale del sistema di monitoraggio delle telecamere distribuite. Utilizza tecniche di analisi dei dati per valutare la probabilità di violazioni degli SLA e per adattare i modelli alle condizioni correnti dei dati.
+
+#### *Funzionalità Chiave:*
+
+1. **Stima della Probabilità di Violazioni:**
+
+   - Utilizza la distribuzione gaussiana per stimare la probabilità che una variabile metrica superi determinati limiti, basandosi su tendenze storiche e parametri del modello.
+   - Calcola la probabilità di violazione degli SLA all'interno di specifici intervalli di tempo, consentendo la previsione e la gestione proattiva dei problemi.
+
+2. **Adattamento del Modello:**
+
+   - Implementa tecniche di adattamento del modello per incorporare nuovi dati e modifiche nelle condizioni di sistema.
+   - Utilizza algoritmi di fitting polinomiale, decomposizione stagionale e stima dell'errore per adattare i modelli alle variazioni nei dati di telecamere e garantire predizioni accurate.
+
+3. **Aggiornamento degli SLA:**
+
+   - Consente l'aggiornamento dinamico degli SLA (Service Level Agreement) in base alle esigenze operative e ai cambiamenti nelle prestazioni del sistema.
+   - Incorpora nuovi requisiti degli SLA nel processo di stima della probabilità e nell'adattamento del modello per garantire la conformità agli standard di servizio.
+
+#### *Aggiornamento Continuo del Modello:*
+
+- Il Server di Stima della Probabilità Gaussiana e Adattamento del Modello si aggiorna costantemente con nuovi dati e informazioni sugli SLA, garantendo una precisione e una affidabilità continue nella stima delle probabilità e nel fitting dei modelli.
+
+<!--In sintesi, il Server di Stima della Probabilità Gaussiana e Adattamento del Modello fornisce un'analisi sofisticata delle metriche di telecamere, consentendo la valutazione delle violazioni degli SLA e l'adattamento dinamico dei modelli per rispondere alle condizioni del sistema.-->
+
+---
+
 ### **Archiviazione Coerente dei Dati con MongoDB:**
 
 MongoDB funge da repository centrale per i dati elaborati all'interno del sistema di monitoraggio delle telecamere. Ogni

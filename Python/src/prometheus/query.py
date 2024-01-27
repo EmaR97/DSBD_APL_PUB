@@ -18,7 +18,7 @@ class PrometheusInterface:
             result = response.json()
 
             if result['status'] == 'success' and result['data']['result'][0]['value']:
-                return result['data']['result'][0]['value'][1]
+                return result['data']['result'][0]['value']
             else:
                 return None
         except requests.RequestException as e:
@@ -36,7 +36,7 @@ class PrometheusInterface:
             result = response.json()
 
             if result['status'] == 'success' and len(result['data']['result'][0]['values']):
-                return [x[1] for x in result['data']['result'][0]['values']]
+                return [x for x in result['data']['result'][0]['values']]
             else:
                 return None
         except requests.RequestException as e:

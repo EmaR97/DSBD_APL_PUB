@@ -20,47 +20,33 @@
     - 6.1 [Responsabilità Chiave](#responsabilità-chiave-1)
     - 6.2 [Miglioramento della Affidabilità per le Telecamere Remote](#miglioramento-della-affidabilità-per-le-telecamere-remote)
     - 6.3 [Scalabilità e Flessibilità](#scalabilità-e-flessibilità)
-7. [Servizio di Sottoscrizione Notifiche](#servizio-di-sottoscrizione-notifiche)
+7. [Servizio di Sottoscrizione alle Notifiche](#servizio-di-sottoscrizione-alle-notifiche)
     - 7.1 [Funzionalità Chiave](#funzionalità-chiave)
     - 7.2 [Miglioramento del Controllo e della Personalizzazione Utente](#miglioramento-del-controllo-e-della-personalizzazione-utente)
-    - 7.3 [Integrazione con il Servizio di Notifiche](#integrazione-con-il-servizio-di-notifiche)
 8. [Servizio di Notifiche](#servizio-di-notifiche)
     - 8.1 [Funzionalità Chiave](#funzionalità-chiave-1)
-    - 8.2 [Integrazione con il Servizio di Sottoscrizione Notifiche](#integrazione-con-il-servizio-di-sottoscrizione-notifiche)
-    - 8.3 [Miglioramento del Coinvolgimento Utente](#miglioramento-del-coinvolgimento-utente)
 9. [Sla Manager](#sla-manager)
     - 9.1 [Funzionalità Chiave](#funzionalità-chiave-2)
     - 9.2 [Aggiornamento Continuo del Modello](#aggiornamento-continuo-del-modello)
 10. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
-    - 10.1 [Punti Chiave](#punti-chiave)
-11. [Gateway API in Kubernetes (K8s)](#gateway-api-in-kubernetes-k8s)
-    - 11.1 [Caratteristiche Principali](#caratteristiche-principali-2)
-12. [Generazione di URL Pre-firmati da Main Server](#generazione-di-url-pre-firmati-da-main-server)
-    - 12.1 [Punti Chiave](#punti-chiave-1)
-13. [Conclusioni](#conclusioni)
-    - 13.1 [Reattività in Tempo Reale](#reattività-in-tempo-reale)
-    - 13.2 [Scaling Dinamico](#scaling-dinamico)
-    - 13.3 [Miglioramenti dell'Interfaccia Utente](#miglioramenti-dellinterfaccia-utente)
-    - 13.4 [Integrazione con Sistemi Esterni](#integrazione-con-sistemi-esterni)
+11. [Load Balancing e Routing in Docker e K8s](#load-balancing-e-routing-in-docker-e-k8s)
+12. [Url pre-firmati per scaricare da Minio](#url-pre-firmati-per-scaricare-da-minio)
+13. [Conclusioni e Sviluppi Futuri](#conclusioni-e-sviluppi-futuri)
+   
+
 ### **Introduzione:**
 
-Il sistema di monitoraggio delle telecamere distribuite è una soluzione completa che affronta le esigenze della
-sorveglianza e del rilevamento degli eventi. Basato su componenti distribuite come Kafka, MongoDB e Kubernetes, il
-sistema garantisce una cattura, elaborazione e notifica degli eventi senza compromettere la scalabilità, l'efficienza o
-la sicurezza.
+Il Sistema di Monitoraggio delle Telecamere Distribuite rappresenta una soluzione completa per soddisfare le esigenze di sorveglianza e rilevamento degli eventi.Fondato su componenti distribuite come Kafka, MongoDB e Kubernetes, questo sistema assicura cattura, elaborazione e notifica degli eventi senza compromettere scalabilità, efficienza o sicurezza.
 
-Al suo nucleo, il sistema comprende telecamere in varie posizioni, che catturano frame distribuiti a server di
-elaborazione tramite Kafka. Questi server, iscritti a un gruppo Kafka comune, applicano collettivamente algoritmi di
-riconoscimento dei pedoni e archiviano i frame elaborati in MinIO. Il Server Principale gestisce le informazioni e i
-frame della telecamera, mentre il Server di Autenticazione garantisce un accesso sicuro agli utenti. I bot di Telegram,
-facilitati dal Servizio di Sottoscrizione Notifiche e dal Servizio di Notifiche, forniscono un'interfaccia per gestire
-le notifiche e ricevere avvisi.
+Al cuore del sistema troviamo telecamere dislocate in varie posizioni, che catturano frame distribuiti a server di elaborazione tramite Kafka. Questi server applicano algoritmi di riconoscimento dei pedoni e archiviano i frame elaborati in MinIO. Il Server Principale gestisce le informazioni e i frame della telecamera, mentre il Server di Autenticazione garantisce accesso sicuro agli utenti. I bot di Telegram, facilitati dal Servizio di Sottoscrizione Notifiche e dal Servizio di Notifiche, forniscono un'interfaccia per gestire le notifiche e ricevere avvisi.
 
+Tecnologie come GRPC, formato Proto e API-Gateway contribuiscono a un framework di comunicazione sicuro.
+L'architettura enfatizza la coerenza dei dati tramite MongoDB, l'accesso sicuro tramite API-Gateway e l'accesso diretto
+ai frame elaborati tramite URL pre-firmati.
+
+### Schema di Componenti e Comunicazione 
 ![Schema di Comunicazione](Resource/communication_scheme.jpg)
 
-Tecnologie come GRPC, formato Proto e Kubernetes Gateway API contribuiscono a un framework di comunicazione sicuro.
-L'architettura enfatizza la coerenza dei dati tramite MongoDB, l'accesso sicuro tramite Gateway API e l'accesso diretto
-ai frame elaborati tramite URL pre-firmati.
 
 ---
 
@@ -68,16 +54,14 @@ ai frame elaborati tramite URL pre-firmati.
 
 **[Src](CPP/src/cam_controller.cpp)**
 
-Il Controllore di Base della Telecamera è il modulo fondamentale nel sistema di monitoraggio delle telecamere,
-convalidando le funzionalità di base e supportando eventuali estensioni per funzionalità avanzate.
+Il Controllore di Base della Telecamera si occupa di rappresentare ed implementare le funzionalità di base fornite dalla telecamera nel sistema e supporta eventuali estensioni per funzionalità avanzate, grazie alla sua struttura modulare.
 
 #### *Caratteristiche Principali:*
 
 1. **Distribuzione di Frame tramite Kafka:**
 
-    - Il controllore cattura i frame e li distribuisce efficientemente a server di elaborazione attraverso un topic
-      Kafka dedicato.
-    - Utilizza Kafka per la consegna di frame ad alta velocità e tolleranza agli errori.
+    - Il controllore cattura i frame e li distribuisce in modo efficiente ai server di elaborazione attraverso un topic Kafka dedicato.
+    - Utilizza Kafka per garantire una consegna veloce dei frame con tolleranza agli errori.
 
 2. **Elaborazione di Comandi tramite RabbitMQ e MQTT:**
 
@@ -87,8 +71,7 @@ convalidando le funzionalità di base e supportando eventuali estensioni per fun
 3. **Standardizzazione dei Messaggi:**
 
     - I messaggi in ingresso e in uscita seguono il formato Proto standard di Google.
-    - Garantisce un protocollo di comunicazione coerente, facilitando l'interoperabilità e l'integrazione con altri
-      componenti.
+    - Questo assicura un protocollo di comunicazione coerente, facilitando l'interoperabilità e l'integrazione con altri componenti.
 
 #### *Potenzialità per Sviluppi Futuri:*
 
@@ -106,46 +89,37 @@ un formato standardizzato. -->
 
 **[Src](CPP/src/processing_server.cpp)**
 
-I server di elaborazione sono fondamentali per il funzionamento efficiente del sistema di monitoraggio delle telecamere
-distribuite, concentrandosi sull'applicazione efficace dell'algoritmo di riconoscimento dei pedoni e sulla successiva
-gestione delle immagini elaborate.
+I server di elaborazione si concentrano sull'applicazione efficace dell'algoritmo di riconoscimento dei pedoni e sulla gestione successiva delle immagini elaborate.
 
 #### *Responsabilità Chiave:*
 
 1. **Elaborazione Parallelizzata:**
 
-    - Diversi server di elaborazione si iscrivono allo stesso gruppo Kafka su un topic dedicato, consentendo la
-      distribuzione del carico di lavoro per l'applicazione dell'algoritmo di riconoscimento dei pedoni.
-    - Questo approccio parallelizzato migliora la scalabilità e la reattività, contribuendo all'efficienza del sistema.
+    - Diversi server di elaborazione si connettono al medesimo gruppo Kafka su un topic dedicato, permettendo la distribuzione del carico di lavoro per l'applicazione dell'algoritmo di riconoscimento dei pedoni.
+    - Questo approccio parallelo migliora la scalabilità e la reattività del sistema, contribuendo alla sua efficienza complessiva.
 
-2. **Elaborazione Algoritmica e Archiviazione Immagini:**
+2. **Elaborazione Algoritmica e Archiviazione delle Immagini:**
 
-    - I server di elaborazione applicano l'algoritmo di riconoscimento dei pedoni ai frame ricevuti per un'analisi
-      accurata e tempestiva.
-    - Le immagini elaborate vengono trasmesse a MinIO per l'archiviazione, stabilendo un repository centralizzato per i
-      dati storici.
+    - I server di elaborazione applicano l'algoritmo di riconoscimento dei pedoni ai frame ricevuti per un'analisi accurata e tempestiva.
+    - Le immagini elaborate vengono trasferite a MinIO per l'archiviazione, creando un repository centralizzato per i dati storici.
 
 3. **Segnalazione dei Risultati al Server Principale:**
 
-    - I risultati dell'algoritmo di riconoscimento dei pedoni vengono inviati al server principale per l'archiviazione e
-      ulteriore elaborazione.
-    - Ciò facilita un'analisi completa e la presa di decisioni basate sulle informazioni rilevate.
+    - I risultati dell'algoritmo di riconoscimento dei pedoni vengono trasmessi al server principale per l'archiviazione e ulteriori elaborazioni.
+    - Ciò agevola un'analisi completa e supporta le decisioni basate sulle informazioni rilevate.
 
 4. **Metriche di Utilizzo delle Risorse con Prometheus:**
 
-    - Prometheus è integrato per raccogliere metriche essenziali per ottimizzare l'utilizzo delle risorse.
-        - Le metriche di **Tempo Trascorso** catturano la durata dalla creazione del frame all'archiviazione in MinIO,
-          fornendo informazioni sull'efficienza dell'elaborazione.
-        - Il **Rapporto Lavoro-a-Inattività** valuta il rapporto tra il tempo trascorso a lavorare sui frame e il tempo
-          inattivo dei server di elaborazione, contribuendo alle decisioni di allocazione delle risorse.
-        - Le Metriche della **Coda dei Messaggi** includono il conteggio dei messaggi in attesa sul topic per
-          l'elaborazione e la variazione di questo valore nel tempo, fungendo da base per la distribuzione dinamica dei
-          server in base alle fluttuazioni del carico di lavoro.
+    - Prometheus è integrato per raccogliere metriche essenziali al fine di ottimizzare l'utilizzo delle risorse:
+
+        - Il parametro **time_since_message_creation
+          ** valuta il tempo trascorso dalla creazione del frame al suo arrivo al server di elaborazione, fornendo informazioni sulla latenza causata da una capacità di elaborazione insufficiente.
+        - Il parametro **working_time
+          ** valuta il rapporto tra il tempo dedicato al lavoro sui frame e il tempo inattivo dei server di elaborazione, contribuendo alle decisioni di allocazione delle risorse e consentendo di individuare riduzioni nel carico di lavoro.
 
 #### *Deployment Dinamico dei Server:*
 
-- Sfruttando le metriche raccolte, il sistema regola dinamicamente il numero di server di elaborazione deployati,
-  garantendo un utilizzo ottimale delle risorse e la reattività a variazioni del carico di lavoro.
+- Le metriche raccolte, insieme a quelle ottenute tramite un exporter posizionato sul nodo di Kafka, fungono da base per valutare la capacità di elaborazione delle immagini attuale del sistema. Queste metriche potenzialmente supportano lo sviluppo di un deployment dinamico dei server, regolando il numero di server di elaborazione deployati in modo dinamico per garantire un utilizzo ottimale delle risorse e la reattività alle variazioni del carico di lavoro.
 
 <!-- In sintesi, i server di elaborazione contribuiscono alla natura distribuita del sistema attraverso l'elaborazione
 parallelizzata, l'ottimizzazione delle risorse mediante metriche di Prometheus e la scalabilità dinamica.-->
@@ -156,8 +130,7 @@ parallelizzata, l'ottimizzazione delle risorse mediante metriche di Prometheus e
 
 **[Src](GO/src/server_auth/main.go)**
 
-Il Server di Autenticazione svolge un ruolo cruciale nel sistema di monitoraggio delle telecamere distribuite,
-stabilendo un meccanismo di accesso sicuro e controllato per gli utenti e le loro telecamere associate.
+Il Server di Autenticazione fornisce un meccanismo di accesso sicuro e controllato per gli utenti e le loro telecamere associate, alle funzionalità offerte dal sistema.
 
 #### *Caratteristiche Principali:*
 
@@ -207,7 +180,7 @@ monitoraggio delle telecamere distribuite. -->
 
 **[Src](GO/src/server_main/main.go)**
 
-Il Server Principale funge da fulcro centrale nel sistema distribuito di monitoraggio delle telecamere, supervisionando
+Il Server Principale supervisiona
 la gestione delle telecamere, le registrazioni degli utenti e l'archiviazione di frame e informazioni pertinenti.
 
 #### *Responsabilità Chiave:*
@@ -236,10 +209,8 @@ la gestione delle telecamere, le registrazioni degli utenti e l'archiviazione di
 
 4. **Accesso degli Utenti ai Flussi Video delle Telecamere:**
 
-    - Attraverso il Server Principale, gli utenti possono accedere ai flussi video delle loro telecamere registrate,
-      fornendo capacità di monitoraggio in tempo reale.
-    - Questa funzionalità migliora l'esperienza complessiva dell'utente offrendo un accesso senza soluzione di
-      continuità ai flussi video delle telecamere.
+    - Attraverso il Server Principale, gli utenti possono accedere ai flussi video delle loro telecamere registrate, fornendo capacità di monitoraggio in tempo reale.
+    - Un url pre-firmato viene generato per permettere l'accesso diretto dell'utente a Minio
 
 5. **Recupero di Informazioni per Altri Servizi:**
 
@@ -249,17 +220,18 @@ la gestione delle telecamere, le registrazioni degli utenti e l'archiviazione di
 6. **Notifiche Positive per il Riconoscimento dei Pedoni:**
 
     - Alla ricezione di messaggi relativi alle immagini elaborate, se un'immagine viene positivamente riconosciuta per i
-      pedoni, il Server Principale attiva un messaggio sul topic di notifica su Kafka.
+      pedoni, il Server Principale invia un messaggio sul topic di notifica su Kafka.
     - Questo messaggio viene quindi elaborato dal Servizio di Notifiche, consentendo agli utenti di ricevere avvisi
       tempestivi e notifiche sull'attività dei pedoni rilevata.
 
 7. **Gestione dell'Eliminazione Automatica di Dati Obsoleti:**
 
-    - Il sistema implementa un meccanismo di pulizia automatica per le immagini salvate su MinIO e le relative
-      informazioni memorizzate su MongoDB.
+    - Il sistema implementa un meccanismo di pulizia automatica per le immagini salvate.
+
     - Dopo un tempo predefinito, le immagini elaborate archiviate su MinIO e le corrispondenti informazioni su MongoDB
       vengono eliminate per garantire l'ottimizzazione dello spazio di archiviazione e la gestione efficiente delle
       risorse del sistema.
+
     - Questa pratica assicura che solo dati pertinenti e recenti siano conservati nel sistema, riducendo l'ingombro e
       contribuendo alla performance ottimale del sistema nel lungo termine.
 
@@ -279,52 +251,41 @@ delle telecamere. -->
 
 **[Src](GO/src/server_command/main.go)**
 
-Il Server dei Comandi svolge un ruolo vitale come componente intermedia nel sistema distribuito di monitoraggio delle
-telecamere, consentendo agli utenti di inviare richieste API che vengono efficientemente trasmesse alle telecamere
-specificate, affrontando potenziali sfide nelle connessioni remote delle telecamere.
+Il Server dei Comandi consente agli utenti di inviare comandi tramite richieste API, i quali vengono trasferiti in modo efficiente alle telecamere specificate, affrontando le sfide delle connessioni remote delle telecamere.
 
 #### *Responsabilità Chiave:*
 
 1. **Ricezione delle Richieste API:**
-    - Il Server dei Comandi riceve richieste API dagli utenti, agendo come intermediario tra l'interfaccia utente e le
-      telecamere all'interno del sistema.
+    - Il Server dei Comandi agisce come intermediario tra l'interfaccia utente e le telecamere nel sistema, accogliendo le richieste API dagli utenti.
 
 2. **Formattazione e Standardizzazione dei Comandi:**
-    - I comandi ricevuti vengono formattati e standardizzati utilizzando il formato Proto, garantendo un protocollo di
-      comunicazione consistente e strutturato.
-    - Questa standardizzazione migliora l'interoperabilità e la facilità di integrazione con diversi componenti del
-      sistema.
+    - I comandi ricevuti vengono formattati e standardizzati utilizzando il formato Proto, garantendo così un protocollo di comunicazione uniforme e strutturato.
+    - Questo processo di standardizzazione migliora l'interoperabilità e semplifica l'integrazione con diversi componenti del sistema.
 
-3. **Consegna Affidabile dei Messaggi con MQTT:**
-    - L'utilizzo di MQTT come protocollo di comunicazione offre vantaggi in scenari con connessioni potenzialmente
-      instabili, come quelli comunemente riscontrati nelle telecamere remote degli utenti.
-    - MQTT fornisce la conferma della consegna del messaggio, garantendo che i comandi raggiungano le telecamere
-      specificate anche in condizioni di rete difficili.
+3. **Consegna Affidabile dei Messaggi tramite MQTT:**
+    - MQTT viene impiegato come protocollo di comunicazione per assicurare una consegna affidabile dei messaggi, particolarmente vantaggiosa in scenari con connessioni instabili, come quelle tipiche delle telecamere remote degli utenti.
+    - La conferma di consegna del messaggio garantita da MQTT assicura che i comandi raggiungano le telecamere specificate anche in condizioni di rete difficili.
 
 4. **Comunicazione con RabbitMQ:**
-    - I comandi formattati vengono inviati al topic della telecamera specificata all'interno di RabbitMQ tramite MQTT.
-    - Ciò stabilisce un canale di comunicazione affidabile ed efficiente tra il Server dei Comandi e le telecamere.
+    - I comandi formattati vengono trasmessi al topic della telecamera specificata all'interno di RabbitMQ tramite MQTT, stabilendo un canale di comunicazione affidabile ed efficiente tra il Server dei Comandi e le telecamere.
 
 #### *Miglioramento della Affidabilità per le Telecamere Remote:*
 
-- La scelta di MQTT come protocollo di comunicazione è strategica, offrendo una consegna affidabile dei messaggi e la
-  conferma anche in situazioni in cui le connessioni di rete sono meno stabili.
+- La scelta di MQTT come protocollo di comunicazione offre una consegna affidabile dell'ultimo messaggio, sovrascritto dall'arrivo del successivo.
 
 #### *Scalabilità e Flessibilità:*
 
-- Il design del Server dei Comandi consente la scalabilità, accomodando un numero crescente di utenti e telecamere, e la
-  sua flessibilità permette l'integrazione senza soluzione di continuità con varie interfacce utente.
+- Il design del Server dei Comandi è progettato per consentire la scalabilità, gestendo un numero crescente di utenti e telecamere. Inoltre, grazie all'utilizzo di un IDL come Proto, garantisce un'integrazione fluida con varie interfacce fornite dalle telecamere.
 
-<!--In sintesi, il Server dei Comandi svolge un ruolo cruciale nel facilitare i comandi degli utenti, formattandoli e standardizzandoli, e garantendo una consegna affidabile alle telecamere remote attraverso l'infrastruttura robusta di MQTT e RabbitMQ.-->
-
+<!--In sintesi, il Server dei Comandi svolge un ruolo cruciale nel facilitare i comandi degli utenti, standardizzandoli e garantendo una consegna affidabile alle telecamere remote tramite l'infrastruttura robusta di MQTT e RabbitMQ.-->
 ---
 
-### **Servizio di Sottoscrizione Notifiche:**
+### **Servizio di Sottoscrizione alle Notifiche:**
 
 **[Src](Python/src/conversation_bot/main.py)**
 
 Il Servizio di Sottoscrizione Notifiche è un bot Telegram che intrattiene conversazioni con gli utenti sulla piattaforma
-Telegram, offrendo un'interfaccia senza soluzione di continuità per gestire le preferenze e le sottoscrizioni alle
+Telegram, offrendo un'interfaccia per gestire le preferenze e le sottoscrizioni alle
 notifiche degli utenti.
 
 #### *Funzionalità Chiave:*
@@ -353,18 +314,15 @@ notifiche degli utenti.
 
 5. **Interfaccia GRPC per il Recupero delle Informazioni:**
 
-    - Il Servizio di Sottoscrizione Notifiche espone un'interfaccia GRPC per consentire ad altri componenti, come il
-      Servizio di Notifiche, di ottenere efficientemente le informazioni necessarie sulle sottoscrizioni degli utenti.
+    - Il Servizio di Sottoscrizione alle Notifiche espone un'interfaccia GRPC per consentire ad altri componenti, come il
+      Servizio di Notifiche, di ottenere le informazioni necessarie sulle sottoscrizioni degli utenti.
 
 #### *Miglioramento del Controllo e della Personalizzazione Utente:*
 
 - Il servizio dà potere agli utenti permettendo loro di personalizzare le preferenze di notifica, specificando le
   telecamere di interesse, l'orario delle notifiche e la possibilità di optare per l'uscita in qualsiasi momento.
 
-#### *Integrazione con il Servizio di Notifiche:*
 
-- Il Servizio di Sottoscrizione Notifiche si integra senza soluzione di continuità con il Servizio di Notifiche
-  attraverso l'interfaccia GRPC, fornendo un canale di comunicazione strutturato ed efficiente.
 
 <!-- In sintesi, il Servizio di Sottoscrizione Notifiche funge da interfaccia utente amichevole sulla piattaforma Telegram,
 consentendo agli utenti di gestire le loro preferenze di notifica e interagire con il più ampio sistema di notifiche.-->
@@ -381,13 +339,12 @@ notifica efficiente degli utenti che hanno manifestato interesse in specifiche n
 
 1. **Consumo di Messaggi da Kafka:**
 
-    - Il Servizio di Notifiche consuma continuamente i messaggi dal topic di notifica Kafka (ad esempio, "alert").
-    - Questi messaggi contengono tipicamente informazioni su un riconoscimento positivo di pedoni o altri eventi che
-      attivano le notifiche.
+    - Il Servizio di Notifiche consuma continuamente i messaggi dal topic di notifica Kafka.
+    - Questi messaggi contengono informazioni su un riconoscimento positivo di pedoni.
 
 2. **Recupero delle Informazioni sugli Utenti:**
 
-    - Con ogni messaggio consumato, il Servizio di Notifiche richiede informazioni al Servizio di Sottoscrizione
+    - Con ogni messaggio consumato, il Servizio di Notifiche richiede informazioni al Servizio di Sottoscrizione alle
       Notifiche tramite l'interfaccia GRPC.
     - Questa richiesta aiuta a identificare tutti gli utenti interessati a ricevere notifiche relative all'evento
       specifico menzionato nel messaggio Kafka.
@@ -397,7 +354,7 @@ notifica efficiente degli utenti che hanno manifestato interesse in specifiche n
     - Il servizio utilizza gli ID di Telegram registrati ottenuti dal Servizio di Sottoscrizione Notifiche per
       notificare gli utenti sull'evento.
     - Le notifiche vengono inviate direttamente agli utenti sulla piattaforma Telegram, fornendo avvisi in tempo reale
-      su attività rilevanti dal sistema di monitoraggio delle telecamere.
+      su attività di riconoscimento dei pedoni.
 
 4. **Mirato Efficientemente agli Utenti:**
 
@@ -412,18 +369,6 @@ notifica efficiente degli utenti che hanno manifestato interesse in specifiche n
     - Il servizio risponde prontamente ai messaggi Kafka in arrivo, garantendo notifiche tempestive agli utenti
       interessati.
 
-#### *Integrazione con il Servizio di Sottoscrizione Notifiche:*
-
-- Il Servizio di Notifiche si basa sull'interfaccia GRPC fornita dal Servizio di Sottoscrizione Notifiche per ottenere
-  informazioni aggiornate sulle sottoscrizioni degli utenti.
-- Questa integrazione migliora l'efficienza complessiva e l'accuratezza nel mirare gli utenti durante il processo di
-  notifica.
-
-#### *Miglioramento del Coinvolgimento Utente:*
-
-- Il Servizio di Notifiche contribuisce all'coinvolgimento degli utenti consegnando notifiche pertinenti e tempestive,
-  tenendo gli utenti informati sugli eventi catturati dal sistema di monitoraggio delle telecamere.
-
 <!--In sintesi, il Servizio di Notifiche svolge un ruolo cruciale nell'ultimo passo del processo di notifica, garantendo che
 gli utenti che si sono abbonati a eventi specifici ricevano avvisi tempestivi e personalizzati sulla piattaforma
 Telegram.-->
@@ -431,8 +376,8 @@ Telegram.-->
 ---
 
 ### **Sla Manager**
-**[Src](Python/src/sla_manager/main.py)**
 
+**[Src](Python/src/sla_manager/main.py)**
 
 Il server SlaManager è un componente cruciale del sistema di monitoraggio delle telecamere distribuite. Consente l'aggiornamento dinamico degli SLA e utilizza tecniche di analisi dei dati per valutare la probabilità di violazioni delle SLA definite e per adattare i modelli alle condizioni correnti dei dati.
 
@@ -441,7 +386,7 @@ Il server SlaManager è un componente cruciale del sistema di monitoraggio delle
 1. **Stima della Probabilità di Violazioni:**
 
     - Utilizza la distribuzione gaussiana per stimare la probabilità che una variabile metrica superi determinati limiti, basandosi su tendenze storiche e parametri del modello.
-    - Calcola la probabilità di violazione degli SLA all'interno di specifici intervalli di tempo, consentendo la previsione e la gestione proattiva dei problemi.
+    - Calcola la probabilità di violazione degli SLA all'interno di specifici intervalli di tempo, consentendo la previsione e la gestione pro-attiva dei problemi.
 
 2. **Adattamento del Modello:**
 
@@ -451,7 +396,7 @@ Il server SlaManager è un componente cruciale del sistema di monitoraggio delle
 3. **Aggiornamento degli SLA:**
 
     - Consente l'aggiornamento dinamico degli SLA (Service Level Agreement) in base alle esigenze operative e ai cambiamenti nelle prestazioni del sistema.
-    - Incorpora nuovi requisiti degli SLA nel processo di stima della probabilità e nell'adattamento del modello per garantire la conformità agli standard di servizio.
+    - Incorpora nuovi requisiti degli SLA nel processo di stima della probabilità e nell'adattamento del modello per garantire la conformità allo standard di servizio.
 
 #### *Aggiornamento Continuo del Modello:*
 
@@ -463,65 +408,32 @@ Il server SlaManager è un componente cruciale del sistema di monitoraggio delle
 
 ### **Archiviazione Coerente dei Dati con MongoDB:**
 
-MongoDB funge da repository centrale per i dati elaborati all'interno del sistema di monitoraggio delle telecamere. Ogni
-categoria di dati è accessibile attraverso un componente singolare, garantendo coerenza dei dati e fornendo un approccio
-strutturato al recupero dei dati.
+MongoDB funge da database centralizzato per archiviare varie categorie di dati, mantenendo un approccio
+strutturato e organizzato alla gestione dei dati.
 
-#### *Punti Chiave:*
-
-1. **Archiviazione Centralizzata dei Dati:**
-
-    - MongoDB funge da database centralizzato per archiviare varie categorie di dati, mantenendo un approccio
-      strutturato e organizzato alla gestione dei dati.
-
-2. **Accesso a Componente Singolare:**
-
-    - Per mantenere la coerenza dei dati, ogni categoria di dati è accessibile attraverso un componente singolare,
-      minimizzando il rischio di inconsistenze dei dati e garantendo interazioni ben definite con tipi di dati
-      specifici.
+Per mantenere la coerenza dei dati, ogni categoria di dati è accessibile attraverso un componente singolare,
+minimizzando il rischio di inconsistenze dei dati e garantendo interazioni ben definite con tipi di dati
+specifici.
 
 ---
 
-### **Gateway API in Kubernetes (K8s):**
+### **Load Balancing e Routing in Docker e K8s:**
 
-Una Gateway API è implementata all'interno del cluster Kubernetes (K8s), fornendo uno strato di astrazione e sicurezza
-per i servizi con cui interagiscono utenti e client telecamera. Questo gateway maschera gli indirizzi IP reali,
-migliorando la sicurezza e fornendo URL più amichevoli all'utente.
+Nel nostro ambiente Docker e Kubernetes (K8s), il load balancing e il routing sono gestiti attraverso l'utilizzo di Nginx o Ingress. Questa configurazione consente un accesso strutturato tramite API alle funzionalità del sistema, semplificando notevolmente l'implementazione del load balancing e del routing. Ciò assicura una distribuzione uniforme del traffico e un re-indirizzamento efficiente delle richieste.
 
-#### *Caratteristiche Principali:*
-
-1. **Mascheramento e Sicurezza degli IP:**
-
-    - La Gateway API maschera gli indirizzi IP reali dei servizi sottostanti, aggiungendo uno strato di sicurezza che
-      nasconde i dettagli interni agli utenti esterni.
-
-2. **URL più Amichevoli all'Utente:**
-
-    - La Gateway API fornisce URL più amichevoli e sicuri per consentire agli utenti e ai client telecamera di
-      interagire con vari servizi nel sistema.
+In futuro, potremmo considerare l'implementazione di funzionalità più avanzate utilizzando i Gateway API in Kubernetes (K8s). Questa tecnologia offre una maggiore personalizzazione e una gamma più ampia di funzionalità rispetto ai gateway tradizionali come Nginx. In particolare, consente la gestione non solo della comunicazione tramite HTTP, ma anche di protocolli come gRPC e TCP.
 
 ---
 
-### **Generazione di URL Pre-firmati da Main Server:**
+### **Url pre-firmati per scaricare da Minio:**
 
-Il Server Principale facilita l'accesso diretto ai frame elaborati archiviati in MinIO generando URL pre-firmati. Questo
-approccio minimizza intermediari non necessari, ottimizzando la velocità e fornendo agli utenti un accesso efficiente ai
-dati archiviati.
-
-#### *Punti Chiave:*
-
-1. **Creazione di URL Pre-firmati:**
-
-    - Il Server Principale crea URL pre-firmati per i frame elaborati archiviati in MinIO.
-    - Gli utenti possono accedere direttamente all'archiviazione MinIO senza intermediari, riducendo la latenza e
-      massimizzando la velocità.
+Il Server Principale facilita l'accesso diretto ai frame elaborati archiviati in MinIO generando URL pre-firmati. Questo approccio minimizza la presenza di intermediari non necessari, ottimizzando la velocità e fornendo agli utenti un accesso efficiente ai dati archiviati. In questo modo, viene garantito un accesso diretto, ma controllato, al sistema di archiviazione di Minio.
 
 ---
 
-### **Conclusioni:**
+### **Conclusioni e Sviluppi Futuri:**
 
-Nonostante il sistema di monitoraggio delle telecamere distribuito presenti una soluzione robusta e ben integrata, ci
-sono aree che potrebbero essere ulteriormente ottimizzate per migliorare le prestazioni e l'esperienza utente. In
+Il sistema di monitoraggio delle telecamere presenta alcune aree che potrebbero essere ulteriormente ottimizzate per migliorare le prestazioni e l'esperienza utente. In
 particolare:
 
 #### **Reattività in Tempo Reale:**
@@ -531,20 +443,16 @@ particolare:
 
 #### **Scaling Dinamico:**
 
-- Il sistema potrebbe beneficiare di meccanismi più avanzati per il scaling dinamico, regolando automaticamente il
+- Il sistema potrebbe beneficiare di meccanismi per il scaling dinamico, regolando automaticamente il
   numero di server di elaborazione in base a metriche in tempo reale per garantire un utilizzo ottimale delle risorse.
 
 #### **Miglioramenti dell'Interfaccia Utente:**
 
 - L'interfaccia utente, specialmente nei bot Telegram, potrebbe essere perfezionata per offrire più funzionalità e una
-  maggiore fluidità nell'esperienza utente, integrando potenzialmente contenuti multimediali o comandi aggiuntivi per
-  una interazione potenziata.
+  maggiore fluidità nell'esperienza utente, integrando contenuti multimediali o comandi aggiuntivi per l'interazione con le telecamere.
 
 #### **Integrazione con Sistemi Esterni:**
 
 - Esplorare possibilità di integrazione del sistema con servizi esterni o framework di intelligenza artificiale potrebbe
   potenziare ulteriormente le capacità di riconoscimento dei pedoni e l'intelligenza complessiva del sistema.
 
-In conclusione, il sistema di monitoraggio delle telecamere distribuito rappresenta una potente soluzione con una base
-solida. Un continuo perfezionamento e ottimizzazione nelle aree menzionate potrebbe spingere il sistema a nuovi livelli,
-rispondendo alle esigenze in evoluzione e stabilendo nuovi standard per efficienza e soddisfazione dell'utente.

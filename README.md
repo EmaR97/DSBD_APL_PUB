@@ -160,6 +160,14 @@ Il Server di Autenticazione fornisce un meccanismo di accesso sicuro e controlla
       e Kafka, garantendo un'integrazione senza soluzione di continuità nel sistema distribuito per la comunicazione e
       lo scambio di dati in tempo reale.
 
+
+#### API Implementate
+* **GET _/access/login_**: Restituisce la pagina di login per l'autenticazione dell'utente.
+* **POST _/access/login_**: Gestisce l'autenticazione dell'utente. Richiede i parametri `username`, `password`, e `cam_id`.
+* **GET _/access/signup_**: Restituisce la pagina di registrazione per la creazione di un nuovo account utente.
+* **POST _/access/signup_**: Gestisce la registrazione di un nuovo account utente. Richiede i parametri `username`, `email`, e `password`.
+* **GET _/access/logout_**: Gestisce il logout dell'utente.
+* **POST _/access/verify_**: Verifica la validità di un token. Richiede il parametro `token`.
 #### *Misure di Sicurezza:*
 
 - Il Server di Autenticazione agisce come un guardiano, verificando la legittimità delle richieste e garantendo che solo
@@ -235,6 +243,12 @@ la gestione delle telecamere, le registrazioni degli utenti e l'archiviazione di
     - Questa pratica assicura che solo dati pertinenti e recenti siano conservati nel sistema, riducendo l'ingombro e
       contribuendo alla performance ottimale del sistema nel lungo termine.
 
+#### API Implementate
+* **GET _/api/camera/:id/:lastSeen_**: Restituisce i frame successivi al timestamp specificato per una determinata fotocamera. `:id` rappresenta l'identificatore univoco della fotocamera, mentre `:lastSeen` indica il timestamp dell'ultimo frame visualizzato.
+* **POST _/api/camera_**: Crea una nuova fotocamera. Non richiede parametri aggiuntivi.
+* **POST _/api/camera/login_**: Effettua il login per una fotocamera. Non richiede parametri aggiuntivi.
+* **GET _/api/videoFeed/:id_**: Permette di visualizzare il feed video per una specifica fotocamera. `:id` è l'identificatore univoco della fotocamera di cui si desidera visualizzare il feed.
+* **GET _/api/videoFeed_**: Restituisce l'elenco delle telecamere disponibili. Non richiede parametri aggiuntivi.
 #### *Miglioramento dell'Esperienza Utente ed Efficienza del Sistema:*
 
 - Il Server Principale funge da perno, fornendo un'interfaccia coesa per gli utenti per gestire le telecamere, accedere
@@ -268,6 +282,9 @@ Il Server dei Comandi consente agli utenti di inviare comandi tramite richieste 
 
 4. **Comunicazione con RabbitMQ:**
     - I comandi formattati vengono trasmessi al topic della telecamera specificata all'interno di RabbitMQ tramite MQTT, stabilendo un canale di comunicazione affidabile ed efficiente tra il Server dei Comandi e le telecamere.
+
+#### API Implementate
+* **POST _/commands/:id_**: Invia un comando alla fotocamera identificata da `:id`.
 
 #### *Miglioramento della Affidabilità per le Telecamere Remote:*
 

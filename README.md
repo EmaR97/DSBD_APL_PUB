@@ -32,18 +32,20 @@
 11. [Load Balancing e Routing in Docker e K8s](#load-balancing-e-routing-in-docker-e-k8s)
 12. [Url pre-firmati per scaricare da Minio](#url-pre-firmati-per-scaricare-da-minio)
 13. [Conclusioni e Sviluppi Futuri](#conclusioni-e-sviluppi-futuri)
-14. [Istruzioni per Build e Deploy](#conclusioni-e-sviluppi-futuri)
+14. [Istruzioni per Build e Deploy](Resource/build%20&%20deploy.md)
    
 
 ### **Introduzione:**
 
-Il Sistema di Monitoraggio delle Telecamere Distribuite rappresenta una soluzione completa per soddisfare le esigenze di sorveglianza e rilevamento degli eventi.Fondato su componenti distribuite come Kafka, MongoDB e Kubernetes, questo sistema assicura cattura, elaborazione e notifica degli eventi senza compromettere scalabilità, efficienza o sicurezza.
+Il Sistema di Monitoraggio delle Telecamere Distribuite rappresenta una soluzione per soddisfare le crescenti esigenze di sorveglianza e rilevamento degli eventi in contesti distribuiti. Fondato su una serie di componenti come Kafka, MongoDB e Kubernetes, questo sistema si distingue per la sua capacità di catturare, elaborare e notificare eventi in tempo reale, mantenendo un'elevata scalabilità, efficienza e sicurezza.
 
-Al cuore del sistema troviamo telecamere dislocate in varie posizioni, che catturano frame distribuiti a server di elaborazione tramite Kafka. Questi server applicano algoritmi di riconoscimento dei pedoni e archiviano i frame elaborati in MinIO. Il Server Principale gestisce le informazioni e i frame della telecamera, mentre il Server di Autenticazione garantisce accesso sicuro agli utenti. I bot di Telegram, facilitati dal Servizio di Sottoscrizione Notifiche e dal Servizio di Notifiche, forniscono un'interfaccia per gestire le notifiche e ricevere avvisi.
+Al centro di questo ecosistema si trovano le telecamere dislocate in diverse posizioni, responsabili della cattura dei frame che vengono successivamente inviati ai server di elaborazione attraverso il sistema di messaggistica Kafka. Questi server, utilizzando algoritmi di riconoscimento dei pedoni, elaborano i frame e li archiviano in MinIO, creando così un repository centralizzato per le immagini gestite. Il Server Principale, a sua volta, gestisce le informazioni e i frame delle telecamere, mentre il Server di Autenticazione garantisce un accesso sicuro agli utenti e alle loro telecamere associate.
 
-Tecnologie come GRPC, formato Proto e API-Gateway contribuiscono a un framework di comunicazione sicuro.
-L'architettura enfatizza la coerenza dei dati tramite MongoDB, l'accesso sicuro tramite API-Gateway e l'accesso diretto
-ai frame elaborati tramite URL pre-firmati.
+Attraverso l'implementazione di un bot Telegram, il servizio di notifica consente agli utenti di interagire direttamente con il sistema tramite la piattaforma Telegram. Gli utenti possono gestire le proprie preferenze di notifica, decidendo quali eventi desiderano monitorare e quali tipologie di avvisi desiderano ricevere, tramite telegram stesso.
+
+L'utilizzo GRPC, formato Proto e API-Gateway consente una comunicazione sicura e strutturata tra i vari componenti del sistema. Inoltre, l'architettura del sistema enfatizza la coerenza dei dati attraverso una gestione escusiva dei dati specifici ai vari servizi e l'accesso sicuro tramite API-Gateway, fornendo agli utenti un accesso diretto ai frame elaborati tramite URL pre-firmati.
+
+Guardando al futuro, il sistema potrebbe beneficiare di ulteriori ottimizzazioni per migliorare la reattività in tempo reale, implementando meccanismi per il scaling dinamico e perfezionando l'interfaccia utente per offrire un'esperienza più ricca e fluida agli utenti. Inoltre, esplorare opportunità di integrazione con sistemi esterni potrebbe potenziare ulteriormente le capacità di riconoscimento e l'intelligenza complessiva del sistema, rendendolo ancora più versatile e adattabile alle esigenze emergenti nel campo della sorveglianza e del rilevamento degli eventi.
 
 ### Schema di Componenti e Comunicazione 
 ![Schema di Comunicazione](Resource/communication_scheme.jpg)
@@ -475,4 +477,3 @@ particolare:
   potenziare ulteriormente le capacità di riconoscimento dei pedoni e l'intelligenza complessiva del sistema.
 ---
 
-[build & deploy.md](Resource/build%20&%20deploy.md)

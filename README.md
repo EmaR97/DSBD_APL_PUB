@@ -32,6 +32,7 @@
 11. [Load Balancing e Routing in Docker e K8s](#load-balancing-e-routing-in-docker-e-k8s)
 12. [Url pre-firmati per scaricare da Minio](#url-pre-firmati-per-scaricare-da-minio)
 13. [Conclusioni e Sviluppi Futuri](#conclusioni-e-sviluppi-futuri)
+14. [Istruzioni per Build e Deploy](#conclusioni-e-sviluppi-futuri)
    
 
 ### **Introduzione:**
@@ -472,4 +473,6 @@ particolare:
 
 - Esplorare possibilità di integrazione del sistema con servizi esterni o framework di intelligenza artificiale potrebbe
   potenziare ulteriormente le capacità di riconoscimento dei pedoni e l'intelligenza complessiva del sistema.
+---
 
+[build & deploy.md](Resource/build%20&%20deploy.md)

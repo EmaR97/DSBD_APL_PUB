@@ -2,6 +2,43 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: example-ingress
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: /access
+            backend:
+              service:
+                name: server-auth
+                port:
+                  number: 8080
+          - pathType: Prefix
+            path: /commands
+            backend:
+              service:
+                name: server-command
+                port:
+                  number: 8081
+          - pathType: Prefix
+            path: /api
+            backend:
+              service:
+                name: server-main
+                port:
+                  number: 8082
+          - pathType: Prefix
+            path: /your-bucket-secure
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 9000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
@@ -15,27 +52,7 @@ spec:
                 name: prometheus
                 port:
                   number: 9090
-          - pathType: Prefix
-            path: /access(/|$)(.*)
-            backend:
-              service:
-                name: server-auth
-                port:
-                  number: 8080
-          - pathType: Prefix
-            path: /commands(/|$)(.*)
-            backend:
-              service:
-                name: server-command
-                port:
-                  number: 8081
-          - pathType: Prefix
-            path: /api(/|$)(.*)
-            backend:
-              service:
-                name: server-main
-                port:
-                  number: 8082
+
 # kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-# kubectl apply -f K8s/ingress.yaml4
+# kubectl apply -f K8s/ingress.yaml
 # http://localhost/prometheus/api/v1/query?query=exposer_transferred_bytes_total

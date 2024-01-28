@@ -12,3 +12,5 @@ kubectl delete -f K8s/notification_bot.yaml
 kubectl delete -f K8s/conversation_bot.yaml
 kubectl delete -f K8s/prometheus.yaml
 kubectl delete -f K8s/sla_manager.yaml
+kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+kubectl delete -f K8s/ingress.yaml

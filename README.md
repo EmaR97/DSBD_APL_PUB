@@ -28,18 +28,20 @@
     - 8.1 [Funzionalità Chiave](#funzionalità-chiave-1)
     - 8.2 [Integrazione con il Servizio di Sottoscrizione Notifiche](#integrazione-con-il-servizio-di-sottoscrizione-notifiche)
     - 8.3 [Miglioramento del Coinvolgimento Utente](#miglioramento-del-coinvolgimento-utente)
-9. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
-    - 9.1 [Punti Chiave](#punti-chiave)
-10. [Gateway API in Kubernetes (K8s)](#gateway-api-in-kubernetes-k8s)
-    - 10.1 [Caratteristiche Principali](#caratteristiche-principali-2)
-11. [Generazione di URL Pre-firmati da Main Server](#generazione-di-url-pre-firmati-da-main-server)
-    - 11.1 [Punti Chiave](#punti-chiave-1)
-12. [Conclusioni](#conclusioni)
-    - 12.1 [Reattività in Tempo Reale](#reattività-in-tempo-reale)
-    - 12.2 [Scaling Dinamico](#scaling-dinamico)
-    - 12.3 [Miglioramenti dell'Interfaccia Utente](#miglioramenti-dellinterfaccia-utente)
-    - 12.4 [Integrazione con Sistemi Esterni](#integrazione-con-sistemi-esterni)
-
+9. [Sla Manager](#sla-manager)
+    - 9.1 [Funzionalità Chiave](#funzionalità-chiave-2)
+    - 9.2 [Aggiornamento Continuo del Modello](#aggiornamento-continuo-del-modello)
+10. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
+    - 10.1 [Punti Chiave](#punti-chiave)
+11. [Gateway API in Kubernetes (K8s)](#gateway-api-in-kubernetes-k8s)
+    - 11.1 [Caratteristiche Principali](#caratteristiche-principali-2)
+12. [Generazione di URL Pre-firmati da Main Server](#generazione-di-url-pre-firmati-da-main-server)
+    - 12.1 [Punti Chiave](#punti-chiave-1)
+13. [Conclusioni](#conclusioni)
+    - 13.1 [Reattività in Tempo Reale](#reattività-in-tempo-reale)
+    - 13.2 [Scaling Dinamico](#scaling-dinamico)
+    - 13.3 [Miglioramenti dell'Interfaccia Utente](#miglioramenti-dellinterfaccia-utente)
+    - 13.4 [Integrazione con Sistemi Esterni](#integrazione-con-sistemi-esterni)
 ### **Introduzione:**
 
 Il sistema di monitoraggio delle telecamere distribuite è una soluzione completa che affronta le esigenze della
@@ -428,7 +430,9 @@ Telegram.-->
 
 ---
 
-### **Server di Stima della Probabilità Gaussiana e Adattamento del Modello**
+### **Sla Manager**
+**[Src](Python/src/sla_manager/main.py)**
+
 
 Il server SlaManager è un componente cruciale del sistema di monitoraggio delle telecamere distribuite. Consente l'aggiornamento dinamico degli SLA e utilizza tecniche di analisi dei dati per valutare la probabilità di violazioni delle SLA definite e per adattare i modelli alle condizioni correnti dei dati.
 

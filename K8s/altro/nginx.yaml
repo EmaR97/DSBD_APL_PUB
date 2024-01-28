@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 8090
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 8090
+      targetPort: 8090
+      nodePort: 30004
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configmap
+data:
+  nginx.conf: |
+    # Set the number of worker processes for Nginx
+    worker_processes 1;
+
+    # Define event settings, including the maximum number of simultaneous connections
+    events {
+        worker_connections 1024;
+    }
+
+    # Main HTTP server configuration
+    http {
+        # Define upstream servers for load balancing
+        upstream main {
+            server server-main:8082;
+        }
+        upstream auth {
+            server server-auth:8080;
+        }
+        upstream command {
+            server server-command:8081;
+        }
+        upstream command {
+            server server-command:8081;
+        }
+        # Server block for handling HTTP requests
+        server {
+            # Listen on port 8090 and respond to requests with specified server names
+            listen 8090;
+            server_name localhost 127.0.0.1;
+
+            # Location block for forwarding requests to the command server
+            location /commands/ {
+                proxy_pass http://command/commands/;
+            }
+            location /your-bucket-secure/ {
+                proxy_pass http://minio:9000/your-bucket-secure/;
+            }
+            # Location block for forwarding requests to the main server
+            location /api/ {
+                proxy_pass http://main/api/;
+            }
+
+            # Location block for forwarding requests to the auth server
+            location /access/ {
+                proxy_pass http://auth/access/;
+            }
+    
+    
+            location /prometheus/ {
+                proxy_pass http://prometheus/access/;
+            }
+        }
+    }

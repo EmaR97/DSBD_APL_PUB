@@ -1,16 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Camera List</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Camera List</title>
 </head>
 <body>
 <h1>Available Cameras</h1>
 <ul>
-  {{range .Cameras}}
-  <li><a href="/api/videoFeed/{{.ID}}">Camera {{.ID}}</a></li>
-  {{end}}
+    {{range .Cameras}}
+    <li><a href="/api/videoFeed/{{.ID}}">Camera {{.ID}}</a></li>
+    {{end}}
 </ul>
+
+<!-- Add Button to Add New Camera -->
+<form id="addCameraForm">
+    <button type="submit">Add New Camera</button>
+</form>
+
+<script>
+    // Handle form submission
+    document.getElementById("addCameraForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Perform POST request to add a new camera
+        fetch("/api/camera", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                // Provide any necessary data for creating a new camera
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to add camera");
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Handle success response
+                console.log("Camera added successfully:", data);
+
+                // Update the UI with the new camera link
+                addCameraLink(data.cam_id);
+            })
+            .catch(error => {
+                // Handle error
+                console.error("Error adding camera:", error);
+            });
+    });
+
+    // Function to add a new camera link to the UI
+    function addCameraLink(camId) {
+        const camerasList = document.querySelector("ul");
+
+        // Create a new list item and link for the camera
+        const newListItem = document.createElement("li");
+        const newLink = document.createElement("a");
+        newLink.href = "/api/videoFeed/" + camId;
+        newLink.textContent = "Camera " + camId;
+
+        // Append the link to the list item and the list item to the cameras list
+        newListItem.appendChild(newLink);
+        camerasList.appendChild(newListItem);
+    }
+</script>
+
 </body>
 </html>

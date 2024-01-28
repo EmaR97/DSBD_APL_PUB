@@ -235,6 +235,7 @@ services: #docker compose build
       - server_main
       - server_command
       - server_auth
+      - minio
     networks:
       - backend
     volumes:

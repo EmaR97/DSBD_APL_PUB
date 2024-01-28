@@ -55,8 +55,8 @@ data:
         "password": "example"
       },
       "grpc": {
-        "get_chat_ids": "conversation_bot:50052",
-        "get_cam_ids": "server_main:50051"
+        "get_chat_ids": "conversation-bot:50052",
+        "get_cam_ids": "server-main:50051"
       },
       "auth": "http://nginx:8090/access/login"
     }

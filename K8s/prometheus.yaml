@@ -53,7 +53,7 @@ data:
       
       - job_name: 'processing_server'
         static_configs:
-          - targets: [ 'server_processing:8080' ]
+          - targets: [ 'server-processing:8080' ]
 
 ---
 apiVersion: v1

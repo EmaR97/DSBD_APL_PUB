@@ -57,7 +57,7 @@ data:
           "172.18.0.5"
         ],
         "templateDir": "templates/*",
-        "authEndpoint": "http://nginx:8090/access/verify"
+        "authEndpoint": "http://server-auth::8090/access/verify"
       }
     }
 ---

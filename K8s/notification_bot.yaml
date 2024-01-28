@@ -42,7 +42,7 @@ data:
         "token": "6951268937:AAHu2BM5i4UJiJ49n9RsVLXKeekFxdFuU6A"
       },
       "grpc": {
-        "get_chat_ids": "conversation_bot:50052"
+        "get_chat_ids": "conversation-bot:50052"
       }
     }
 ---

@@ -155,13 +155,10 @@ def reevaluate_model_endpoint():
     # Store the new model in the database
     try:
         model_instance = SeriesModel.objects(metric_name=metric_name).first()
-        if model_instance:
-            model_instance.update(set__error_std=error_std)
-            model_instance.set_trend(trend_function)
-        else:
-            SeriesModel(metric_name=metric_name, error_std=error_std).save()
-            model_instance = SeriesModel.objects(metric_name=metric_name).first()
-            model_instance.set_trend(trend_function)
+        if not model_instance:
+            model_instance = SeriesModel(metric_name=metric_name, error_std=error_std)
+        model_instance.error_std = error_std
+        model_instance.set_trend(trend_function)
         model_instance.save()
     except Exception as e:
         abort(500, description=f"Error storing the new model for metric '{metric_name}': {str(e)}")

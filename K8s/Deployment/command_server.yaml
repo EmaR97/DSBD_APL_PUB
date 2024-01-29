@@ -36,7 +36,7 @@ data:
   config_command.json: |
     {
       "mqtt": {
-        "brokerURL": "tcp://rabbitmq:1883",
+        "brokerURL": "tcp://rabbitmq:1884",
         "clientID": "example-client",
         "username": "test",
         "password": "test"
@@ -57,7 +57,7 @@ data:
           "172.18.0.5"
         ],
         "templateDir": "templates/*",
-        "authEndpoint": "http://server-auth::8090/access/verify"
+        "authEndpoint": "http://server-auth:8080/access/verify"
       }
     }
 ---

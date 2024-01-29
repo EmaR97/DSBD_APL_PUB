@@ -32,7 +32,7 @@ def format_data(data):
 
 def apply_hp_filter_with_optimal_lambda(time_series, lambda_range):
     """
-    Apply the Hodrick-Prescott filter to the time series with optimal lambda.
+    Apply the Hodrick-Prescott filter to the time series with optimal lambda in given range.
 
     Args:
     - time_series: Time series data.

@@ -22,6 +22,8 @@ spec:
               mountPath: /app/config.json
               subPath: config_conversation_bot.json
               readOnly: true
+          ports:
+            - containerPort: 50052
       volumes:
         - name: config-volume
           configMap:

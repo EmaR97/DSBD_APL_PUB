@@ -33,7 +33,6 @@
 12. [Url pre-firmati per scaricare da Minio](#url-pre-firmati-per-scaricare-da-minio)
 13. [Conclusioni e Sviluppi Futuri](#conclusioni-e-sviluppi-futuri)
 14. [Istruzioni per Build e Deploy](build%20&%20deploy.md)
-   
 
 ### **Introduzione:**
 
@@ -47,7 +46,8 @@ L'utilizzo GRPC, formato Proto e API-Gateway consente una comunicazione sicura e
 
 Guardando al futuro, il sistema potrebbe beneficiare di ulteriori ottimizzazioni per migliorare la reattività in tempo reale, implementando meccanismi per il scaling dinamico e perfezionando l'interfaccia utente per offrire un'esperienza più ricca e fluida agli utenti. Inoltre, esplorare opportunità di integrazione con sistemi esterni potrebbe potenziare ulteriormente le capacità di riconoscimento e l'intelligenza complessiva del sistema, rendendolo ancora più versatile e adattabile alle esigenze emergenti nel campo della sorveglianza e del rilevamento degli eventi.
 
-### Schema di Componenti e Comunicazione 
+### Schema di Componenti e Comunicazione
+
 ![Schema di Comunicazione](Miscellaneous/communication_scheme.jpg)
 
 
@@ -163,14 +163,17 @@ Il Server di Autenticazione fornisce un meccanismo di accesso sicuro e controlla
       e Kafka, garantendo un'integrazione senza soluzione di continuità nel sistema distribuito per la comunicazione e
       lo scambio di dati in tempo reale.
 
-
 #### API Implementate
+
 * **GET _/access/login_**: Restituisce la pagina di login per l'autenticazione dell'utente.
-* **POST _/access/login_**: Gestisce l'autenticazione dell'utente. Richiede i parametri `username`, `password`, e `cam_id`.
+* **POST _/access/login_**:
+  Gestisce l'autenticazione dell'utente. Richiede i parametri `username`, `password`, e `cam_id`.
 * **GET _/access/signup_**: Restituisce la pagina di registrazione per la creazione di un nuovo account utente.
-* **POST _/access/signup_**: Gestisce la registrazione di un nuovo account utente. Richiede i parametri `username`, `email`, e `password`.
+* **POST _/access/signup_**:
+  Gestisce la registrazione di un nuovo account utente. Richiede i parametri `username`, `email`, e `password`.
 * **GET _/access/logout_**: Gestisce il logout dell'utente.
 * **POST _/access/verify_**: Verifica la validità di un token. Richiede il parametro `token`.
+
 #### *Misure di Sicurezza:*
 
 - Il Server di Autenticazione agisce come un guardiano, verificando la legittimità delle richieste e garantendo che solo
@@ -247,11 +250,15 @@ la gestione delle telecamere, le registrazioni degli utenti e l'archiviazione di
       contribuendo alla performance ottimale del sistema nel lungo termine.
 
 #### API Implementate
-* **GET _/api/camera/:id/:lastSeen_**: Restituisce i frame successivi al timestamp specificato per una determinata fotocamera. `:id` rappresenta l'identificatore univoco della fotocamera, mentre `:lastSeen` indica il timestamp dell'ultimo frame visualizzato.
+
+* **GET _/api/camera/:id/:lastSeen_**:
+  Restituisce i frame successivi al timestamp specificato per una determinata fotocamera. `:id` rappresenta l'identificatore univoco della fotocamera, mentre `:lastSeen` indica il timestamp dell'ultimo frame visualizzato.
 * **POST _/api/camera_**: Crea una nuova fotocamera. Non richiede parametri aggiuntivi.
 * **POST _/api/camera/login_**: Effettua il login per una fotocamera. Non richiede parametri aggiuntivi.
-* **GET _/api/videoFeed/:id_**: Permette di visualizzare il feed video per una specifica fotocamera. `:id` è l'identificatore univoco della fotocamera di cui si desidera visualizzare il feed.
+* **GET _/api/videoFeed/:id_**:
+  Permette di visualizzare il feed video per una specifica fotocamera. `:id` è l'identificatore univoco della fotocamera di cui si desidera visualizzare il feed.
 * **GET _/api/videoFeed_**: Restituisce l'elenco delle telecamere disponibili. Non richiede parametri aggiuntivi.
+
 #### *Miglioramento dell'Esperienza Utente ed Efficienza del Sistema:*
 
 - Il Server Principale funge da perno, fornendo un'interfaccia coesa per gli utenti per gestire le telecamere, accedere
@@ -287,6 +294,7 @@ Il Server dei Comandi consente agli utenti di inviare comandi tramite richieste 
     - I comandi formattati vengono trasmessi al topic della telecamera specificata all'interno di RabbitMQ tramite MQTT, stabilendo un canale di comunicazione affidabile ed efficiente tra il Server dei Comandi e le telecamere.
 
 #### API Implementate
+
 * **POST _/commands/:id_**: Invia un comando alla fotocamera identificata da `:id`.
 
 #### *Miglioramento della Affidabilità per le Telecamere Remote:*
@@ -341,8 +349,6 @@ notifiche degli utenti.
 
 - Il servizio dà potere agli utenti permettendo loro di personalizzare le preferenze di notifica, specificando le
   telecamere di interesse, l'orario delle notifiche e la possibilità di optare per l'uscita in qualsiasi momento.
-
-
 
 <!-- In sintesi, il Servizio di Sottoscrizione Notifiche funge da interfaccia utente amichevole sulla piattaforma Telegram,
 consentendo agli utenti di gestire le loro preferenze di notifica e interagire con il più ampio sistema di notifiche.-->
@@ -475,5 +481,10 @@ particolare:
 
 - Esplorare possibilità di integrazione del sistema con servizi esterni o framework di intelligenza artificiale potrebbe
   potenziare ulteriormente le capacità di riconoscimento dei pedoni e l'intelligenza complessiva del sistema.
----
+
+#### **Retry e Circuit Breaker:**
+
+- L'introduzione di un sistema di retry e circuit breaker potrebbe migliorare l'efficacia della comunicazione tra i vari servizi del sistema. Implementare queste tecniche consentirebbe di gestire in modo robusto e nel caso migliore mascherare, eventuali fallimenti temporanei o problemi di comunicazione, garantendo una maggiore resilienza e affidabilità complessiva del sistema.
+
+
 

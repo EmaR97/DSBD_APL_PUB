@@ -20,8 +20,11 @@ class NotificationSender:
         except google.protobuf.message.DecodeError as e:
             logging.error(f"Error decoding message: {e}")
             return
-
-        chat_ids = self.get_chat_ids(n.cam_id)
+        try:
+            chat_ids = self.get_chat_ids(n.cam_id)
+        except Exception as e:
+            logging.error(f"Error get chat ids: {e}")
+            return
         for chat_id in chat_ids if chat_ids else []:
             logging.debug(f'Sending message to chat: {chat_id}')
             try:

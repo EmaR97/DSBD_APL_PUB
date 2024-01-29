@@ -53,17 +53,18 @@ int main() {
 
     // Lambda function to process Kafka messages
     auto processMessage = [&](RdKafka::Message &message) {
-        chronometer.startWorking();
-        int64_t elapsedTimeInNanos;
-        try { // Process the Kafka message
+        try {
+            chronometer.startWorking();
+            int64_t elapsedTimeInNanos;
             elapsedTimeInNanos = processKafkaMessage(message, producer, minioUploader, config);
+            chronometer.stopWorking();
+            gauge_2.Set(elapsedTimeInNanos);
+            counter.Increment();
         } catch (const std::exception &e) {
             // Log errors if an exception occurs during message processing
             Logger::getInstance() << LogLevel::ERROR << "Error processing Kafka message: " << e.what() << std::endl;
         }
-        chronometer.stopWorking();
-        gauge_2.Set(elapsedTimeInNanos);
-        counter.Increment();
+
     };
 
     // Create a KafkaConsumer instance with the processMessage function

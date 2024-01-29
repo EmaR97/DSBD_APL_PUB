@@ -57,13 +57,13 @@ Guardando al futuro, il sistema potrebbe beneficiare di ulteriori ottimizzazioni
 
 **[Src](CPP/src/cam_controller.cpp)**
 
-Il Controllore di Base della Telecamera si occupa di rappresentare ed implementare le funzionalità di base fornite dalla telecamera nel sistema e supporta eventuali estensioni per funzionalità avanzate, grazie alla sua struttura modulare.
+Il Controllore di Base della Telecamera si occupa di rappresentare e implementare le funzionalità di base fornite dalla telecamera nel sistema e supporta eventuali estensioni per funzionalità avanzate, grazie alla sua struttura modulare.
 
 #### *Caratteristiche Principali:*
 
 1. **Distribuzione di Frame tramite Kafka:**
 
-    - Il controllore cattura i frame e li distribuisce in modo efficiente ai server di elaborazione attraverso un topic Kafka dedicato.
+    - Il controllore cattura i frame e li distribuisce in modo efficiente ai servers di elaborazione attraverso un topic Kafka dedicato.
     - Utilizza Kafka per garantire una consegna veloce dei frame con tolleranza agli errori.
 
 2. **Elaborazione di Comandi tramite RabbitMQ e MQTT:**

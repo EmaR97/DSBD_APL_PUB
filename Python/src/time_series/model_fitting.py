@@ -81,6 +81,8 @@ def seasonal_decomposition(time_series, period_range):
 
     # Iterate over periods to find the optimal one
     for period in period_range:
+        if period * 2 > time_series.size:
+            break
         result_ = seasonal_decompose(time_series, model='additive', period=period)
         seasonal_variance = np.var(result_.seasonal)
         residual_variance = np.var(result_.resid)
@@ -119,7 +121,7 @@ def polynomial_fit_and_plot(x, y, degree=1):
     return coefficients
 
 
-def seasonal_curve_fit_function(x, a, b, c):
+def seasonal_curve_fit_function(x, a, b, c, d):
     """
     Define the function for seasonal curve fitting.
 
@@ -130,7 +132,7 @@ def seasonal_curve_fit_function(x, a, b, c):
     Returns:
     - Fitted values.
     """
-    return a * x + b * np.sin(c * x)
+    return a * x + b * np.sin(d + c * x)
 
 
 def seasonal_curve_fit_and_plot(f, x, y):
@@ -169,7 +171,7 @@ def complete_fit_and_plot(x, y, poly_coef, period_coef):
 
     def fitted_function(x_):
         return poly_coef[0] + poly_coef[1] * x_ + poly_coef[2] * x_ ** 2 + period_coef[0] * x_ + period_coef[
-            1] * np.sin(period_coef[2] * x_)
+            1] * np.sin(period_coef[3] + period_coef[2] * x_)
 
     y_fitted = np.squeeze(fitted_function(x))
     fitting_error = y - y_fitted
@@ -232,7 +234,7 @@ def reevaluate_model(data):
     df_trend = df_trend.dropna()
     poly_coef_ = polynomial_fit_and_plot(x=df_trend["timestamp_sec"].values.reshape(-1, 1),
                                          y=df_trend["value"].values.reshape(-1, 1), degree=2)
-    period_coef_ = seasonal_curve_fit_and_plot(f=seasonal_curve_fit_function, x=df['X'], y=result.seasonal)
+    period_coef_ = seasonal_curve_fit_and_plot(f=seasonal_curve_fit_function, x=df['timestamp_sec'], y=result.seasonal)
     y_fitted_, fitting_error_, fitted_function_ = complete_fit_and_plot(df["timestamp_sec"], df["value"], poly_coef_,
                                                                         period_coef_)
     check_fitting_quality_and_print_metrics(df["value"], y_fitted_)

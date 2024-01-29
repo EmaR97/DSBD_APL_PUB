@@ -156,7 +156,7 @@ def reevaluate_model_endpoint():
     try:
         model_instance = SeriesModel.objects(metric_name=metric_name).first()
         if not model_instance:
-            model_instance = SeriesModel(metric_name=metric_name, error_std=error_std)
+            model_instance = SeriesModel(metric_name=metric_name)
         model_instance.error_std = error_std
         model_instance.set_trend(trend_function)
         model_instance.save()

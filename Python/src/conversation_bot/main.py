@@ -21,7 +21,7 @@ def main() -> None:
         config = json.load(file)
 
     # Enable logging
-    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
+    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG)
     logging.getLogger("httpx").setLevel(logging.DEBUG)
 
     logging.info("Loading configuration from 'config.json'...")

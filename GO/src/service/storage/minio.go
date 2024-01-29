@@ -1,10 +1,12 @@
 package storage
 
 import (
+	"CamMonitoring/src/utility"
 	"context"
 	"fmt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"strings"
 	"time"
 )
 
@@ -19,13 +21,14 @@ func NewMinioClient(endpoint, id, secret, bucketName string, useSSL bool) (*Mini
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Minio client: %v", err)
 	}
-	return &MinioClient{client: *client, bucketName: bucketName}, nil
+	return &MinioClient{client: *client, bucketName: bucketName, endpoint: endpoint}, nil
 }
 
 // MinioClient is a client for interacting with the Minio storage service.
 type MinioClient struct {
 	client     minio.Client
 	bucketName string
+	endpoint   string
 }
 
 // GeneratePresignedURL generates a presigned URL for the specified object.
@@ -39,7 +42,16 @@ func (mc *MinioClient) GeneratePresignedURL(objectName string, expiration time.D
 	if err != nil {
 		return "", fmt.Errorf("failed to generate presigned URL: %v", err)
 	}
-	return URL.String(), nil
+
+	minioToReplace := mc.endpoint
+	minioReplacement := "localhost"
+	utility.InfoLog().Println("URL: ", URL.String())
+
+	// Perform the replacements
+	imageUrl := strings.ReplaceAll(URL.String(), minioToReplace, minioReplacement)
+	utility.InfoLog().Println("URL modified: ", imageUrl)
+
+	return imageUrl, nil
 }
 
 // DeleteObject deletes the specified object from the Minio bucket.

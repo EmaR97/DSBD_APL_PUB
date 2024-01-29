@@ -34,10 +34,8 @@
 
 <script>
     // Constants
-    const serverURL = 'http://localhost:8090/api/camera';
-    const mqttURL = 'http://localhost:8090/commands'; // Update with your actual MQTT endpoint
-    const minioToReplace = /minio:9000/g;
-    const minioReplacement = 'localhost:8090';
+    const serverURL = '/api/camera';
+    const mqttURL = '/commands'; // Update with your actual MQTT endpoint
     const delayDuration = 100;
     const retryDelay = 10000;
     const id = "{{.Id}}"
@@ -127,7 +125,7 @@
             const data = await response.json();
 
             if (data.imageUrl) {
-                let newFrame = data.imageUrl.replace(minioToReplace, minioReplacement).replace(/\\u0026/g, '&');
+                let newFrame = data.imageUrl.replace(/\\u0026/g, '&');
                 document.getElementById('imageView').src = `${newFrame}`;
                 console.log(Date.now(), `Displayed frame ${lastSeenIndex}`);
                 target = (lastSeenIndex / 1000000) + 1000

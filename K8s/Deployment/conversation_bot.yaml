@@ -1,3 +1,5 @@
+#kubectl apply -f Deployment/conversation_bot.yaml
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -34,8 +36,8 @@ spec:
     app: conversation-bot
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 50052
+      targetPort: 50052
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -55,8 +57,8 @@ data:
         "password": "example"
       },
       "grpc": {
-        "get_chat_ids": "conversation-bot:50052",
+        "get_chat_ids": "0.0.0.0:50052",
         "get_cam_ids": "server-main:50051"
       },
-      "auth": "http://nginx:8090/access/login"
+      "auth": "http://server-auth:8080/access/login"
     }

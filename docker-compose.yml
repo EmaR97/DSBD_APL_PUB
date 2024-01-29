@@ -136,10 +136,10 @@ services: #docker compose build
         )
 
         # Loop through the commands until a positive response is received
-        for cmd in "${commands[@]}"; do
-            echo "Executing command: $cmd"
+        for cmd in "$${commands[@]}"; do
+            echo "Executing command: $$cmd"
             # Run the command and check the exit code
-            until $cmd; do
+            until $$cmd; do
                 echo "Command failed, retrying in 5 seconds..."
                 sleep 5
             done

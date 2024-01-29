@@ -16,5 +16,5 @@ resources:
   - Deployment/conversation_bot.yaml
   - Deployment/sla_manager.yaml
   - https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-  - Deployment/ingress.yaml
+  - ingress.yaml
 

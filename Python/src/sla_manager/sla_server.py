@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 
 from flask import Flask, request, jsonify, abort
 
-from mongo import SLADocument
-from mongo import SeriesModel
+from mongo.series_model import SeriesModel
+from mongo.sla_document import SLADocument
 from prometheus.query import PrometheusInterface
 from time_series import compute_out_of_bounds_probability
 from time_series import reevaluate_model

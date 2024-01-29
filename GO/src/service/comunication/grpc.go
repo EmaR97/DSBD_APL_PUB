@@ -46,6 +46,7 @@ func (s *CameraServiceServer) GetCamIds(_ context.Context, request *message.User
 		utility.ErrorLog().Printf("Error retrieving CamIds: %v", err)
 		return nil, err
 	}
+	utility.InfoLog().Printf("UserId: %s, camIds: %s", userID, camIds)
 
 	return &message.CamIdsResponse{CamIds: camIds}, nil
 }

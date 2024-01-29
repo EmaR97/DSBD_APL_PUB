@@ -32,7 +32,7 @@
 11. [Load Balancing e Routing in Docker e K8s](#load-balancing-e-routing-in-docker-e-k8s)
 12. [Url pre-firmati per scaricare da Minio](#url-pre-firmati-per-scaricare-da-minio)
 13. [Conclusioni e Sviluppi Futuri](#conclusioni-e-sviluppi-futuri)
-14. [Istruzioni per Build e Deploy](Resource/build%20&%20deploy.md)
+14. [Istruzioni per Build e Deploy](build%20&%20deploy.md)
    
 
 ### **Introduzione:**
@@ -48,7 +48,7 @@ L'utilizzo GRPC, formato Proto e API-Gateway consente una comunicazione sicura e
 Guardando al futuro, il sistema potrebbe beneficiare di ulteriori ottimizzazioni per migliorare la reattività in tempo reale, implementando meccanismi per il scaling dinamico e perfezionando l'interfaccia utente per offrire un'esperienza più ricca e fluida agli utenti. Inoltre, esplorare opportunità di integrazione con sistemi esterni potrebbe potenziare ulteriormente le capacità di riconoscimento e l'intelligenza complessiva del sistema, rendendolo ancora più versatile e adattabile alle esigenze emergenti nel campo della sorveglianza e del rilevamento degli eventi.
 
 ### Schema di Componenti e Comunicazione 
-![Schema di Comunicazione](Resource/communication_scheme.jpg)
+![Schema di Comunicazione](Miscellaneous/communication_scheme.jpg)
 
 
 ---

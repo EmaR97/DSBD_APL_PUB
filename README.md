@@ -31,7 +31,7 @@
 11. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
 12. [Load Balancing e Routing in Docker e K8s](#load-balancing-e-routing-in-docker-e-k8s)
 13. [Url pre-firmati per scaricare da Minio](#url-pre-firmati-per-scaricare-da-minio)
-14. [Conclusioni e Sviluppi Futuri](#conclusioni-e-sviluppi-futuri)
+14. [Aspetti da migliorare:](#aspetti-da-migliorare)
 15. [Istruzioni per Build e Deploy](build%20&%20deploy.md)
 
 ### **Introduzione:**

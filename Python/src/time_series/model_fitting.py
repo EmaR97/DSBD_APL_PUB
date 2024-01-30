@@ -98,7 +98,7 @@ def seasonal_decomposition(time_series, period_range):
     return best_result
 
 
-def polynomial_fit_and_plot(x, y, degree=1):
+def polynomial_fit_and_plot(x, y, degree=3):
     """
     Fit a polynomial of specified degree to the data and return the coefficients.
 
@@ -121,7 +121,7 @@ def polynomial_fit_and_plot(x, y, degree=1):
     return coefficients
 
 
-def seasonal_curve_fit_function(x, a, b, c, d):
+def seasonal_curve_function(x, a, b, c, d):
     """
     Define the function for seasonal curve fitting.
 
@@ -132,7 +132,21 @@ def seasonal_curve_fit_function(x, a, b, c, d):
     Returns:
     - Fitted values.
     """
-    return a * x + b * np.sin(d + c * x)
+    return a * np.sin(b * x + c) + d
+
+
+def polynomial_curve_function(x, a, b, c, d):
+    """
+    Define the function for trend curve fitting.
+
+    Args:
+    - x: Input variable.
+    - a, b, c: Parameters for curve fitting.
+
+    Returns:
+    - Fitted values.
+    """
+    return a + b * x + c * x ** 2 + d * x ** 3
 
 
 def seasonal_curve_fit_and_plot(f, x, y):
@@ -153,15 +167,15 @@ def seasonal_curve_fit_and_plot(f, x, y):
     return res[0]
 
 
-def complete_fit_and_plot(x, y, poly_coef, period_coef):
+def complete_fit_and_plot(x, y, T, S):
     """
     Combine polynomial and seasonal curve fits to create a complete fit.
 
     Args:
     - x: Input feature.
     - y: Target variable.
-    - poly_coef: Coefficients of the polynomial fit.
-    - period_coef: Coefficients of the seasonal curve fit.
+    - T: Coefficients of the polynomial fit.
+    - S: Coefficients of the seasonal curve fit.
 
     Returns:
     - y_fitted: Fitted values.
@@ -169,9 +183,8 @@ def complete_fit_and_plot(x, y, poly_coef, period_coef):
     - fitted_function: Function representing the complete fit.
     """
 
-    def fitted_function(x_):
-        return poly_coef[0] + poly_coef[1] * x_ + poly_coef[2] * x_ ** 2 + period_coef[0] * x_ + period_coef[
-            1] * np.sin(period_coef[3] + period_coef[2] * x_)
+    def fitted_function(x):
+        return polynomial_curve_function(x, T[0], T[1], T[2], T[3]) + seasonal_curve_function(x, S[0], S[1], S[2], S[3])
 
     y_fitted = np.squeeze(fitted_function(x))
     fitting_error = y - y_fitted
@@ -233,8 +246,8 @@ def reevaluate_model(data):
     df_trend["value"] = result.trend
     df_trend = df_trend.dropna()
     poly_coef_ = polynomial_fit_and_plot(x=df_trend["timestamp_sec"].values.reshape(-1, 1),
-                                         y=df_trend["value"].values.reshape(-1, 1), degree=2)
-    period_coef_ = seasonal_curve_fit_and_plot(f=seasonal_curve_fit_function, x=df['timestamp_sec'], y=result.seasonal)
+                                         y=df_trend["value"].values.reshape(-1, 1), degree=3)
+    period_coef_ = seasonal_curve_fit_and_plot(f=seasonal_curve_function, x=df['timestamp_sec'], y=result.seasonal)
     y_fitted_, fitting_error_, fitted_function_ = complete_fit_and_plot(df["timestamp_sec"], df["value"], poly_coef_,
                                                                         period_coef_)
     check_fitting_quality_and_print_metrics(df["value"], y_fitted_)

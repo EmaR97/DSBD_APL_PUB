@@ -3,7 +3,7 @@ import numpy as np
 from scipy import integrate
 
 
-def compute_gaussian_distribution(x, y, mean, std_):
+def compute_gaussian_surface(x, y, mean, std_):
     """
     Evaluate the Gaussian distribution function with given mean and standard deviation.
 
@@ -16,7 +16,7 @@ def compute_gaussian_distribution(x, y, mean, std_):
     Returns:
     - float: Gaussian distribution value.
     """
-    return np.exp(-(((y - mean(x)) ** 2) / (2 * (std_ ** 2))))
+    return (1 / (std_ * np.sqrt(2 * np.pi))) * np.exp(-(((y - mean(x)) ** 2) / (2 * (std_ ** 2))))
 
 
 def generate_surface_function(std_, mean):
@@ -30,9 +30,10 @@ def generate_surface_function(std_, mean):
     Returns:
     - function: Surface function.
     """
+
     # Define a surface function using the Gaussian distribution
     def surface_(y, x):
-        return compute_gaussian_distribution(x, y, mean=mean, std_=std_)
+        return compute_gaussian_surface(x, y, mean=mean, std_=std_)
 
     return surface_
 

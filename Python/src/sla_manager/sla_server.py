@@ -87,6 +87,40 @@ def query_violations():
     return jsonify({"violations_count": len(violations)})
 
 
+# API Endpoint to re-evaluate model for a specified metric
+@SlaManger.app.route('/reevaluate_model', methods=['POST'])
+def reevaluate_model_endpoint():
+    data = request.json
+    metric_name = data.get('metric_name')
+    range_in_minute = data.get('range_in_minute')
+
+    if not metric_name or not range_in_minute:
+        abort(400)
+
+    # Query Prometheus for time series data
+    # Adjust this according to your PrometheusInterface implementation
+    time_series_data = SlaManger.prometheus.get_prometheus_vector(metric_name, range_in_minute)
+
+    if time_series_data is None:
+        abort(404, description=f"No time series data found for metric '{metric_name}'")
+
+    # Re-evaluate the model and get trend function and error_std
+    trend_function, error_std = reevaluate_model(time_series_data)
+
+    # Store the new model in the database
+    try:
+        model_instance = SeriesModel.objects(metric_name=metric_name).first()
+        if not model_instance:
+            model_instance = SeriesModel(metric_name=metric_name)
+        model_instance.error_std = error_std
+        model_instance.set_trend(trend_function)
+        model_instance.save()
+    except Exception as e:
+        abort(500, description=f"Error storing the new model for metric '{metric_name}': {str(e)}")
+
+    return jsonify({"message": f"Model re-evaluation completed for metric '{metric_name}'"}), 200
+
+
 # API Endpoint to Query Probability of Violations
 @SlaManger.app.route('/probability', methods=['GET'])
 def query_probability():
@@ -130,37 +164,3 @@ def query_probability():
         SlaManger.app.logger.error(f"An error occurred: {str(e)}")
         # Return an error response to the client
         return jsonify({"error": "An unexpected error occurred"}), 500
-
-
-# API Endpoint to re-evaluate model for a specified metric
-@SlaManger.app.route('/reevaluate_model', methods=['POST'])
-def reevaluate_model_endpoint():
-    data = request.json
-    metric_name = data.get('metric_name')
-    range_in_minute = data.get('range_in_minute')
-
-    if not metric_name or not range_in_minute:
-        abort(400)
-
-    # Query Prometheus for time series data
-    # Adjust this according to your PrometheusInterface implementation
-    time_series_data = SlaManger.prometheus.get_prometheus_vector(metric_name, range_in_minute)
-
-    if time_series_data is None:
-        abort(404, description=f"No time series data found for metric '{metric_name}'")
-
-    # Re-evaluate the model and get trend function and error_std
-    trend_function, error_std = reevaluate_model(time_series_data)
-
-    # Store the new model in the database
-    try:
-        model_instance = SeriesModel.objects(metric_name=metric_name).first()
-        if not model_instance:
-            model_instance = SeriesModel(metric_name=metric_name)
-        model_instance.error_std = error_std
-        model_instance.set_trend(trend_function)
-        model_instance.save()
-    except Exception as e:
-        abort(500, description=f"Error storing the new model for metric '{metric_name}': {str(e)}")
-
-    return jsonify({"message": f"Model re-evaluation completed for metric '{metric_name}'"}), 200

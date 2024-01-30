@@ -405,28 +405,45 @@ Telegram.-->
 
 **[Src](Python/src/sla_manager/main.py)**
 
-Il server SlaManager è un componente cruciale del sistema di monitoraggio delle telecamere distribuite. Consente l'aggiornamento dinamico degli SLA e utilizza tecniche di analisi dei dati per valutare la probabilità di violazioni delle SLA definite e per adattare i modelli alle condizioni correnti dei dati.
+Il server SlaManager consente l'aggiornamento dinamico degli SLA, utilizzando analisi dati per valutare la probabilità di violazioni delle SLA definite e adattare i modelli alle condizioni correnti dei dati.
 
 #### *Funzionalità Chiave:*
 
-1. **Stima della Probabilità di Violazioni:**
-
-    - Utilizza la distribuzione gaussiana per stimare la probabilità che una variabile metrica superi determinati limiti, basandosi su tendenze storiche e parametri del modello.
-    - Calcola la probabilità di violazione degli SLA all'interno di specifici intervalli di tempo, consentendo la previsione e la gestione pro-attiva dei problemi.
-
-2. **Adattamento del Modello:**
-
-    - Implementa tecniche di adattamento del modello per incorporare nuovi dati e modifiche nelle condizioni di sistema.
-    - Utilizza algoritmi di fitting polinomiale, decomposizione stagionale e stima dell'errore per adattare i modelli alle variazioni nei dati di telecamere e garantire predizioni accurate.
-
-3. **Aggiornamento degli SLA:**
+1. **Aggiornamento degli SLA:**
 
     - Consente l'aggiornamento dinamico degli SLA (Service Level Agreement) in base alle esigenze operative e ai cambiamenti nelle prestazioni del sistema.
     - Incorpora nuovi requisiti degli SLA nel processo di stima della probabilità e nell'adattamento del modello per garantire la conformità allo standard di servizio.
 
-#### *Aggiornamento Continuo del Modello:*
+2. **[Adattamento del Modello](Miscellaneous/TImeSeries/model_fitting.md):**
+   [model_fitting.py](Python/src/time_series/model_fitting.py)
 
-- Il server SlaManager si aggiorna costantemente con nuovi dati e informazioni sugli SLA, garantendo una precisione e una affidabilità continue nella stima delle probabilità e nel fitting dei modelli.
+    - Utilizza algoritmi di fitting polinomiale e fitting sinusoidale, decomposizione stagionale e stima dell'errore per adattare i modelli alle variazioni nelle metriche e garantire predizioni accurate.
+    - I modelli creati possono essere aggiornati per incorporare nuovi dati e modifiche nelle condizioni di sistema.
+
+3. **[Stima della Probabilità di Violazioni](Miscellaneous/TImeSeries/gaussian_probability_estimation.md):**
+   [gaussian_probability_estimation.py](Python/src/time_series/gaussian_probability_estimation.py)
+    - Utilizza la distribuzione gaussiana per stimare la probabilità che una metrica superi determinati limiti, basandosi su tendenze storiche e parametri del modello.
+    - Calcola la probabilità di violazione degli SLA all'interno di specifici intervalli di tempo, consentendo la previsione e la gestione pro-attiva dei problemi.
+
+#### API Implementate
+
+* **PUT _/sla_**:
+  Crea o aggiorna un documento SLA con il nome della metrica, il valore minimo del range e il valore massimo del range.
+
+* **GET _/sla_**:
+  Recupera le informazioni SLA inclusi il nome della metrica, il valore corrente, lo stato della violazione e il timestamp di creazione.
+
+* **DELETE _/sla_**:
+  Cancella un documento SLA basato sul nome della metrica fornito.
+
+* **GET _/violations_**:
+  Recupera il conteggio delle violazioni per un dato nome della metrica e un intervallo temporale specificato in ore.
+
+* **POST _/reevaluate_model_**:
+  Rivaluta il modello per un nome di metrica specificato e un intervallo in minuti, recupera i dati della serie temporale da Prometheus, calcola una nuova funzione di trend e la deviazione standard dell'errore, e memorizza il nuovo modello nel database.
+
+* **GET _/probability_**:
+  Calcola la probabilità di violazioni per un dato nome della metrica e un intervallo temporale specificato in minuti, usando il modello calcolato in precedenza.
 
 <!--In sintesi, il Server di Stima della Probabilità Gaussiana e Adattamento del Modello fornisce un'analisi sofisticata delle metriche di telecamere, consentendo la valutazione delle violazioni degli SLA e l'adattamento dinamico dei modelli per rispondere alle condizioni del sistema.-->
 

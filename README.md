@@ -27,12 +27,12 @@
     - 8.1 [Funzionalità Chiave](#funzionalità-chiave-1)
 9. [Sla Manager](#sla-manager)
     - 9.1 [Funzionalità Chiave](#funzionalità-chiave-2)
-    - 9.2 [Aggiornamento Continuo del Modello](#aggiornamento-continuo-del-modello)
-10. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
-11. [Load Balancing e Routing in Docker e K8s](#load-balancing-e-routing-in-docker-e-k8s)
-12. [Url pre-firmati per scaricare da Minio](#url-pre-firmati-per-scaricare-da-minio)
-13. [Conclusioni e Sviluppi Futuri](#conclusioni-e-sviluppi-futuri)
-14. [Istruzioni per Build e Deploy](build%20&%20deploy.md)
+10. [Schemi di Interazione]()
+11. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
+12. [Load Balancing e Routing in Docker e K8s](#load-balancing-e-routing-in-docker-e-k8s)
+13. [Url pre-firmati per scaricare da Minio](#url-pre-firmati-per-scaricare-da-minio)
+14. [Conclusioni e Sviluppi Futuri](#conclusioni-e-sviluppi-futuri)
+15. [Istruzioni per Build e Deploy](build%20&%20deploy.md)
 
 ### **Introduzione:**
 
@@ -48,7 +48,7 @@ Guardando al futuro, il sistema potrebbe beneficiare di ulteriori ottimizzazioni
 
 ### Schema di Componenti e Comunicazione
 
-![Schema di Comunicazione](Miscellaneous/communication_scheme.jpg)
+![Schema di Comunicazione](Miscellaneous/ComunicationScheme%20/communication_scheme.jpg)
 
 
 ---
@@ -446,6 +446,17 @@ Il server SlaManager consente l'aggiornamento dinamico degli SLA, utilizzando an
   Calcola la probabilità di violazioni per un dato nome della metrica e un intervallo temporale specificato in minuti, usando il modello calcolato in precedenza.
 
 <!--In sintesi, il Server di Stima della Probabilità Gaussiana e Adattamento del Modello fornisce un'analisi sofisticata delle metriche di telecamere, consentendo la valutazione delle violazioni degli SLA e l'adattamento dinamico dei modelli per rispondere alle condizioni del sistema.-->
+
+---
+
+### **Schemi di Interazione:**
+
+#### 1.  Elaborazione immagini 
+![Full image Elaboration.png](Miscellaneous/ComunicationScheme%20/Full%20image%20Elaboration.png)
+   
+#### 2. Accesso alle immagini da parte dell'utente
+
+![User image access.png](Miscellaneous/ComunicationScheme%20/User%20image%20access.png)
 
 ---
 

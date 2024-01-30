@@ -54,8 +54,11 @@ def calculate_probability(x_l, x_u, y_l, y_u, surf, y_l_b):
     - float: Probability.
     """
     # Perform double integration to calculate segment volume and total volume
+    print(surf, x_l, x_u, y_l_b, y_u)
     vol_seg = integrate.dblquad(surf, x_l, x_u, y_l_b, y_u)
     print(f"Segment volume and error: {vol_seg}")
+
+    print(surf, x_l, x_u, y_l, y_u)
     vol_tot = integrate.dblquad(surf, x_l, x_u, y_l, y_u)
     print(f"Total volume and error: {vol_tot}")
     # Calculate the probability of y > y_lower_bound within the specified x range

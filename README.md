@@ -425,7 +425,7 @@ Il server SlaManager facilita l'aggiornamento dinamico degli SLA, sfruttando ana
     - Utilizza la distribuzione gaussiana per stimare la probabilità che una metrica superi determinati limiti, basandosi su tendenze storiche e parametri del modello.
     - Calcola la probabilità di violazione degli SLA all'interno di specifici intervalli di tempo, consentendo la previsione e la gestione proattiva dei problemi.
 
-Le funzionalità di modellamento e stima, in assenza di dati reali, sono state testate su dati generati appositamente.
+Le funzionalità di modellamento e stima della probabilità di superamento del vincolo, in assenza di dati reali, sono state testate su dati generati appositamente.
 
 #### API Implementate
 

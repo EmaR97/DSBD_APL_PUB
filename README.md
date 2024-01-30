@@ -405,7 +405,7 @@ Telegram.-->
 
 **[Src](Python/src/sla_manager/main.py)**
 
-Il server SlaManager consente l'aggiornamento dinamico degli SLA, utilizzando analisi dati per valutare la probabilità di violazioni delle SLA definite e adattare i modelli alle condizioni correnti dei dati.
+Il server SlaManager facilita l'aggiornamento dinamico degli SLA, sfruttando analisi dati per valutare la probabilità di violazioni degli SLA definiti e adattare i modelli alle condizioni attuali dei dati.
 
 #### *Funzionalità Chiave:*
 
@@ -423,7 +423,7 @@ Il server SlaManager consente l'aggiornamento dinamico degli SLA, utilizzando an
 3. **[Stima della Probabilità di Violazioni](Miscellaneous/TImeSeries/gaussian_probability_estimation.md):**
    [gaussian_probability_estimation.py](Python/src/time_series/gaussian_probability_estimation.py)
     - Utilizza la distribuzione gaussiana per stimare la probabilità che una metrica superi determinati limiti, basandosi su tendenze storiche e parametri del modello.
-    - Calcola la probabilità di violazione degli SLA all'interno di specifici intervalli di tempo, consentendo la previsione e la gestione pro-attiva dei problemi.
+    - Calcola la probabilità di violazione degli SLA all'interno di specifici intervalli di tempo, consentendo la previsione e la gestione proattiva dei problemi.
 
 #### API Implementate
 
@@ -431,7 +431,7 @@ Il server SlaManager consente l'aggiornamento dinamico degli SLA, utilizzando an
   Crea o aggiorna un documento SLA con il nome della metrica, il valore minimo del range e il valore massimo del range.
 
 * **GET _/sla_**:
-  Recupera le informazioni SLA inclusi il nome della metrica, il valore corrente, lo stato della violazione e il timestamp di creazione.
+  Recupera le informazioni SLA includendo il nome della metrica, il valore corrente, lo stato della violazione e il timestamp di creazione.
 
 * **DELETE _/sla_**:
   Cancella un documento SLA basato sul nome della metrica fornito.
@@ -440,10 +440,13 @@ Il server SlaManager consente l'aggiornamento dinamico degli SLA, utilizzando an
   Recupera il conteggio delle violazioni per un dato nome della metrica e un intervallo temporale specificato in ore.
 
 * **POST _/reevaluate_model_**:
-  Rivaluta il modello per un nome di metrica specificato e un intervallo in minuti, recupera i dati della serie temporale da Prometheus, calcola una nuova funzione di trend e la deviazione standard dell'errore, e memorizza il nuovo modello nel database.
+  Avvia la rivalutazione del modello per un nome di metrica specificato e un intervallo in minuti, restituendo immediatamente una risposta all'utente. In un thread asincrono, procede l'elaborazione. Recupera i dati della serie temporale da Prometheus, calcola una nuova funzione di trend e la deviazione standard dell'errore, e memorizza il nuovo modello nel database. Lo stato dell'elaborazione viene salvato per evitare che la funzione possa essere richiamata prima che la precedente abbia concluso.
+
+* **GET _/model_status_**:
+  Recupera lo stato attuale del modello basato sul nome della metrica fornito, inclusi dettagli come lo stato, l'ultimo aggiornamento e i parametri del modello.
 
 * **GET _/probability_**:
-  Calcola la probabilità di violazioni per un dato nome della metrica e un intervallo temporale specificato in minuti, usando il modello calcolato in precedenza.
+  Calcola la probabilità di violazioni per un dato nome della metrica e un intervallo temporale specificato in minuti, utilizzando il modello calcolato in precedenza.
 
 <!--In sintesi, il Server di Stima della Probabilità Gaussiana e Adattamento del Modello fornisce un'analisi sofisticata delle metriche di telecamere, consentendo la valutazione delle violazioni degli SLA e l'adattamento dinamico dei modelli per rispondere alle condizioni del sistema.-->
 
@@ -451,9 +454,10 @@ Il server SlaManager consente l'aggiornamento dinamico degli SLA, utilizzando an
 
 ### **Schemi di Interazione:**
 
-#### 1.  Elaborazione immagini 
+#### 1. Elaborazione immagini
+
 ![Full image Elaboration.png](Miscellaneous/ComunicationScheme%20/Full%20image%20Elaboration.png)
-   
+
 #### 2. Accesso alle immagini da parte dell'utente
 
 ![User image access.png](Miscellaneous/ComunicationScheme%20/User%20image%20access.png)

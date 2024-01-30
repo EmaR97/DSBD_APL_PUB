@@ -1,3 +1,5 @@
+from enum import Enum
+
 import dill
 import mongoengine as me
 
@@ -7,6 +9,14 @@ class SeriesModel(me.Document):
     error_std = me.FloatField(required=True)
     serialized_trend = me.BinaryField(required=True)
     metric_name = me.StringField(required=True, unique=True)
+    last_updated = me.DateTimeField(default=0)
+
+    class Status(Enum):
+        READY = 1
+        PROCESSING = 2
+        FAILED = 3
+
+    status = me.IntField(default=Status.READY)  # Possible values: READY, PROCESSING, FAILED
 
     def set_trend(self, trend_func):
         self.serialized_trend = dill.dumps(trend_func)
@@ -16,4 +26,3 @@ class SeriesModel(me.Document):
             return dill.loads(self.serialized_trend)
         else:
             return None
-

@@ -1,3 +1,5 @@
+import asyncio
+import logging
 from datetime import datetime, timedelta
 
 from flask import Flask, request, jsonify, abort
@@ -96,29 +98,64 @@ def reevaluate_model_endpoint():
 
     if not metric_name or not range_in_minute:
         abort(400)
-
-    # Query Prometheus for time series data
-    # Adjust this according to your PrometheusInterface implementation
-    time_series_data = SlaManger.prometheus.get_prometheus_vector(metric_name, range_in_minute)
-
-    if time_series_data is None:
-        abort(404, description=f"No time series data found for metric '{metric_name}'")
-
-    # Re-evaluate the model and get trend function and error_std
-    trend_function, error_std = reevaluate_model(time_series_data)
-
     # Store the new model in the database
     try:
         model_instance = SeriesModel.objects(metric_name=metric_name).first()
         if not model_instance:
             model_instance = SeriesModel(metric_name=metric_name)
+        elif model_instance.status == "PROCESSING":
+            return jsonify({"message": f"Pending re-evaluation for metric '{metric_name}', try later"}), 200
+        model_instance.status = SeriesModel.Status.PROCESSING
+        model_instance.save()
+        asyncio.create_task(async_reevaluate_model(metric_name, range_in_minute, model_instance))
+    except Exception as e:
+        abort(500, description=f"Error starting re-evaluation for metric '{metric_name}': {str(e)}")
+
+    return jsonify({"message": f"Model re-evaluation for metric '{metric_name}' started"}), 200
+
+
+async def async_reevaluate_model(metric_name, range_in_minute, model_instance):
+    try:
+        # Query Prometheus for time series data
+        # Adjust this according to your PrometheusInterface implementation
+        time_series_data = SlaManger.prometheus.get_prometheus_vector(metric_name, range_in_minute)
+
+        if time_series_data is None:
+            raise Exception(f"No data present for provided metric '{metric_name}'")
+
+        # Re-evaluate the model and get trend function and error_std
+        trend_function, error_std = reevaluate_model(time_series_data)
+
+        # Store the new model in the database
         model_instance.error_std = error_std
         model_instance.set_trend(trend_function)
+        # Update the timestamp and status after successful re-evaluation
+        model_instance.last_updated = datetime.now()
+        model_instance.status = SeriesModel.Status.READY
         model_instance.save()
     except Exception as e:
-        abort(500, description=f"Error storing the new model for metric '{metric_name}': {str(e)}")
+        logging.error(f"Model reevaluation failed: {e}")
 
-    return jsonify({"message": f"Model re-evaluation completed for metric '{metric_name}'"}), 200
+        # If re-evaluation fails, update the status accordingly
+        model_instance.status = SeriesModel.Status.FAILED
+        model_instance.save()  # Log the error or handle it as needed
+
+
+@SlaManger.app.route('/model_status', methods=['GET'])
+def get_model_status():
+    metric_name = request.args.get('metric_name')
+
+    if not metric_name:
+        abort(400, description="Metric name is required")
+
+    model_instance = SeriesModel.objects(metric_name=metric_name).first()
+
+    if not model_instance:
+        return jsonify({"error": f"No model found for metric '{metric_name}'"}), 404
+
+    return jsonify({"metric_name": model_instance.metric_name, "status": model_instance.status.name,
+                    "last_updated": model_instance.last_updated.isoformat() if model_instance.last_updated else None,
+                    }), 200
 
 
 # API Endpoint to Query Probability of Violations

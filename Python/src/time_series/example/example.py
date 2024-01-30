@@ -1,3 +1,4 @@
+import dill
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -8,9 +9,9 @@ from UtilityPlot import plot_time_series, plot_surface
 # Import functions for time series analysis
 from time_series.gaussian_probability_estimation import generate_surface_function, calculate_probability
 from time_series.model_fitting import (apply_hp_filter_with_optimal_lambda, seasonal_decomposition,
-                                       polynomial_fit_and_plot,
-                                       polynomial_curve_function, seasonal_curve_fit_and_plot, seasonal_curve_function,
-                                       complete_fit_and_plot, check_fitting_quality_and_print_metrics,
+                                       polynomial_fit_and_plot, polynomial_curve_function, seasonal_curve_fit_and_plot,
+                                       seasonal_curve_function, complete_fit_and_plot,
+                                       check_fitting_quality_and_print_metrics,
                                        print_error_distribution_and_return_stats, )
 
 # Load the dataset
@@ -109,6 +110,9 @@ plt.xlabel('Error')
 plt.ylabel('Frequency')
 plt.show()
 
+serialized_function = dill.dumps(fitted_function_)
+deserialized_function = dill.loads(serialized_function)
+
 # Define the range for probability calculation
 x_lower_limit, x_upper_limit = 0, 10
 y_lower_bound = 1
@@ -116,7 +120,7 @@ y_lower_bound = 1
 # Generate x values
 x_values = np.linspace(x_lower_limit, x_upper_limit, 1000)
 # Calculate the trend values
-trend_values = fitted_function_(x_values)
+trend_values = deserialized_function(x_values)
 # Calculate the maximum and minimum trend values
 max_trend_value = np.max(trend_values)
 min_trend_value = np.min(trend_values)
@@ -124,7 +128,7 @@ min_trend_value = np.min(trend_values)
 y_lower_limit = min_trend_value - 4 * e_std
 y_upper_limit = max_trend_value + 4 * e_std
 # Generate the surface function using the trend and standard deviation
-surface = generate_surface_function(e_std, fitted_function_)
+surface = generate_surface_function(e_std, deserialized_function)
 # Calculate the probability of y being out of bounds
 prob = calculate_probability(x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit, surface, y_lower_bound)
 

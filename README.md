@@ -489,7 +489,7 @@ Il Server Principale facilita l'accesso diretto ai frame elaborati archiviati in
 
 ---
 
-### **Conclusioni e Sviluppi Futuri:**
+### **Aspetti da migliorare:**
 
 Il sistema di monitoraggio delle telecamere presenta alcune aree che potrebbero essere ulteriormente ottimizzate per migliorare le prestazioni e l'esperienza utente. In
 particolare:

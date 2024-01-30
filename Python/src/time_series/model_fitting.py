@@ -118,6 +118,9 @@ def polynomial_fit_and_plot(x, y, degree=3):
     lr_2.fit(x_poly, y)
     coefficients = lr_2.coef_[0]
     print("Polynomial coefficients :", coefficients)
+    if degree < 3:
+        coefficients = np.concatenate((coefficients, np.zeros(3 - degree)))
+
     return coefficients
 
 

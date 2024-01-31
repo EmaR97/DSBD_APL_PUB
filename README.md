@@ -1,50 +1,63 @@
 # **Sistema di Monitoraggio delle Telecamere Distribuite**
 
-### **Indice**
+## **Indice**
 
 1. [Introduzione](#introduzione)
-2. [Controllore di Base della Telecamera](#controllore-di-base-della-telecamera)
-    - 2.1 [Caratteristiche Principali](#caratteristiche-principali)
-    - 2.2 [Potenzialità per Sviluppi Futuri](#potenzialità-per-sviluppi-futuri)
-3. [Server di Elaborazione](#server-di-elaborazione)
-    - 3.1 [Responsabilità Chiave](#responsabilità-chiave)
-    - 3.2 [Deployment Dinamico dei Server](#deployment-dinamico-dei-server)
-4. [Server di Autenticazione](#server-di-autenticazione)
-    - 4.1 [Caratteristiche Principali](#caratteristiche-principali-1)
-    - 4.2 [Misure di Sicurezza](#misure-di-sicurezza)
-    - 4.3 [Integrazione con Altri Componenti](#integrazione-con-altri-componenti)
-5. [Server Principale](#server-principale)
-    * 5.1 [Responsabilità Chiave](#responsabilità-chiave-1)
-    * 5.2 [Miglioramento dell'Esperienza Utente ed Efficienza del Sistema](#miglioramento-dellesperienza-utente-ed-efficienza-del-sistema)
-6. [Server dei Comandi](#server-dei-comandi)
-    - 6.1 [Responsabilità Chiave](#responsabilità-chiave-1)
-    - 6.2 [Miglioramento della Affidabilità per le Telecamere Remote](#miglioramento-della-affidabilità-per-le-telecamere-remote)
-    - 6.3 [Scalabilità e Flessibilità](#scalabilità-e-flessibilità)
-7. [Servizio di Sottoscrizione alle Notifiche](#servizio-di-sottoscrizione-alle-notifiche)
-    - 7.1 [Funzionalità Chiave](#funzionalità-chiave)
-    - 7.2 [Miglioramento del Controllo e della Personalizzazione Utente](#miglioramento-del-controllo-e-della-personalizzazione-utente)
-8. [Servizio di Notifiche](#servizio-di-notifiche)
-    - 8.1 [Funzionalità Chiave](#funzionalità-chiave-1)
-9. [Sla Manager](#sla-manager)
-    - 9.1 [Funzionalità Chiave](#funzionalità-chiave-2)
-10. [Schemi di Interazione]()
-11. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
-12. [Load Balancing e Routing in Docker e K8s](#load-balancing-e-routing-in-docker-e-k8s)
-13. [Url pre-firmati per scaricare da Minio](#url-pre-firmati-per-scaricare-da-minio)
-14. [Aspetti da migliorare:](#aspetti-da-migliorare)
-15. [Istruzioni per Build e Deploy](build%20&%20deploy.md)
+2. [Schema di Componenti e Comunicazione](#schema-di-componenti-e-comunicazione)
+3. [Componenti Implementate](#componenti-implementate)
+    1. [Controllore di Base della Telecamera](#controllore-di-base-della-telecamera)
+        - [Funzionalità Chiave](#funzionalità-chiave)
+        - [Potenzialità per Sviluppi Futuri](#potenzialità-per-sviluppi-futuri)
+    2. [Server di Elaborazione](#server-di-elaborazione)
+        - [Funzionalità Chiave](#funzionalità-chiave-1)
+        - [Deployment Dinamico dei Server](#deployment-dinamico-dei-server)
+    3. [Server di Autenticazione](#server-di-autenticazione)
+        - [Funzionalità Chiave](#funzionalità-chiave-2)
+        - [Misure di Sicurezza](#misure-di-sicurezza)
+        - [Integrazione con Altri Componenti](#integrazione-con-altri-componenti)
+        - [Api implementate](#api-implementate)
+    4. [Server Principale](#server-principale)
+        * [Funzionalità Chiave](#funzionalità-chiave-3)
 
-### **Introduzione:**
+        - [Api implementate](#api-implementate-1)
 
-Il Sistema di Monitoraggio delle Telecamere Distribuite rappresenta una soluzione per soddisfare le crescenti esigenze di sorveglianza e rilevamento degli eventi in contesti distribuiti. Fondato su una serie di componenti come Kafka, MongoDB e Kubernetes, questo sistema si distingue per la sua capacità di catturare, elaborare e notificare eventi in tempo reale, mantenendo un'elevata scalabilità, efficienza e sicurezza.
+        * [Miglioramento dell'Esperienza Utente ed Efficienza del Sistema](#miglioramento-dellesperienza-utente-ed-efficienza-del-sistema)
+    5. [Server dei Comandi](#server-dei-comandi)
+        - [Funzionalità Chiave](#funzionalità-chiave-4)
+        - [Api implementate](#api-implementate-2)
+        - [Miglioramento della Affidabilità per le Telecamere Remote](#miglioramento-della-affidabilità-per-le-telecamere-remote)
+        - [Scalabilità e Flessibilità](#scalabilità-e-flessibilità)
+    6. [Servizio di Sottoscrizione alle Notifiche](#servizio-di-sottoscrizione-alle-notifiche)
+        - [Funzionalità Chiave](#funzionalità-chiave-5)
+        - [Miglioramento del Controllo e della Personalizzazione Utente](#miglioramento-del-controllo-e-della-personalizzazione-utente)
+    7. [Servizio di Notifiche](#servizio-di-notifiche)
+        - [Funzionalità Chiave](#funzionalità-chiave-6)
+    8. [Sla Manager](#sla-manager)
+        - [Funzionalità Chiave](#funzionalità-chiave-7)
+        - [Api implementate](#api-implementate-3)
+4. [Schemi di Interazione](#schemi-di-interazione)
+    1. [Elaborazione immagini](#1-elaborazione-immagini)
+    2. [Accesso alle immagini da parte dell'utente](#2-accesso-alle-immagini-da-parte-dellutente)
+    3. [Modifica sottoscrizione alle notifiche](#3-modifica-sottoscrizione-alle-notifiche)
+    4. [Invio comando alla telecamera](#4-invio-comando-alla-telecamera)
+5. [Altre scelte implementative](#altre-scelte-implementative)
+    1. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
+    2. [Load Balancing e Routing in Docker e K8s](#load-balancing-e-routing-in-docker-e-k8s)
+    3. [Url pre-firmati per scaricare da Minio](#url-pre-firmati-per-scaricare-da-minio)
+6. [Aspetti da migliorare](#aspetti-da-migliorare)
+7. [Istruzioni per Build e Deploy](build%20&%20deploy.md)
 
-Al centro di questo ecosistema si trovano le telecamere dislocate in diverse posizioni, responsabili della cattura dei frame che vengono successivamente inviati ai server di elaborazione attraverso il sistema di messaggistica Kafka. Questi server, utilizzando algoritmi di riconoscimento dei pedoni, elaborano i frame e li archiviano in MinIO, creando così un repository centralizzato per le immagini gestite. Il Server Principale, a sua volta, gestisce le informazioni e i frame delle telecamere, mentre il Server di Autenticazione garantisce un accesso sicuro agli utenti e alle loro telecamere associate.
+## **Introduzione:**
+
+Il Sistema di Monitoraggio delle Telecamere Distribuite rappresenta una soluzione per soddisfare le crescenti esigenze di sorveglianza e rilevamento degli eventi in contesti distribuiti. Fondato su una serie di componenti come Kafka, MongoDB e Kubernetes, questo sistema si distingue per la sua capacità di catturare, elaborare e notificare eventi in tempo reale, mantenendo scalabilità, efficienza e sicurezza.
+
+Al centro di questo ecosistema si trovano le telecamere dislocate in diverse posizioni, responsabili della cattura dei frame che vengono successivamente inviati ai servers di elaborazione attraverso il sistema di messaggistica Kafka. Questi server, utilizzando algoritmi di riconoscimento dei pedoni, elaborano i frame e li archiviano in MinIO, creando così un repository centralizzato per le immagini gestite. Il Server Principale, a sua volta, gestisce le informazioni e i frame delle telecamere, mentre il Server di Autenticazione garantisce un accesso sicuro agli utenti e alle loro telecamere associate, validando le richieste API al sistema.
 
 Attraverso l'implementazione di un bot Telegram, il servizio di notifica consente agli utenti di interagire direttamente con il sistema tramite la piattaforma Telegram. Gli utenti possono gestire le proprie preferenze di notifica, decidendo quali eventi desiderano monitorare e quali tipologie di avvisi desiderano ricevere, tramite telegram stesso.
 
-L'utilizzo GRPC, formato Proto e API-Gateway consente una comunicazione sicura e strutturata tra i vari componenti del sistema. Inoltre, l'architettura del sistema enfatizza la coerenza dei dati attraverso una gestione escusiva dei dati specifici ai vari servizi e l'accesso sicuro tramite API-Gateway, fornendo agli utenti un accesso diretto ai frame elaborati tramite URL pre-firmati.
+L'utilizzo GRPC, formato Proto e API-Gateway consente una comunicazione sicura e strutturata tra i vari componenti del sistema. Inoltre, l'architettura del sistema enfatizza la coerenza dei dati attraverso una gestione esclusiva dei dati specifici ai vari servizi e l'accesso sicuro tramite API-Gateway, fornendo agli utenti un accesso diretto ai frame elaborati tramite URL pre-firmati.
 
-Guardando al futuro, il sistema potrebbe beneficiare di ulteriori ottimizzazioni per migliorare la reattività in tempo reale, implementando meccanismi per il scaling dinamico e perfezionando l'interfaccia utente per offrire un'esperienza più ricca e fluida agli utenti. Inoltre, esplorare opportunità di integrazione con sistemi esterni potrebbe potenziare ulteriormente le capacità di riconoscimento e l'intelligenza complessiva del sistema, rendendolo ancora più versatile e adattabile alle esigenze emergenti nel campo della sorveglianza e del rilevamento degli eventi.
+Guardando al futuro, il sistema potrebbe beneficiare di ulteriori ottimizzazioni per migliorare la reattività in tempo reale, implementando meccanismi per il scaling dinamico e perfezionando l'interfaccia utente per offrire un'esperienza più ricca e fluida agli utenti.
 
 ### Schema di Componenti e Comunicazione
 
@@ -53,13 +66,15 @@ Guardando al futuro, il sistema potrebbe beneficiare di ulteriori ottimizzazioni
 
 ---
 
-### **Controllore di Base della Telecamera:**
+## Componenti Implementate
+
+### Controllore di Base della Telecamera:
 
 **[Src](CPP/src/cam_controller.cpp)**
 
 Il Controllore di Base della Telecamera si occupa di rappresentare e implementare le funzionalità di base fornite dalla telecamera nel sistema e supporta eventuali estensioni per funzionalità avanzate, grazie alla sua struttura modulare.
 
-#### *Caratteristiche Principali:*
+#### *Funzionalità Chiave:*
 
 1. **Distribuzione di Frame tramite Kafka:**
 
@@ -94,7 +109,7 @@ un formato standardizzato. -->
 
 I server di elaborazione si concentrano sull'applicazione efficace dell'algoritmo di riconoscimento dei pedoni e sulla gestione successiva delle immagini elaborate.
 
-#### *Responsabilità Chiave:*
+#### *Funzionalità Chiave:*
 
 1. **Elaborazione Parallelizzata:**
 
@@ -135,7 +150,7 @@ parallelizzata, l'ottimizzazione delle risorse mediante metriche di Prometheus e
 
 Il Server di Autenticazione fornisce un meccanismo di accesso sicuro e controllato per gli utenti e le loro telecamere associate, alle funzionalità offerte dal sistema.
 
-#### *Caratteristiche Principali:*
+#### *Funzionalità Chiave:*
 
 1. **Integrazione con MongoDB per la Gestione delle Credenziali Utente:**
 
@@ -197,7 +212,7 @@ monitoraggio delle telecamere distribuite. -->
 Il Server Principale supervisiona
 la gestione delle telecamere, le registrazioni degli utenti e l'archiviazione di frame e informazioni pertinenti.
 
-#### *Responsabilità Chiave:*
+#### *Funzionalità Chiave:*
 
 1. **Gestione e Registrazione delle Telecamere:**
 
@@ -277,7 +292,7 @@ delle telecamere. -->
 
 Il Server dei Comandi consente agli utenti di inviare comandi tramite richieste API, i quali vengono trasferiti in modo efficiente alle telecamere specificate, affrontando le sfide delle connessioni remote delle telecamere.
 
-#### *Responsabilità Chiave:*
+#### *Funzionalità Chiave:*
 
 1. **Ricezione delle Richieste API:**
     - Il Server dei Comandi agisce come intermediario tra l'interfaccia utente e le telecamere nel sistema, accogliendo le richieste API dagli utenti.
@@ -454,25 +469,27 @@ Le funzionalità di modellamento e stima della probabilità di superamento del v
 
 ---
 
-### **Schemi di Interazione:**
+## **Schemi di Interazione:**
 
-#### 1. Elaborazione immagini
+### 1. Elaborazione immagini
 
 ![Full image Elaboration.png](Miscellaneous/ComunicationScheme%20/Full%20image%20Elaboration.png)
 
-#### 2. Accesso alle immagini da parte dell'utente
+### 2. Accesso alle immagini da parte dell'utente
 
 ![User image access.png](Miscellaneous/ComunicationScheme%20/User%20image%20access.png)
 
-#### 3. Modifica sottoscrizione alle notifiche
+### 3. Modifica sottoscrizione alle notifiche
 
 ![Nofification_sub_update.png](Miscellaneous/ComunicationScheme%20/Nofification_sub_update.png)
 
-#### 4. Invio comando alla telecamera
+### 4. Invio comando alla telecamera
 
 ![Send_command_to_camera.png](Miscellaneous/ComunicationScheme%20/Send_command_to_camera.png)
 
 ---
+
+## Altre scelte implementative
 
 ### **Archiviazione Coerente dei Dati con MongoDB:**
 
@@ -499,32 +516,32 @@ Il Server Principale facilita l'accesso diretto ai frame elaborati archiviati in
 
 ---
 
-### **Aspetti da migliorare:**
+## **Aspetti da migliorare:**
 
 Il sistema di monitoraggio delle telecamere presenta alcune aree che potrebbero essere ulteriormente ottimizzate per migliorare le prestazioni e l'esperienza utente. In
 particolare:
 
-#### **Reattività in Tempo Reale:**
+### **Reattività in Tempo Reale:**
 
 - Nonostante l'efficienza complessiva del sistema, potrebbero essere esplorate ulteriori ottimizzazioni per migliorare
   la reattività in tempo reale, specialmente in scenari con carichi di lavoro variabili.
 
-#### **Scaling Dinamico:**
+### **Scaling Dinamico:**
 
 - Il sistema potrebbe beneficiare di meccanismi per il scaling dinamico, regolando automaticamente il
   numero di server di elaborazione in base a metriche in tempo reale per garantire un utilizzo ottimale delle risorse.
 
-#### **Miglioramenti dell'Interfaccia Utente:**
+### **Miglioramenti dell'Interfaccia Utente:**
 
 - L'interfaccia utente, specialmente nei bot Telegram, potrebbe essere perfezionata per offrire più funzionalità e una
   maggiore fluidità nell'esperienza utente, integrando contenuti multimediali o comandi aggiuntivi per l'interazione con le telecamere.
 
-#### **Integrazione con Sistemi Esterni:**
+### **Integrazione con Sistemi Esterni:**
 
 - Esplorare possibilità di integrazione del sistema con servizi esterni o framework di intelligenza artificiale potrebbe
   potenziare ulteriormente le capacità di riconoscimento dei pedoni e l'intelligenza complessiva del sistema.
 
-#### **Retry e Circuit Breaker:**
+### **Retry e Circuit Breaker:**
 
 - L'introduzione di un sistema di retry e circuit breaker potrebbe migliorare l'efficacia della comunicazione tra i vari servizi del sistema. Implementare queste tecniche consentirebbe di gestire in modo robusto e nel caso migliore mascherare, eventuali fallimenti temporanei o problemi di comunicazione, garantendo una maggiore resilienza e affidabilità complessiva del sistema.
 

@@ -500,7 +500,6 @@ Per mantenere la coerenza dei dati, ogni categoria di dati è accessibile attrav
 minimizzando il rischio di inconsistenze dei dati e garantendo interazioni ben definite con tipi di dati
 specifici.
 
----
 
 ### **Load Balancing e Routing in Docker e K8s:**
 
@@ -508,7 +507,6 @@ Nel nostro ambiente Docker e Kubernetes (K8s), il load balancing e il routing so
 
 In futuro, potremmo considerare l'implementazione di funzionalità più avanzate utilizzando i Gateway API in Kubernetes (K8s). Questa tecnologia offre una maggiore personalizzazione e una gamma più ampia di funzionalità rispetto ai gateway tradizionali come Nginx. In particolare, consente la gestione non solo della comunicazione tramite HTTP, ma anche di protocolli come gRPC e TCP.
 
----
 
 ### **Url pre-firmati per scaricare da Minio:**
 

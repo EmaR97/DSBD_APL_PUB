@@ -18,9 +18,7 @@
         - [Api implementate](#api-implementate)
     4. [Server Principale](#server-principale)
         * [Funzionalità Chiave](#funzionalità-chiave-3)
-
-        - [Api implementate](#api-implementate-1)
-
+        * [Api implementate](#api-implementate-1)
         * [Miglioramento dell'Esperienza Utente ed Efficienza del Sistema](#miglioramento-dellesperienza-utente-ed-efficienza-del-sistema)
     5. [Server dei Comandi](#server-dei-comandi)
         - [Funzionalità Chiave](#funzionalità-chiave-4)
@@ -44,6 +42,8 @@
     1. [Archiviazione Coerente dei Dati con MongoDB](#archiviazione-coerente-dei-dati-con-mongodb)
     2. [Load Balancing e Routing in Docker e K8s](#load-balancing-e-routing-in-docker-e-k8s)
     3. [Url pre-firmati per scaricare da Minio](#url-pre-firmati-per-scaricare-da-minio)
+    4. [Implementazione del Load Balancing con Kafka](#implementazione-del-load-balancing-con-kafka)
+    5. [Modellazione del Sistema e Predizione dell'Errore](#modellazione-del-sistema-e-predizione-dellerrore)
 6. [Aspetti da migliorare](#aspetti-da-migliorare)
 7. [Istruzioni per Build e Deploy](build%20&%20deploy.md)
 
@@ -500,17 +500,35 @@ Per mantenere la coerenza dei dati, ogni categoria di dati è accessibile attrav
 minimizzando il rischio di inconsistenze dei dati e garantendo interazioni ben definite con tipi di dati
 specifici.
 
-
 ### **Load Balancing e Routing in Docker e K8s:**
 
 Nel nostro ambiente Docker e Kubernetes (K8s), il load balancing e il routing sono gestiti attraverso l'utilizzo di Nginx o Ingress. Questa configurazione consente un accesso strutturato tramite API alle funzionalità del sistema, semplificando notevolmente l'implementazione del load balancing e del routing. Ciò assicura una distribuzione uniforme del traffico e un re-indirizzamento efficiente delle richieste.
 
 In futuro, potremmo considerare l'implementazione di funzionalità più avanzate utilizzando i Gateway API in Kubernetes (K8s). Questa tecnologia offre una maggiore personalizzazione e una gamma più ampia di funzionalità rispetto ai gateway tradizionali come Nginx. In particolare, consente la gestione non solo della comunicazione tramite HTTP, ma anche di protocolli come gRPC e TCP.
 
-
 ### **Url pre-firmati per scaricare da Minio:**
 
 Il Server Principale facilita l'accesso diretto ai frame elaborati archiviati in MinIO generando URL pre-firmati. Questo approccio minimizza la presenza di intermediari non necessari, ottimizzando la velocità e fornendo agli utenti un accesso efficiente ai dati archiviati. In questo modo, viene garantito un accesso diretto, ma controllato, al sistema di archiviazione di Minio.
+
+### **Implementazione del Load Balancing con Kafka:**
+
+Kafka facilita la distribuzione dei frame provenienti dalle telecamere tra i Processing-Server, consentendo un notevole aumento del throughput complessivo del sistema. I Processing-Server sono registrati al topic "frame_data", nel quale le telecamere pubblicano i frame da elaborare. Tutti i Processing-Server condividono lo stesso consumer_group, garantendo così una distribuzione equa delle partizioni tra i membri e un'efficiente gestione del carico di lavoro.
+
+Una volta completata l'elaborazione, i risultati vengono pubblicati sul topic "frame_info" e ricevuti dal Main-Server, che agisce come consumer di questo topic per ulteriori elaborazioni.
+
+Questo approccio consente una distribuzione iniziale del lavoro e successivamente raccoglie i risultati in un unico punto, ottimizzando il flusso di lavoro complessivo del sistema.
+
+### **Modellazione del Sistema e Predizione dell'Errore**
+
+Il sistema è dotato di un sistema semplice per modellizzare le serie temporali delle metriche raccolte. Inizialmente, i dati vengono soggetti a un processo di smoothening per ridurre il rumore, dopodiché i risultati ottenuti vengono decomposti in due componenti principali: l'andamento generale e la periodicità.
+
+Queste due componenti vengono utilizzate per addestrare due modelli distinti: uno polinomiale per catturare l'andamento generale e uno sinusoidale per modellare la periodicità dei dati. Successivamente, i risultati dei due modelli vengono aggregati per ottenere un modello complessivo del sistema.
+
+Per valutare l'accuratezza del modello complessivo, viene confrontato con i dati iniziali al fine di calcolarne l'errore. Questo errore viene quindi modellizzato attraverso una distribuzione gaussiana per comprendere la sua distribuzione e caratteristiche.
+
+Il modello completo e il relativo errore vengono quindi utilizzati per stimare la probabilità che una determinata metrica superi una soglia predefinita in un intervallo di tempo successivo alle misurazioni effettuate. Questo processo fornisce una stima della probabilità di superamento della soglia, basata sull'analisi delle serie temporali e sulla comprensione dell'errore associato al modello.
+
+Si prevede che in futuro un approccio simile potrebbe essere perfezionato mediante l'adozione di modelli più avanzati ed efficienti, forse basati sull'intelligenza artificiale, e tramite un'ulteriore pre-elaborazione dei dati, migliorando così l'efficacia del fitting e ottenendo risultati ancora più affidabili.
 
 ---
 

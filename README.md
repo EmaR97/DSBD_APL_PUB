@@ -464,6 +464,14 @@ Le funzionalità di modellamento e stima della probabilità di superamento del v
 
 ![User image access.png](Miscellaneous/ComunicationScheme%20/User%20image%20access.png)
 
+#### 3. Modifica sottoscrizione alle notifiche
+
+![Nofification_sub_update.png](Miscellaneous/ComunicationScheme%20/Nofification_sub_update.png)
+
+#### 4. Invio comando alla telecamera
+
+![Send_command_to_camera.png](Miscellaneous/ComunicationScheme%20/Send_command_to_camera.png)
+
 ---
 
 ### **Archiviazione Coerente dei Dati con MongoDB:**

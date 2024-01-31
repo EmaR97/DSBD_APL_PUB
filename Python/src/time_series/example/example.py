@@ -1,3 +1,5 @@
+import warnings
+
 import dill
 import numpy as np
 import pandas as pd
@@ -14,6 +16,8 @@ from time_series.model_fitting import (apply_hp_filter_with_optimal_lambda, seas
                                        check_fitting_quality_and_print_metrics,
                                        print_error_distribution_and_return_stats, )
 
+# Suppress all DeprecationWarnings
+warnings.filterwarnings("ignore")
 # Load the dataset
 df = pd.read_csv('data.csv')
 x_lower_limit, x_upper_limit = 547140, 549000
@@ -114,12 +118,11 @@ deserialized_function = dill.loads(serialized_function)
 
 # Generate x values
 x_values = np.linspace(x_lower_limit, x_upper_limit, 1000, dtype=int)
-print(x_values)
 # Calculate the trend values
 trend_values = deserialized_function(x_values)
-print(trend_values)
-print(x_lower_limit, "mean:", deserialized_function(np.linspace(x_lower_limit, x_upper_limit, 2)))
-print("mean:", deserialized_function(x_upper_limit))
+print("x_lower_limit:", x_lower_limit, "deserialized_function(np.linspace(x_lower_limit, x_upper_limit, 2)):",
+      deserialized_function(np.linspace(x_lower_limit, x_upper_limit, 2)), "deserialized_function(x_upper_limit):",
+      deserialized_function(x_upper_limit))
 # Calculate the maximum and minimum trend values
 max_trend_value = np.max(trend_values)
 min_trend_value = np.min(trend_values)
@@ -129,10 +132,10 @@ y_upper_limit = max_trend_value + 4 * e_std
 print("y_lower_limit:", y_lower_limit, "y_upper_limit:", y_upper_limit)
 # Generate the surface function using the trend and standard deviation
 surface = generate_surface_function(e_std, deserialized_function)
-print("mean:", deserialized_function(x_lower_limit), "prob:",
-      surface(deserialized_function(x_lower_limit), x_lower_limit))
-print("mean:", deserialized_function(x_upper_limit), "prob:",
-      surface(deserialized_function(x_upper_limit), x_upper_limit))
+print("z:", surface(deserialized_function(x_lower_limit), x_lower_limit), "y:", deserialized_function(x_lower_limit),
+      "x:", x_lower_limit, )
+print("z:", surface(deserialized_function(x_upper_limit), x_upper_limit), "y:", deserialized_function(x_upper_limit),
+      "x:", x_upper_limit, )
 # Calculate the probability of y being out of bounds
 prob = calculate_probability(x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit, surface, y_lower_bound)
 

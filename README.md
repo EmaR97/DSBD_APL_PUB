@@ -560,6 +560,3 @@ particolare:
 ### **Retry e Circuit Breaker:**
 
 - L'introduzione di un sistema di retry e circuit breaker potrebbe migliorare l'efficacia della comunicazione tra i vari servizi del sistema. Implementare queste tecniche consentirebbe di gestire in modo robusto e nel caso migliore mascherare, eventuali fallimenti temporanei o problemi di comunicazione, garantendo una maggiore resilienza e affidabilità complessiva del sistema.
-
-
-

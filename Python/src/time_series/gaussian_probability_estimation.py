@@ -16,7 +16,9 @@ def compute_gaussian_surface(x, y, mean, std_):
     Returns:
     - float: Gaussian distribution value.
     """
-    return (1 / (std_ * np.sqrt(2 * np.pi))) * np.exp(-(((y - mean(x)) ** 2) / (2 * (std_ ** 2))))
+    normalization_factor = (1 / (std_ * np.sqrt(2 * np.pi)))
+    normalization_factor = 1
+    return normalization_factor * np.exp(-(((y - mean(x)) ** 2) / (2 * (std_ ** 2))))
 
 
 def generate_surface_function(std_, mean):
@@ -54,13 +56,10 @@ def calculate_probability(x_l, x_u, y_l, y_u, surf, y_l_b):
     - float: Probability.
     """
     # Perform double integration to calculate segment volume and total volume
-    print(surf, x_l, x_u, y_l_b, y_u)
     vol_seg = integrate.dblquad(surf, x_l, x_u, y_l_b, y_u)
-    print(f"Segment volume and error: {vol_seg}")
-
-    print(surf, x_l, x_u, y_l, y_u)
+    print(f"Segment volume and error: {vol_seg} for ", "x_l:", x_l, "x_u:", x_u, "y_l:", y_l_b, "y_u:", y_u)
     vol_tot = integrate.dblquad(surf, x_l, x_u, y_l, y_u)
-    print(f"Total volume and error: {vol_tot}")
+    print(f"Total volume and error: {vol_tot} for ", "x_l:", x_l, "x_u:", x_u, "y_l:", y_l, "y_u:", y_u)
     # Calculate the probability of y > y_lower_bound within the specified x range
     seg_frac = (vol_seg[0] / vol_tot[0]) * 100 if vol_tot[0] != 0 else 0
     res = round(seg_frac, 2)

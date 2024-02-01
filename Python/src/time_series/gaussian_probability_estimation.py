@@ -1,101 +1,69 @@
-# Import necessary libraries
 import numpy as np
-from scipy import integrate
+from scipy.stats import norm
 
 
-def compute_gaussian_surface(x, y, mean, std_):
+def calculate_probability(mean, std_dev, threshold):
     """
-    Evaluate the Gaussian distribution function with given mean and standard deviation.
+    Calculate the probability that a random variable exceeds a given threshold.
 
     Parameters:
-    - x (float): Value of x.
-    - y (float): Value of y.
-    - mean (function): Mean function.
-    - std_ (float): Standard deviation.
+    - mean: Mean of the random variable.
+    - std_dev: Standard deviation of the random variable.
+    - threshold: Threshold value.
 
     Returns:
-    - float: Gaussian distribution value.
+    - The probability that the random variable is greater than the threshold, in percentage.
     """
-    normalization_factor = (1 / (std_ * np.sqrt(2 * np.pi)))
-    normalization_factor = 1
-    return normalization_factor * np.exp(-(((y - mean(x)) ** 2) / (2 * (std_ ** 2))))
+    # Calculate the z-score
+    z_score = (threshold - mean) / std_dev
+    # Calculate the probability using the complementary cumulative distribution function (CDF)
+    probability = 1 - norm.cdf(z_score)
+    # Convert the probability to a percentage and round it
+    return probability * 100
 
 
-def generate_surface_function(std_, mean):
+def evaluate_points(function, lower_bound, upper_bound, num_points=100):
     """
-    Generate a surface function using the Gaussian distribution.
+    Generate the mean values within the specified range using the given function and number of points.
 
     Parameters:
-    - std_ (float): Standard deviation.
-    - mean (function): Mean function.
+    - function: The function to evaluate.
+    - lower_bound: Lower bound of the range.
+    - upper_bound: Upper bound of the range.
+    - num_points: Number of points to generate within the range.
 
     Returns:
-    - function: Surface function.
+    - mean_values: List of mean values evaluated from the function.
+    - base_values: List of base values (independent variable) within the range.
     """
-
-    # Define a surface function using the Gaussian distribution
-    def surface_(y, x):
-        return compute_gaussian_surface(x, y, mean=mean, std_=std_)
-
-    return surface_
+    base_values = np.linspace(lower_bound, upper_bound, num_points)
+    return [function(x) for x in base_values], base_values
 
 
-def calculate_probability(x_l, x_u, y_l, y_u, surf, y_l_b):
+def calculate_mean_probability(function, std_dev, lower_bound, upper_bound, threshold, num_points=100):
     """
-    Calculate the probability of y > y_lower_bound within the specified x range.
+    Calculate the mean probability that a function of a random variable exceeds a threshold within a given range.
 
     Parameters:
-    - x_l (float): Lower limit of x range.
-    - x_u (float): Upper limit of x range.
-    - y_l (float): Lower limit of y range.
-    - y_u (float): Upper limit of y range.
-    - surf (function): Surface function.
-    - y_l_b (float): Lower bound of y.
+    - function: The function representing the relationship between the random variable and another variable.
+    - std_dev: Standard deviation of the random variable.
+    - lower_bound: Lower bound of the range for the independent variable.
+    - upper_bound: Upper bound of the range for the independent variable.
+    - threshold: Threshold value.
+    - num_points: Number of points used for approximation within the range.
 
     Returns:
-    - float: Probability.
+    - mean_probability: The mean probability that the function of the random variable exceeds the threshold within
+    the given range.
+    - probabilities: List of probabilities corresponding to each mean value within the range.
+    - mean_values: List of mean values within the range [lower_bound, upper_bound].
+    - base_values: List of base values (independent variable) within the range.
     """
-    # Perform double integration to calculate segment volume and total volume
-    vol_seg = integrate.dblquad(surf, x_l, x_u, y_l_b, y_u)
-    print(f"Segment volume and error: {vol_seg} for ", "x_l:", x_l, "x_u:", x_u, "y_l:", y_l_b, "y_u:", y_u)
-    vol_tot = integrate.dblquad(surf, x_l, x_u, y_l, y_u)
-    print(f"Total volume and error: {vol_tot} for ", "x_l:", x_l, "x_u:", x_u, "y_l:", y_l, "y_u:", y_u)
-    # Calculate the probability of y > y_lower_bound within the specified x range
-    seg_frac = (vol_seg[0] / vol_tot[0]) * 100 if vol_tot[0] != 0 else 0
-    res = round(seg_frac, 2)
-    print(f"Probability of y>{y_l_b} for {x_l}<x<{x_u} estimated to {res}%")
-    return res
-
-
-def compute_out_of_bounds_probability(deserialized_trend, std, x_lower_limit, x_upper_limit, y_lower_bound):
-    """
-    Compute the probability of y being out of bounds for the specified trend.
-
-    Parameters:
-    - deserialized_trend (function): Deserialized trend function.
-    - std (float): Standard deviation.
-    - x_lower_limit (float): Lower limit of x.
-    - x_upper_limit (float): Upper limit of x.
-    - y_lower_bound (float): Lower bound of y.
-
-    Returns:
-    - float: Probability.
-    - function: Surface function.
-    - float: Lower limit of y.
-    - float: Upper limit of y.
-    """
-    # Generate x values for the trend
-    x_values = np.linspace(x_lower_limit, x_upper_limit, 1000)
-    # Calculate the trend values
-    trend_values = deserialized_trend(x_values)
-    # Calculate the maximum and minimum trend values
-    max_trend_value = np.max(trend_values)
-    min_trend_value = np.min(trend_values)
-    # Set the lower and upper limits of y based on trend values and standard deviation
-    y_lower_limit = min_trend_value - 4 * std
-    y_upper_limit = max_trend_value + 4 * std
-    # Generate the surface function using the trend and standard deviation
-    surface = generate_surface_function(std, deserialized_trend)
-    # Calculate the probability of y being out of bounds
-    prob = calculate_probability(x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit, surface, y_lower_bound)
-    return prob, surface, y_lower_limit, y_upper_limit
+    # Generate the mean values within the range [lower_bound, upper_bound]
+    mean_values, base_values = evaluate_points(function, lower_bound, upper_bound, num_points)
+    # Calculate probabilities for each x in the range [lower_bound, upper_bound]
+    probabilities = [calculate_probability(x, std_dev, threshold) for x in mean_values]
+    # Calculate the mean probability
+    mean_probability = round(sum(probabilities) / len(probabilities), 2)
+    print(f"Mean probability of y > {threshold} given {lower_bound} < x < {upper_bound}: {mean_probability}%")
+    return mean_probability, probabilities, mean_values, base_values

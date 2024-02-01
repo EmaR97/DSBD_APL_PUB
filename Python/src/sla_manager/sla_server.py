@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify, abort
 from mongo.series_model import SeriesModel
 from mongo.sla_document import SLADocument
 from prometheus.query import PrometheusInterface
-from time_series import compute_out_of_bounds_probability
+from time_series import calculate_mean_probability
 from time_series import reevaluate_model
 
 
@@ -188,8 +188,8 @@ def query_probability():
 
     try:
         # Compute the probability of y > y_lower_bound
-        probability, _, _, _ = compute_out_of_bounds_probability(trend_function, error_std, x_lower_limit,
-                                                                 x_upper_limit, y_lower_bound)
+        probability, _, _, _ = calculate_mean_probability(trend_function, error_std, x_lower_limit, x_upper_limit,
+                                                          y_lower_bound, 1000)
         # Log the result
         SlaManger.app.logger.info(
             f"Probability of y > {y_lower_bound} for {x_lower_limit} < x < {x_upper_limit} is {probability}%")

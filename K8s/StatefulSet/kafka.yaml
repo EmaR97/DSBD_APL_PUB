@@ -1,67 +1,65 @@
 # kubectl apply -f K8s/kafka.yaml
 
-apiVersion: apps/v1
-kind: StatefulSet
+apiVersion: apps/v1  # Specifies the Kubernetes API version for the StatefulSet resource.
+kind: StatefulSet     # Defines the type of Kubernetes resource being created.
 metadata:
-  name: kafka
+  name: kafka         # Specifies the name of the StatefulSet.
 spec:
-  serviceName: "kafka"
-  replicas: 1
-  selector:
-    matchLabels:
-      app: kafka
-  template:
+  serviceName: "kafka"  # Specifies the service name associated with the StatefulSet.
+  replicas: 1            # Specifies the desired number of replicas for the StatefulSet.
+  selector:              # Defines how Pods are selected for this StatefulSet.
+    matchLabels:         # Selects Pods with labels that match the following criteria.
+      app: kafka         # Selects Pods with the label 'app' set to 'kafka'.
+  template:              # Defines the Pod template used to create new Pods.
     metadata:
-      labels:
-        app: kafka
+      labels:            # Labels to be applied to the Pods created from this template.
+        app: kafka       # Specifies the label 'app' with value 'kafka' for the Pods.
     spec:
-      enableServiceLinks: false # comando senza il quale non funziona
-      containers:
-        - name: kafka
-          image: quay.io/emar97/kafka_jmx_image
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 9092
-              name: kafka
-            - containerPort: 29092
-              name: kafka-host
-            - containerPort: 5085
-              name: jmx
-          env:
-            - name: KAFKA_BROKER_ID
-              value: "1"
-            - name: KAFKA_ZOOKEEPER_CONNECT
-              value: "zookeeper:2181"
-            - name: KAFKA_ADVERTISED_LISTENERS
-              value: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:30001"
-            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-              value: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
-            - name: KAFKA_INTER_BROKER_LISTENER_NAME
-              value: "PLAINTEXT"
-            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-              value: "1"
-
+      enableServiceLinks: false  # Disables service links for the Pods.
+      containers:                # Specifies the containers within the Pod.
+        - name: kafka            # Name of the container.
+          image: quay.io/emar97/kafka_jmx_image  # Docker image used for the container.
+          imagePullPolicy: Always  # Specifies when to pull the container image.
+          ports:                  # Exposes ports from the container to the Pod.
+            - containerPort: 9092  # Specifies the container port for Kafka.
+              name: kafka         # Name for the Kafka port.
+            - containerPort: 29092 # Specifies the container port for Kafka host.
+              name: kafka-host    # Name for the Kafka host port.
+            - containerPort: 5085  # Specifies the container port for JMX.
+              name: jmx           # Name for the JMX port.
+          env:                    # Specifies environment variables for the container.
+            - name: KAFKA_BROKER_ID  # Specifies the Kafka broker ID.
+              value: "1"             # Value for the Kafka broker ID.
+            - name: KAFKA_ZOOKEEPER_CONNECT  # Specifies Zookeeper connection.
+              value: "zookeeper:2181"        # Value for Zookeeper connection.
+            - name: KAFKA_ADVERTISED_LISTENERS  # Specifies advertised listeners.
+              value: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:30001"  # Value for advertised listeners.
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP  # Specifies listener security protocol map.
+              value: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"  # Value for listener security protocol map.
+            - name: KAFKA_INTER_BROKER_LISTENER_NAME  # Specifies inter-broker listener name.
+              value: "PLAINTEXT"                      # Value for inter-broker listener name.
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR  # Specifies offsets topic replication factor.
+              value: "1"                                    # Value for offsets topic replication factor.
 ---
-apiVersion: v1
-kind: Service
+apiVersion: v1          # Specifies the Kubernetes API version for the Service resource.
+kind: Service            # Defines the type of Kubernetes resource being created.
 metadata:
-  name: kafka
+  name: kafka            # Specifies the name of the Service.
 spec:
-  type: NodePort
+  type: NodePort        # Specifies the type of Service to create.
   selector:
-    app: kafka
-  ports:
-    - name: kafka
-      protocol: TCP
-      port: 9092
-      targetPort: 9092
-    - name: kafka-host
-      protocol: TCP
-      port: 30001 #porta target del pod
-      targetPort: 30001 #porta esposta internamente
-      nodePort: 30001 #porta esposta esternamente
-    - name: jmx
-      protocol: TCP
-      port: 5085
-      targetPort: 5085
-
+    app: kafka          # Selects Pods with the label 'app' set to 'kafka'.
+  ports:                # Specifies the ports that the Service exposes.
+    - name: kafka       # Name for the Kafka port.
+      protocol: TCP     # Specifies the protocol used for the port.
+      port: 9092        # Specifies the port number exposed externally.
+      targetPort: 9092  # Specifies the port to forward traffic to within the Pod.
+    - name: kafka-host  # Name for the Kafka host port.
+      protocol: TCP     # Specifies the protocol used for the port.
+      port: 30001       # Specifies the port number exposed externally.
+      targetPort: 30001 # Specifies the port to forward traffic to within the Pod.
+      nodePort: 30001   # Specifies the port on the nodes where the service is accessible.
+    - name: jmx         # Name for the JMX port.
+      protocol: TCP     # Specifies the protocol used for the port.
+      port: 5085        # Specifies the port number exposed externally.
+      targetPort: 5085  # Specifies the port to forward traffic to within the Pod.

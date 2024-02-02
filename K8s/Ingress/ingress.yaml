@@ -52,7 +52,16 @@ spec:
                 name: prometheus
                 port:
                   number: 9090
+          - pathType: Prefix
+            path: /sla_manager(/|$)(.*)
+            backend:
+              service:
+                name: sla-manager
+                port:
+                  number: 13000
 
-# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-# kubectl apply -f K8s/ingress.yaml
+
 # http://localhost/prometheus/api/v1/query?query=exposer_transferred_bytes_total
+# http://localhost/access/signup
+# http://localhost/access/login
+# http://localhost/api/videofeed

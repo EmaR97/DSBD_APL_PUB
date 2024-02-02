@@ -3,7 +3,7 @@ version: '3.9'
 
 services: #docker compose build
 
-  server_processing: #docker compose up --build server_processing
+  server_processing: #docker compose build server_processing
     deploy:
       mode: replicated
       replicas: 3
@@ -20,7 +20,7 @@ services: #docker compose build
     volumes:
       - ./docker/config/config_ps.json:/usr/src/app/build/config_ps.json:ro
 
-  server_main: #docker compose up --build server_main
+  server_main: #docker compose build server_main
     build:
       context: .
       dockerfile: docker/Dockerfile_GO
@@ -39,7 +39,7 @@ services: #docker compose build
     volumes:
       - ./docker/config/config_main.json:/app/config.json:ro
 
-  server_command: #docker compose up --build server_command
+  server_command: #docker compose build server_command
     build:
       context: .
       dockerfile: docker/Dockerfile_GO
@@ -55,7 +55,7 @@ services: #docker compose build
     volumes:
       - ./docker/config/config_command.json:/app/config.json:ro
 
-  server_auth: #docker compose up --build server_auth
+  server_auth: #docker compose build server_auth
     build:
       context: .
       dockerfile: docker/Dockerfile_GO
@@ -72,7 +72,7 @@ services: #docker compose build
     volumes:
       - ./docker/config/config_auth.json:/app/config.json:ro
 
-  notification_bot: #docker compose up --build notification_bot
+  notification_bot: #docker compose build notification_bot
     build:
       context: .
       dockerfile: docker/Dockerfile_python
@@ -86,7 +86,7 @@ services: #docker compose build
     volumes:
       - ./docker/config/config_notification_bot.json:/app/config.json:ro
 
-  conversation_bot: #docker compose up --build conversation_bot
+  conversation_bot: #docker compose build conversation_bot
     build:
       context: .
       dockerfile: docker/Dockerfile_python
@@ -101,7 +101,7 @@ services: #docker compose build
     volumes:
       - ./docker/config/config_conversation_bot.json:/app/config.json:ro
 
-  sla_manager: #docker compose up --build sla_manager
+  sla_manager: #docker compose build sla_manager
     build:
       context: .
       dockerfile: docker/Dockerfile_python
@@ -151,8 +151,7 @@ services: #docker compose build
       '
 
   # Kafka
-  # docker-compose build kafka
-  kafka: #docker compose up --build kafka
+  kafka: #docker compose build kafka
     build:
       context: .
       dockerfile: docker/Dockerfile_kafka_jmx  # Path to your Dockerfile

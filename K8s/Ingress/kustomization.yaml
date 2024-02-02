@@ -3,6 +3,5 @@ kind: Kustomization
 
 # Resources section lists all the Kubernetes resources to be managed by Kustomize.
 resources:
-  - StatefulSet
-  - Deployment
-  - Ingress
+  - https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+  - ingress.yaml

@@ -71,3 +71,4 @@ def display_probability_surface(base_values, function, std_dev, threshold):
 
     # Show the plot
     plt.show()
+    fig.savefig('images/probability_surface.png')  # Save the image with a name

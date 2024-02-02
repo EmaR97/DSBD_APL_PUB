@@ -3,6 +3,12 @@ kind: Kustomization
 
 # Resources section lists all the Kubernetes resources to be managed by Kustomize.
 resources:
-  - StatefulSet
-  - Deployment
-  - Ingress
+  - zookeeper.yaml
+  - kafka.yaml
+  - minio.yaml
+  - rabbitmq.yaml
+  - mongodb.yaml
+  - prometheus.yaml
+
+
+

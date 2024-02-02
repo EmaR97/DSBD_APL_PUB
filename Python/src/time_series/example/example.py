@@ -28,7 +28,7 @@ def main(data_csv, x_lower_limit, x_upper_limit, y_lower_bound):
                                                                        lambda_range=[1, 10, 50, 100, 200, 500, 0.5])
 
     # Plot the original time series, trend, and cycle components
-    plt.figure(figsize=(10, 12))
+    fig=plt.figure(figsize=(10, 12))
     plt.subplot(3, 1, 1)
     plot_time_series(df['timestamp_sec'], df['value'], label='Original Time Series', title='Original Time Series')
     plt.subplot(3, 1, 2)
@@ -39,12 +39,13 @@ def main(data_csv, x_lower_limit, x_upper_limit, y_lower_bound):
                      linestyle='--', color='green')
     plt.tight_layout()
     plt.show()
+    fig.savefig('images/original_time_series.png')  # Save the image with a name
 
     # Perform seasonal decomposition on the trend component
     result = seasonal_decomposition(time_series=trend, period_range=[10, 20, 50, 100, 200, 500, 1000, 2000])
 
     # Plot the decomposed components
-    plt.figure(figsize=(20, 20))
+    fig=plt.figure(figsize=(20, 20))
     plt.subplot(4, 1, 1)
     plot_time_series(df['timestamp_sec'], trend, label='Base Trend', title='Base Trend', linestyle='--', color='red')
     plt.subplot(4, 1, 2)
@@ -57,6 +58,7 @@ def main(data_csv, x_lower_limit, x_upper_limit, y_lower_bound):
                      color='purple')
     plt.tight_layout()
     plt.show()
+    fig.savefig('images/decomposed_components.png')  # Save the image with a name
 
     # Fit a polynomial curve to the trend component
     df_trend = df.copy()
@@ -65,7 +67,7 @@ def main(data_csv, x_lower_limit, x_upper_limit, y_lower_bound):
     poly_coef_ = polynomial_fit_and_plot(f=polynomial_curve_function, x=df_trend["timestamp_sec"], y=df_trend["value"])
 
     # Plot the polynomial regression
-    plt.figure(figsize=(10, 10))
+    fig=plt.figure(figsize=(10, 10))
     plot_time_series(df_trend["timestamp_sec"], df_trend["value"], title='Base', label='Base', linestyle='-',
                      color='red')
     plot_time_series(df_trend["timestamp_sec"],
@@ -73,40 +75,46 @@ def main(data_csv, x_lower_limit, x_upper_limit, y_lower_bound):
                                                poly_coef_[2], ), title='Polynomial Regression',
                      label='Polynomial Regression', linestyle='--', color='blue')
     plt.show()
+    fig.savefig('images/polynomial_regression.png')  # Save the image with a name
 
     # Fit a seasonal curve to the seasonal component
     period_coef_ = seasonal_curve_fit_and_plot(f=seasonal_curve_function, x=df['timestamp_sec'], y=result.seasonal)
 
-    plt.figure(figsize=(10, 10))
+    fig=plt.figure(figsize=(10, 10))
     plot_time_series(df['timestamp_sec'], result.seasonal, label='Base', title='Base', linestyle='-', color='red')
     plot_time_series(df['timestamp_sec'],
                      seasonal_curve_function(df['timestamp_sec'], period_coef_[0], period_coef_[1], period_coef_[2],
                                              period_coef_[3], ), label='Fitted', title='Curve Fit', linestyle='--',
                      color='blue')
     plt.show()
+    fig.savefig('images/curve_fit.png')  # Save the image with a name
 
     # Complete the fitting process by combining polynomial and seasonal fits
     y_fitted_, fitting_error_, fitted_function_ = complete_fit_and_plot(df["timestamp_sec"], df["value"], poly_coef_,
                                                                         period_coef_)
 
     # Plot the base trend, fitted trend, and fitting error
-    plt.figure(figsize=(10, 10))
+    fig = plt.figure(figsize=(10, 10))
+    fig.add_subplot(211)
     plot_time_series(df["timestamp_sec"], df["value"], title='Base', label='Base', linestyle='-', color='red')
     plot_time_series(df["timestamp_sec"], y_fitted_, title='Fitted', label='Fitted', linestyle='--', color='blue')
+    fig.add_subplot(212)
     plot_time_series(df["timestamp_sec"], fitting_error_, title='Error', label='Error', linestyle='-', color='green')
     plt.show()
+    fig.savefig('images/base_and_fitted_trend.png')  # Save the image with a name
 
     # Check the quality of fitting and print metrics
     check_fitting_quality_and_print_metrics(df["value"], y_fitted_)
     e_mean, e_std = print_error_distribution_and_return_stats(fitting_error_)
 
     # Visualize the distribution of errors
-    plt.figure(figsize=(20, 20))
+    fig=plt.figure(figsize=(20, 20))
     sns.histplot(fitting_error_, bins=30, kde=True, color='green')
     plt.title('Distribution of Errors')
     plt.xlabel('Error')
     plt.ylabel('Frequency')
     plt.show()
+    fig.savefig('images/error_distribution.png')  # Save the image with a name
 
     serialized_function = dill.dumps(fitted_function_)
     deserialized_function = dill.loads(serialized_function)
@@ -119,6 +127,6 @@ def main(data_csv, x_lower_limit, x_upper_limit, y_lower_bound):
 
 
 if __name__ == "__main__":
-    main('data.csv', 1706547140, 1706549000, 2.08e+9)
+    main('data/data.csv', 1706547140, 1706549000, 2.08e+9)
 
-    # main('generated_data.csv',0, 10, 1)
+    # main('generated_data.csv', 0, 10, 1)

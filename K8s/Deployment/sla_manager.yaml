@@ -1,38 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sla-manager
+  name: sla-manager             # Specifies the name of the Deployment
 spec:
-  replicas: 1
+  replicas: 1                   # Sets the desired number of replicas to 1
   selector:
     matchLabels:
-      app: sla-manager
+      app: sla-manager          # Selects Pods with the label 'app' set to 'sla-manager'
   template:
     metadata:
       labels:
-        app: sla-manager
+        app: sla-manager        # Labels the Pods created with 'app: sla-manager'
     spec:
       containers:
         - name: sla-manager
-          image: quay.io/emar97/sla_manager_image
+          image: quay.io/emar97/sla_manager_image  # Specifies the Docker image for sla-manager
           ports:
-            - containerPort: 13000
+            - containerPort: 13000  # Specifies the port the container listens on
           volumeMounts:
             - name: config-volume
               mountPath: /app/config.json
-              subPath: config_sla_manager.json
-              readOnly: true
+              subPath: config_sla_manager.json  # Specifies the subpath within the volume
+              readOnly: true        # Mounts the volume as read-only
       volumes:
         - name: config-volume
           configMap:
-            name: sla-manager-config
+            name: sla-manager-config  # Specifies the ConfigMap to use as volume source
+
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: sla-manager-config
+  name: sla-manager-config       # Specifies the name of the ConfigMap
 data:
-  config_sla_manager.json: |
+  config_sla_manager.json: |     # Data key and value for the ConfigMap
     {
       "mongo": {
         "host": "mongodb",
@@ -43,15 +44,16 @@ data:
       },
       "prometheus": "http://prometheus:9090"
     }
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: sla-manager
+  name: sla-manager             # Specifies the name of the Service
 spec:
   selector:
-    app: sla-manager
+    app: sla-manager           # Selects Pods with the label 'app' set to 'sla-manager'
   ports:
     - protocol: TCP
-      port: 13000
-      targetPort: 13000
+      port: 13000              # Specifies the port exposed by the Service
+      targetPort: 13000        # Specifies the port targeted by the Service

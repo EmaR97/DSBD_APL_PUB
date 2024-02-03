@@ -559,4 +559,11 @@ particolare:
 
 ### **Retry e Circuit Breaker:**
 
-- L'introduzione di un sistema di retry e circuit breaker potrebbe migliorare l'efficacia della comunicazione tra i vari servizi del sistema. Implementare queste tecniche consentirebbe di gestire in modo robusto e nel caso migliore mascherare, eventuali fallimenti temporanei o problemi di comunicazione, garantendo una maggiore resilienza e affidabilità complessiva del sistema.
+- L'introduzione di un sistema di retry e circuit breaker potrebbe migliorare l'efficacia della comunicazione tra i vari servizi del sistema. Implementare queste tecniche consentirebbe di gestire in modo robusto e, nel caso migliore, mascherare eventuali fallimenti temporanei o problemi di comunicazione, garantendo una maggiore resilienza e affidabilità complessiva del sistema.
+
+### **Scalabilità con Kafka Partition e MongoDB Sharding:**
+
+- Sostituire le istanze di comunicazione sincrona all'interno del sistema con comunicazione asincrona tramite Kafka. Questo approccio consente di gestire carichi di lavoro variabili e di replicare le componenti del sistema in modo efficace.
+- Utilizzare lo sharding di MongoDB per distribuire i dati su più nodi, consentendo così di scalare orizzontalmente il database e di gestire volumi di dati elevati. Associare le shard alle singole repliche dei servizi garantisce un accesso esclusivo ai dati e aiuta a mantenere la consistenza del sistema.
+- Utilizzare la stessa chiave per le partizioni di Kafka e le shard di MongoDB per creare una pipeline efficiente che convoglia le richieste ai servizi del sistema che gestiscono i dati correlati. Questo approccio ottimizza il routing delle richieste e migliora le prestazioni complessive del sistema.
+- Distribuire le richieste esterne a tutte le pipeline create, ma gestirle solo dalla pipeline che riconosce di avere accesso alle informazioni richieste. Ciò garantisce un accesso efficiente e sicuro alle informazioni e consente di mantenere un elevato livello di sicurezza e integrità dei dati.

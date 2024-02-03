@@ -170,7 +170,8 @@ def query_probability():
     if not sla:
         return jsonify({"error": f"No SLA Document found with metric name '{metric_name}'"}), 404
 
-    y_lower_bound = sla.range_max
+    y_upper_bound = sla.range_max
+    y_lower_bound = sla.range_min
 
     # Define time boundaries
     current_datetime = datetime.now()
@@ -189,10 +190,12 @@ def query_probability():
     try:
         # Compute the probability of y > y_lower_bound
         probability, _, _, _ = calculate_mean_probability(trend_function, error_std, x_lower_limit, x_upper_limit,
-                                                          y_lower_bound, 1000)
+                                                          threshold_u=y_upper_bound, threshold_l=y_lower_bound,
+                                                          num_points=1000)
         # Log the result
         SlaManger.app.logger.info(
-            f"Probability of y > {y_lower_bound} for {x_lower_limit} < x < {x_upper_limit} is {probability}%")
+            f"Probability of y > {y_upper_bound} or y < {y_lower_bound} given {x_lower_limit} < x < {x_upper_limit}: "
+            f"{probability}%")
 
         # Return the result to the client
         return jsonify({"probability": probability})

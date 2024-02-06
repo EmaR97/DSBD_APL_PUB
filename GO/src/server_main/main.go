@@ -23,10 +23,6 @@ func main() {
 	config := service.LoadConfig()
 	utility.InfoLog().Println("config.Kafka.Brokers: ", config.Kafka.Brokers)
 
-	// Initialize NewKafkaProducer service
-	kafkaProducer := comunication.NewKafkaProducer(config.Kafka.Brokers)
-	defer kafkaProducer.Close()
-
 	// Initialize BrokerManagement service
 	initBrokerManagement(config)
 
@@ -42,15 +38,6 @@ func main() {
 	// Create receivedFrames repository
 	cameraRepository := repository.NewMongoDBRepository[entity.Camera](mongoDBService, config.Database.Name, nil)
 
-	// Create Grpc listener for request
-	subscriptionServiceServer := comunication.NewSubscriptionServiceServer(
-		&repository.CameraRepository{
-			MongoDBRepository: *cameraRepository,
-		},
-	)
-	go subscriptionServiceServer.Start(config.Server.GrpcPort)
-	defer subscriptionServiceServer.Stop()
-
 	// Initialize Minio client
 	minioClient, err := storage.NewMinioClient(
 		config.Minio.Endpoint, config.Minio.Username, config.Minio.Password, config.Minio.BucketName, false,
@@ -59,9 +46,9 @@ func main() {
 		utility.ErrorLog().Fatalf("Failed to initialize Minio client: %v", err)
 	}
 	// Initialize services with dependency injection
-	cameraHandler := handler.CameraHandler{
-		Handler:          *_interface.NewHandler[entity.Camera](cameraRepository),
-		GenerateImageUrl: minioClient.GeneratePresignedURL,
+	cameraHandler := handler.CameraExernalRequestHandler{
+		Handler:           *_interface.NewHandler[entity.Camera](cameraRepository),
+		GenerateImageUrl_: minioClient.GeneratePresignedURL,
 	}
 
 	videoFeedHandler := handler.NewVideoFeedHandler(
@@ -78,15 +65,30 @@ func main() {
 	go cleanupService.Start()
 	defer cleanupService.Stop()
 
-	// Initialize Kafka consumer
-	consumer := comunication.NewKafkaConsumer(config.Kafka.Brokers, config.Kafka.GroupID, config.Kafka.TopicIn)
+	// Initialize NewKafkaProducer service
+	kafkaProducer := comunication.NewKafkaProducer(config.Kafka.Brokers)
+	defer kafkaProducer.Close()
+	sendNotification := func(jsonString string, key string) error {
+		return kafkaProducer.Publish(config.Kafka.TopicOut, jsonString, key)
+	}
+	sendResponse := func(response, topic string) error {
+		return kafkaProducer.Publish(topic, response, "")
+	}
+	generateImageUrl := func(id string, timestamp int64) string {
+		return fmt.Sprintf("http://localhost%s/api/videoFeed/%s?lastseen=%d", config.Server.HttpPort, id, timestamp)
+	}
 	// Create and start FrameInfoStoring service
-	frameInfoStoring := storage.NewFrameHandler(
-		cameraRepository, *consumer, *kafkaProducer, config.Kafka.TopicOut, func(id string, timestamp int64) string {
-			return fmt.Sprintf("http://localhost%s/api/videoFeed/%s?lastseen=%d", config.Server.HttpPort, id, timestamp)
-		},
+	frameInfoStoring := handler.NewFrameHandler(
+		&repository.CameraRepository{MongoDBRepository: *cameraRepository}, sendNotification, generateImageUrl,
+		sendResponse,
 	)
-	go frameInfoStoring.Start()
+	topicCallbacks := map[string]func(string2 string) error{
+		config.Kafka.TopicProcessAndStoreFrame: frameInfoStoring.ProcessAndStoreFrame,
+		config.Kafka.TopicGetCamIds:            frameInfoStoring.GetCamIds,
+	}
+	// Initialize Kafka consumer
+	consumer := comunication.NewKafkaConsumer(config.Kafka.Brokers, config.Kafka.GroupID, topicCallbacks)
+	go consumer.Start()
 
 	// Set up routes
 	setUpRoutes(router, cameraHandler, videoFeedHandler, config.Server.TemplateDir)
@@ -94,7 +96,7 @@ func main() {
 	// Run the server
 	utility.RunServer(router, config)
 	// To close in the right order
-	frameInfoStoring.Stop()
+	consumer.Stop()
 	consumer.Close()
 
 }
@@ -131,8 +133,8 @@ func setupRouter(config service.Config) *gin.Engine {
 }
 
 func setUpRoutes(
-	router *gin.Engine, receivedFramesHandler handler.CameraHandler, videoHandler *handler.VideoFeedHandler,
-	templateDir string,
+	router *gin.Engine, receivedFramesHandler handler.CameraExernalRequestHandler,
+	videoHandler *handler.VideoFeedHandler, templateDir string,
 ) {
 	api := router.Group("/api")
 	{

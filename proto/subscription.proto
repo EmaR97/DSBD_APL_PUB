@@ -3,7 +3,14 @@ syntax = "proto3";
 package message;
 service SubscriptionService_ {rpc GetChatIds (CamIdRequest) returns (ChatIdsResponse);}
 
-message CamIdRequest {string cam_id = 1;}
+message CamIdRequest {
 
-message ChatIdsResponse {repeated int64 chat_ids = 1;}
+  string cam_id = 1;
+  string request_id = 2;
+  string response_topic = 3;
+
+}
+
+message ChatIdsResponse {repeated int64 chat_ids = 1;
+  string request_id = 2;}
 //    cd /home/emanuele/IdeaProjects/DSBD_APL && python -m grpc_tools.protoc -I=./proto  --python_out=./Python/src/message --grpc_python_out=./Python/src/message  subscription.proto

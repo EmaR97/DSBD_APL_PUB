@@ -53,10 +53,11 @@ type MinioConfig struct {
 
 // KafkaConfig holds server-related configuration
 type KafkaConfig struct {
-	Brokers  string `mapstructure:"brokers"`
-	GroupID  string `mapstructure:"groupID"`
-	TopicIn  string `mapstructure:"topic_in"`
-	TopicOut string `mapstructure:"topic_out"`
+	Brokers                   string `mapstructure:"brokers"`
+	GroupID                   string `mapstructure:"groupID"`
+	TopicGetCamIds            string `mapstructure:"topic_in_cam_ids"`
+	TopicProcessAndStoreFrame string `mapstructure:"topic_in_frame_info"`
+	TopicOut                  string `mapstructure:"topic_out"`
 }
 
 // Config struct holds all configuration parameters

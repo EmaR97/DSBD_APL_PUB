@@ -61,7 +61,7 @@ Guardando al futuro, il sistema potrebbe beneficiare di ulteriori ottimizzazioni
 
 ### Schema di Componenti e Comunicazione
 
-![Schema di Comunicazione](Miscellaneous/ComunicationScheme%20/communication_scheme.jpg)
+![Schema di Comunicazione](Miscellaneous/ComunicationScheme%20/communication_scheme.png)
 
 
 ---
@@ -561,9 +561,8 @@ particolare:
 
 - L'introduzione di un sistema di retry e circuit breaker potrebbe migliorare l'efficacia della comunicazione tra i vari servizi del sistema. Implementare queste tecniche consentirebbe di gestire in modo robusto e, nel caso migliore, mascherare eventuali fallimenti temporanei o problemi di comunicazione, garantendo una maggiore resilienza e affidabilità complessiva del sistema.
 
-### **Scalabilità con Kafka Partition e MongoDB Sharding:**
+### **Scalabilità con Partizioni di Kafka e Chiavi Selezionate con Cura:**
 
-- Sostituire le istanze di comunicazione sincrona all'interno del sistema con comunicazione asincrona tramite Kafka. Questo approccio consente di gestire carichi di lavoro variabili e di replicare le componenti del sistema in modo efficace.
-- Utilizzare lo sharding di MongoDB per distribuire i dati su più nodi, consentendo così di scalare orizzontalmente il database e di gestire volumi di dati elevati. Associare le shard alle singole repliche dei servizi garantisce un accesso esclusivo ai dati e aiuta a mantenere la consistenza del sistema.
-- Utilizzare la stessa chiave per le partizioni di Kafka e le shard di MongoDB per creare una pipeline efficiente che convoglia le richieste ai servizi del sistema che gestiscono i dati correlati. Questo approccio ottimizza il routing delle richieste e migliora le prestazioni complessive del sistema.
-- Distribuire le richieste esterne a tutte le pipeline create, ma gestirle solo dalla pipeline che riconosce di avere accesso alle informazioni richieste. Ciò garantisce un accesso efficiente e sicuro alle informazioni e consente di mantenere un elevato livello di sicurezza e integrità dei dati.
+- Sostituire le comunicazioni sincrone interne del sistema con comunicazioni asincrone tramite Kafka. Questo metodo permette di gestire carichi di lavoro variabili e di replicare le componenti del sistema in modo efficiente.
+- Utilizzare in modo oculato le chiavi dei messaggi, basate sui parametri che verranno utilizzati per gli accessi nel database. Questa strategia crea una pipeline efficiente che indirizza le richieste ai servizi del sistema responsabili dei dati correlati, ottimizzando il routing delle richieste e migliorando le prestazioni complessive.
+- Distribuire le richieste esterne a tutte le pipeline create, ma elaborarle solo nella pipeline che riconosce di avere accesso alle informazioni richieste. Ciò assicura un accesso efficiente e sicuro alle informazioni, mantenendo un elevato livello di sicurezza e integrità dei dati.

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"time"
 )
 
@@ -43,4 +44,26 @@ func RunServer(router *gin.Engine, config service.Config) {
 	}
 
 	InfoLog().Println("Server exiting")
+}
+
+func Start(stopChan chan struct{}, wg *sync.WaitGroup, Run func(), stopMessage string) {
+	// Increment the WaitGroup counter to indicate the start of the consume process
+	wg.Add(1)
+	defer wg.Done() // Decrement the WaitGroup counter when the function exits
+	// Infinite loop for continuously handling message
+	for {
+		// Check for a stop signal from the stop channel
+		select {
+		case <-stopChan:
+			InfoLog().Println(stopMessage)
+			return // Exit the function when a stop signal is received
+		default:
+			Run()
+		}
+	}
+}
+func Stop(stopChan chan struct{}, wg *sync.WaitGroup) {
+	// Close the stop channel to signal the termination of the frame storage process
+	close(stopChan)
+	wg.Wait() // Wait for the frame storage process to complete before returning
 }

@@ -1,0 +1,23 @@
+{
+  "kafka": {
+    "bootstrap_servers": "localhost:29092",
+    "topic": "notification",
+    "response_topic": "notification_bot",
+    "request_topic": "user_to_notify",
+    "group_id": "python-consumer-group-0",
+    "auto_offset_reset": "earliest"
+  },
+  "telegram": {
+    "token": "6951268937:AAGMYT5UkbEUo0lg1s1aRUtngB4L50vbnKA"
+  },
+  "grpc": {
+    "get_chat_ids": "localhost:50052"
+  },
+  "mongo": {
+    "host": "localhost",
+    "port": "27017",
+    "dbname": "your_database_name",
+    "username": "username",
+    "password": "example"
+  }
+}

@@ -11,7 +11,7 @@ services: #docker compose build
       context: .
       dockerfile: docker/Dockerfile_server_processing
       target: dev
-    image: quay.io/emar97/server_processing_image
+    image: quay.io/emar97/server_processing_image:V2
     depends_on:
       - kafka
       - minio
@@ -25,7 +25,7 @@ services: #docker compose build
       context: .
       dockerfile: docker/Dockerfile_GO
       target: main_server
-    image: quay.io/emar97/server_main_image
+    image: quay.io/emar97/server_main_image:V2
     depends_on:
       - mongodb
       - kafka
@@ -44,7 +44,7 @@ services: #docker compose build
       context: .
       dockerfile: docker/Dockerfile_GO
       target: command_server
-    image: quay.io/emar97/server_command_image
+    image: quay.io/emar97/server_command_image:V2
     depends_on:
       - server_auth
       - rabbitmq
@@ -60,7 +60,7 @@ services: #docker compose build
       context: .
       dockerfile: docker/Dockerfile_GO
       target: auth_server
-    image: quay.io/emar97/server_auth_image
+    image: quay.io/emar97/server_auth_image:V2
     depends_on:
       - mongodb
     networks:
@@ -77,7 +77,7 @@ services: #docker compose build
       context: .
       dockerfile: docker/Dockerfile_python
       target: notification_bot
-    image: quay.io/emar97/notification_bot_image
+    image: quay.io/emar97/notification_bot_image:V2
     depends_on:
       - kafka
       - conversation_bot
@@ -91,7 +91,7 @@ services: #docker compose build
       context: .
       dockerfile: docker/Dockerfile_python
       target: conversation_bot
-    image: quay.io/emar97/conversation_bot_image
+    image: quay.io/emar97/conversation_bot_image:V2
     depends_on:
       - mongodb
       - server_auth
@@ -106,7 +106,7 @@ services: #docker compose build
       context: .
       dockerfile: docker/Dockerfile_python
       target: sla_manager
-    image: quay.io/emar97/sla_manager_image
+    image: quay.io/emar97/sla_manager_image:V2
     ports:
       - "13000:13000"
     depends_on:

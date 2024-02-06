@@ -14,7 +14,7 @@ type CameraRepository struct {
 	MongoDBRepository[entity.Camera]
 }
 
-// GetAllByUser updates an existing user in MongoDB.
+// GetAllByUser retrieves cameras an existing user in MongoDB.
 func (r *CameraRepository) GetAllByUser(userId string) ([]entity.Camera, error) {
 	var cameras []entity.Camera
 	log.Printf(userId)

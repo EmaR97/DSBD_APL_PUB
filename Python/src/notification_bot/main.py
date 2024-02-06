@@ -1,42 +1,42 @@
-import json
 import logging
-import os
 
-import grpc_
-from kafka_ import NotificationConsumer
+from google.protobuf.json_format import MessageToJson
+
+from kafka_ import MyConsumer, MyProducer
+from message import subscription_pb2
 from notification_bot.messagesender import NotificationSender
+from utility import enable_log_load_conf, connect_to_mongo_db
 
 
 def main():
-    # Load configuration from a JSON file
-    config_path = os.environ.get('CONFIG_PATH', 'config.json')
-    with open(config_path, 'r') as file:
-        config = json.load(file)
+    config = enable_log_load_conf()
+    # Database connection
+    connect_to_mongo_db(dbname_=config["mongo"]["dbname"], host_=config["mongo"]["host"],
+                        port=int(config["mongo"]["port"]), username_=config["mongo"]["username"],
+                        password_=config["mongo"]["password"])
 
-    # Enable logging
-    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG)
-    logging.getLogger("httpx").setLevel(logging.DEBUG)
+    logging.info("Initializing query sender and receiver over Kafka...")
+    request_producer = MyProducer(bootstrap_servers=config['kafka']['bootstrap_servers'])
 
-    logging.info("Loading configuration from 'config.json'...")
-    # Initialize the Telegram notification sender
-    logging.info("Configuring notification sender...")
+    def get_chat_ids_request(cam_id: str, notification_id: str):
+        request = subscription_pb2.CamIdRequest(cam_id=cam_id, request_id=notification_id,
+                                                response_topic=config['kafka']['topic'])
+        request_encoded = MessageToJson(request)
+        request_producer.produce_message(config['kafka']['request_topic'], request_encoded, cam_id)
 
-    def get_chat_ids(chat_id): return grpc_.get_chat_ids(chat_id, config['grpc']['get_chat_ids'])
+    notification_sender = NotificationSender(config['telegram']['token'], get_chat_ids_request)
 
-    notification_sender = NotificationSender(config['telegram']['token'], get_chat_ids)
-    # Initialize the Kafka message processor
-    logging.info("Initializing Kafka message processor...")
-    processor = NotificationConsumer(bootstrap_servers=config['kafka']['bootstrap_servers'],
-                                     group_id=config['kafka']['group_id'],
-                                     auto_offset_reset=config['kafka']['auto_offset_reset'],
-                                     topic=config['kafka']['topic'], message_handler=notification_sender.send_message)
-    # Configure Kafka consumer
-    logging.info("Configuring Kafka consumer...")
-    processor.configure_consumer()
-    # Start listening to Kafka messages in a separate thread
-    logging.info("Start listening to Kafka messages ...")
-    processor.consume_message()
-    logging.info("Terminated")
+    logging.info("Initializing Kafka notification consumer...")
+    notification_consumer = MyConsumer(bootstrap_servers=config['kafka']['bootstrap_servers'],
+                                       topic_handlers={config['kafka']['topic']: notification_sender.handle_msg},
+                                       group_id=config['kafka']['group_id'],
+                                       auto_offset_reset=config['kafka']['auto_offset_reset'])
+    try:
+        logging.info("Start listening for notification on Kafka...")
+        notification_consumer.loop_consume_message()
+    finally:
+        logging.info("Closing connection")
+        notification_consumer.close()
 
 
 if __name__ == '__main__':

@@ -4,15 +4,30 @@ package message;
 option go_package = "src/message";
 
 
-service SubscriptionService {rpc GetCamIds (UserIdRequest) returns (CamIdsResponse);}
+service SubscriptionService {
 
-message UserIdRequest {string user_id = 1;}
+  rpc GetCamIds (UserIdRequest) returns (CamIdsResponse);
 
-message CamIdsResponse {repeated string cam_ids = 1;}
+}
+
+message UserIdRequest {
+
+  string user_id = 1;
+  string request_id = 2;
+  string response_topic = 3;
+
+}
+
+message CamIdsResponse {
+
+  repeated string cam_ids = 1;
+  string request_id = 2;
+
+}
 
 // Command generation using protoc command for go:
 //    sudo apt install -y golang-go
 //    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.27
 //    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
 //    export PATH = $PATH:/home/emanuele/sdk/bin
-//    cd /home/emanuele/IdeaProjects/DSBD_APL && python -m grpc_tools.protoc -I=./proto  --python_out=./NotificationManager/src/message --grpc_python_out=./NotificationManager/src/message --go_out=./CamMonitoring --go-grpc_out=./CamMonitoring cam.proto
+//    cd /home/emanuele/IdeaProjects/DSBD_APL && python -m grpc_tools.protoc -I=./proto  --python_out=./Python/src/message --grpc_python_out=./Python/src/message --go_out=./GO --go-grpc_out=./GO cam.proto

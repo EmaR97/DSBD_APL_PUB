@@ -1,0 +1,12 @@
+{
+
+  "mongo": {
+    "host": "localhost",
+    "port": "27017",
+    "dbname": "your_database_name",
+    "username": "username",
+    "password": "example"
+  },
+
+  "prometheus": "http://127.0.0.1:9090"
+}

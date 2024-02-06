@@ -16,13 +16,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GenerateImageUrl is a function type for generating image URLs.
-type GenerateImageUrl func(string, time.Duration) (string, error)
+// GenerateImageUrl_ is a function type for generating image URLs.
+type GenerateImageUrl_ func(string, time.Duration) (string, error)
 
-// CameraHandler is a handler for camera-related operations.
-type CameraHandler struct {
+// CameraExernalRequestHandler is a handler for camera-related operations.
+type CameraExernalRequestHandler struct {
 	_interface.Handler[entity.Camera]
-	GenerateImageUrl
+	GenerateImageUrl_
 }
 
 func handleError(context *gin.Context, statusCode int, message string, err error) {
@@ -31,7 +31,7 @@ func handleError(context *gin.Context, statusCode int, message string, err error
 }
 
 // Next handles requests for the next camera frame.
-func (h *CameraHandler) Next(context *gin.Context) {
+func (h *CameraExernalRequestHandler) Next(context *gin.Context) {
 	// Parse the lastSeen parameter from the request URL
 	lastSeenIndex, err := strconv.Atoi(context.Param("lastSeen"))
 	if err != nil {
@@ -53,7 +53,7 @@ func (h *CameraHandler) Next(context *gin.Context) {
 	nextFrame, found := receivedFrames.FindSuccessiveElement(int64(lastSeenIndex))
 	if found {
 		// Generate an image URL for the next frame
-		imageUrl, err := h.GenerateImageUrl(fmt.Sprintf("%s/%d.jpg", id, nextFrame), time.Minute*60)
+		imageUrl, err := h.GenerateImageUrl_(fmt.Sprintf("%s/%d.jpg", id, nextFrame), time.Minute*60)
 		if err != nil {
 			handleError(context, http.StatusInternalServerError, "Error sending next frame", err)
 			return
@@ -72,7 +72,7 @@ func (h *CameraHandler) Next(context *gin.Context) {
 }
 
 // Create handles the creation of a new camera.
-func (h *CameraHandler) Create(context *gin.Context) {
+func (h *CameraExernalRequestHandler) Create(context *gin.Context) {
 	// Check if the request method is POST
 	if context.Request.Method != http.MethodPost {
 		handleError(context, http.StatusMethodNotAllowed, "Invalid request method", nil)
@@ -108,7 +108,7 @@ func (h *CameraHandler) Create(context *gin.Context) {
 }
 
 // CameraLogin handles login requests for cameras.
-func (h *CameraHandler) CameraLogin(c *gin.Context) {
+func (h *CameraExernalRequestHandler) CameraLogin(c *gin.Context) {
 	// Retrieve camera ID and password from the request
 	cameraId := c.PostForm("cam_id")
 	password := c.PostForm("password")

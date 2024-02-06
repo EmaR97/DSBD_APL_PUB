@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tcam.proto\x12\x07message\" \n\rUserIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"!\n\x0e\x43\x61mIdsResponse\x12\x0f\n\x07\x63\x61m_ids\x18\x01 \x03(\t2S\n\x13SubscriptionService\x12<\n\tGetCamIds\x12\x16.message.UserIdRequest\x1a\x17.message.CamIdsResponseB\rZ\x0bsrc/messageb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tcam.proto\x12\x07message\"L\n\rUserIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t\x12\x16\n\x0eresponse_topic\x18\x03 \x01(\t\"5\n\x0e\x43\x61mIdsResponse\x12\x0f\n\x07\x63\x61m_ids\x18\x01 \x03(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t2S\n\x13SubscriptionService\x12<\n\tGetCamIds\x12\x16.message.UserIdRequest\x1a\x17.message.CamIdsResponseB\rZ\x0bsrc/messageb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -23,9 +23,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['DESCRIPTOR']._options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z\013src/message'
   _globals['_USERIDREQUEST']._serialized_start=22
-  _globals['_USERIDREQUEST']._serialized_end=54
-  _globals['_CAMIDSRESPONSE']._serialized_start=56
-  _globals['_CAMIDSRESPONSE']._serialized_end=89
-  _globals['_SUBSCRIPTIONSERVICE']._serialized_start=91
-  _globals['_SUBSCRIPTIONSERVICE']._serialized_end=174
+  _globals['_USERIDREQUEST']._serialized_end=98
+  _globals['_CAMIDSRESPONSE']._serialized_start=100
+  _globals['_CAMIDSRESPONSE']._serialized_end=153
+  _globals['_SUBSCRIPTIONSERVICE']._serialized_start=155
+  _globals['_SUBSCRIPTIONSERVICE']._serialized_end=238
 # @@protoc_insertion_point(module_scope)
